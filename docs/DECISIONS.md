@@ -203,3 +203,43 @@ Event planning requires an intuitive, accessible, and responsive user journey th
 - Zero `any` types, zero dead code, and full compliance with strict TypeScript compiler options (`noUncheckedIndexedAccess`).
 - Zero ESLint and jsx-a11y warnings or errors.
 - 121 unit, integration, and axe-core accessibility tests passing with 100% success rate.
+
+---
+
+## ADR 009: Full Security Hardening — Session Auth, IDOR Prevention, Rate Limiting, Prompt Injection Defense, and CI Scanning
+
+- **Date:** 2026-10-25
+- **Status:** Accepted
+
+### Context & Problem Statement
+
+As a GenAI-powered assistant, Utsava must defend against prompt injection, unauthorized cross-tenant data access (IDOR), denial of service through unbounded requests, cross-site request forgery, and secret leakage while avoiding external dependency bloat.
+
+### Decision
+
+1. **Built-in Session Authentication & IDOR Authorization**:
+   - Zero-dependency HMAC-SHA256 signed session cookies via Web Crypto API (`src/services/auth/session.ts`).
+   - Every event in SQLite/Drizzle is bound to an immutable `userId`.
+   - Every read, update, or deletion endpoint authorizes access against `auth.user.id`, returning `403 Forbidden` on unauthorized attempts.
+2. **Comprehensive Zod Validation & Length Capping**:
+   - All route bodies, path params, and query strings are validated with strict Zod schemas (`ChatRequestSchema`, `CreateEventSchema`, `UpdateEventSchema`, `ListEventsQuerySchema`, `ParamSchema`).
+   - Message length is capped at 2,000 characters; cultural context is capped at 500 characters.
+3. **Prompt Injection & Safe Tool Execution**:
+   - Stripping of control sequences, ANSI codes, and zero-width characters (`stripControlSequences`).
+   - Enclosing user inputs in structured envelopes (`[USER_MESSAGE] ... [/USER_MESSAGE]`) with escaped delimiters.
+   - Explicit system prompt instructions to treat user input as raw text data.
+   - Validation of all tool call arguments before execution.
+   - Mandatory server-side cryptographic ID generation (`crypto.randomUUID()`), completely ignoring arbitrary IDs from models.
+4. **Security Headers & CSRF Protection**:
+   - Strict CSP, HSTS, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, and `Permissions-Policy` in `next.config.mjs` and `src/middleware.ts`.
+   - Origin / Referer validation on all mutation requests.
+5. **CI Secret Scan & Vulnerability Gates**:
+   - Automated secret scanning script (`scripts/secret-scan.sh`) in CI pipeline.
+   - Automated dependency audit (`npm audit --omit=dev --audit-level=critical`) in CI.
+   - Threat model and mitigations documented in `docs/SECURITY.md`.
+
+### Consequences
+
+- Zero external auth dependencies added.
+- Dedicated security test suites with 14+ malicious prompt vectors and IDOR tests pass with 100% success rate.
+- Functions strictly under 40 lines across all security and auth modules.

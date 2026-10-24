@@ -8,7 +8,7 @@ import { signSession } from '@/services/auth/session';
 
 describe('AI Endpoints Security, Rate Limiting & Input Capping Suite', () => {
   beforeEach(() => {
-    aiRateLimiter.clear();
+    aiRateLimiter.reset();
   });
 
   it('rejects chat messages exceeding 2000 characters with 400 Bad Request', async () => {
