@@ -15,7 +15,7 @@ const INJECTION_PATTERNS: readonly RegExp[] = [
   /reveal\s+(your\s+)?(initial\s+|internal\s+)?(system\s+)?(prompt|instructions)/i,
   /output\s+(your\s+)?(initial\s+|internal\s+)?(system\s+)?instructions/i,
   /<\|(?:im_start|im_end|endoftext)\|>/i,
-  /<\/?(?:system|prompt|instruction)>/i,
+  /<\/?(?:system|prompt|instruction|user_input|user_message|event_context|system_instruction)[^>]*>/i,
   /\[\/?(?:SYSTEM_INSTRUCTION|EVENT_CONTEXT|USER_INPUT|USER_MESSAGE)\]/i,
 ];
 
