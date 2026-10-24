@@ -22,12 +22,12 @@ export function calculateCategoryAllocations(
   for (const item of items) {
     const current = totals.get(item.category) ?? { allocated: 0, actual: 0 };
     totals.set(item.category, {
-      allocated: current.allocated + item.estimatedCost,
-      actual: current.actual + item.actualCost,
+      allocated: current.allocated + item.estimated,
+      actual: current.actual + item.actual,
     });
   }
 
-  const grandTotal = items.reduce((acc, item) => acc + item.estimatedCost, 0);
+  const grandTotal = items.reduce((acc, item) => acc + item.estimated, 0);
 
   return ALL_BUDGET_CATEGORIES.map((category) => {
     const data = totals.get(category) ?? { allocated: 0, actual: 0 };
@@ -45,9 +45,9 @@ export function calculateBudgetSummary(
   totalBudget: number,
   items: readonly BudgetItem[]
 ): BudgetSummary {
-  const totalEstimated = items.reduce((sum, item) => sum + item.estimatedCost, 0);
-  const totalActual = items.reduce((sum, item) => sum + item.actualCost, 0);
-  const totalPaid = items.reduce((sum, item) => sum + item.paidCost, 0);
+  const totalEstimated = items.reduce((sum, item) => sum + item.estimated, 0);
+  const totalActual = items.reduce((sum, item) => sum + item.actual, 0);
+  const totalPaid = totalActual;
   const effectiveCost = totalActual > 0 ? totalActual : totalEstimated;
   const remainingBudget = totalBudget - effectiveCost;
   const isOverBudget = remainingBudget < 0;
@@ -79,10 +79,7 @@ export function updateBudgetItem(
   return items.map((item) => (item.id === updated.id ? Object.freeze({ ...updated }) : item));
 }
 
-export function removeBudgetItem(
-  items: readonly BudgetItem[],
-  id: string
-): readonly BudgetItem[] {
+export function removeBudgetItem(items: readonly BudgetItem[], id: string): readonly BudgetItem[] {
   return items.filter((item) => item.id !== id);
 }
 
@@ -97,7 +94,9 @@ export function detectBudgetRisks(summary: BudgetSummary): readonly string[] {
   }
   for (const alloc of summary.categoryAllocations) {
     if (alloc.percentage > 45 && alloc.category !== 'venue') {
-      risks.push(`Unusual allocation: ${alloc.category} accounts for ${alloc.percentage}% of budget.`);
+      risks.push(
+        `Unusual allocation: ${alloc.category} accounts for ${alloc.percentage}% of budget.`
+      );
     }
   }
   return Object.freeze(risks);

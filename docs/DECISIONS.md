@@ -85,3 +85,31 @@ Event planning generative tasks require robust LLM integration (streaming chat r
 
 - Provider implementations can be swapped without touching UI or domain code.
 - 100% deterministic test execution with zero external network flakiness.
+
+---
+
+## ADR 006: Zod Domain Schemas, Pure Logic, and Drizzle Repository Pattern
+
+- **Date:** 2026-10-24
+- **Status:** Accepted
+
+### Context
+
+Utsava requires strong schema validation with exported inferred types for Event, BudgetItem, TimelineTask, Vendor, and IdeaSet entities, along with Drizzle ORM SQLite tables and pure algorithmic functions for budget rebalancing, timeline back-scheduling with cycle detection, and vendor checklist templates.
+
+### Decision
+
+- **Zod Schemas**: Authored in `src/domain/schemas.ts` with runtime validation and exported TypeScript types for all entities.
+- **Drizzle SQLite Schema**: Tables defined in `src/domain/db/schema.ts` (`events`, `budget_items`, `timeline_tasks`, `vendors`, `idea_sets`) supporting JSON columns for complex preferences and metadata.
+- **Pure Functions**:
+  - `allocateBudget`, `rebalanceBudget`, and `detectOverspend` in `src/domain/budgetLogic.ts`.
+  - `backScheduleTimeline`, `detectCycles`, and `subtractDays` in `src/domain/timelineLogic.ts`.
+  - `getVendorChecklistTemplates`, `filterTemplatesByCategory`, and `filterTemplatesByPriority` in `src/domain/vendorTemplates.ts`.
+- **Repository Pattern**: `EventRepository` interface in `src/services/repositories/eventRepository.ts` implemented by `DrizzleEventRepository` in `src/services/repositories/drizzleEventRepository.ts` using `better-sqlite3`.
+
+### Consequences
+
+- Over 99% statement and line coverage on `src/domain`.
+- Route handlers remain strictly thin adapters without embedded business logic.
+- Functions strictly under 40 lines.- Provider implementations can be swapped without touching UI or domain code.
+- 100% deterministic test execution with zero external network flakiness.

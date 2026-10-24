@@ -96,3 +96,45 @@ export const IdeaSetSchema = z.object({
     .default({}),
 });
 export type IdeaSet = z.infer<typeof IdeaSetSchema>;
+
+export const ChatRequestSchema = z.object({
+  message: z.string().min(1).max(2000),
+  eventPlan: z
+    .object({
+      id: z.string(),
+      title: z.string(),
+      eventType: EventTypeSchema,
+      date: z.string(),
+      guestCount: z.number(),
+      totalBudget: z.number(),
+      currency: z.string(),
+    })
+    .passthrough(),
+  chatHistory: z
+    .array(
+      z.object({
+        role: z.enum(['user', 'assistant', 'system']),
+        content: z.string().max(2000),
+      })
+    )
+    .max(20)
+    .default([]),
+});
+export type ChatRequest = z.infer<typeof ChatRequestSchema>;
+
+export const GenerateIdeasRequestSchema = z.object({
+  eventType: EventTypeSchema,
+  culturalContext: z.string().max(200).optional(),
+  budgetTier: z.enum(['budget', 'moderate', 'luxury']).default('moderate'),
+  guestCount: z.number().int().positive(),
+  existingTags: z.array(z.string()).max(10).default([]),
+});
+export type GenerateIdeasRequest = z.infer<typeof GenerateIdeasRequestSchema>;
+
+export const GenerateTimelineRequestSchema = z.object({
+  eventType: EventTypeSchema,
+  eventStartTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/),
+  durationHours: z.number().positive().max(48),
+  keyTraditions: z.array(z.string().max(80)).default([]),
+});
+export type GenerateTimelineRequest = z.infer<typeof GenerateTimelineRequestSchema>;

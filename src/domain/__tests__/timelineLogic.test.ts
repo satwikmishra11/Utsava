@@ -138,7 +138,7 @@ describe('Timeline Logic Pure Functions', () => {
     const dep = scheduled.find((t) => t.id === 'dep');
 
     // Dependent's dueDate must not precede prerequisite's dueDate
-    expect(dep?.dueDate).toBeGreaterThanOrEqual(prereq!.dueDate);
+    expect(dep?.dueDate.localeCompare(prereq!.dueDate)).toBeGreaterThanOrEqual(0);
   });
 
   it('rejects back-scheduling when a cyclic dependency is present', () => {
