@@ -62,6 +62,23 @@ export function enforceInputLength(input: string, maxLen: number = 2000): NextRe
   return null;
 }
 
+export function enforceFieldLength(
+  body: unknown,
+  field: string,
+  maxLen: number
+): NextResponse | null {
+  if (typeof body === 'object' && body !== null && field in body) {
+    const val = (body as Record<string, unknown>)[field];
+    if (typeof val === 'string' && val.length > maxLen) {
+      return NextResponse.json(
+        { error: `Input exceeds maximum allowed length of ${maxLen} characters.` },
+        { status: 400 }
+      );
+    }
+  }
+  return null;
+}
+
 export function jsonValidationError(details: unknown): NextResponse {
   return NextResponse.json({ error: 'Validation failed', details }, { status: 400 });
 }
