@@ -24,9 +24,16 @@ describe('API Route Handlers (Integration)', () => {
     ideas: [],
   };
 
+  const defaultHeaders = {
+    'content-type': 'application/json',
+    origin: 'http://localhost:3000',
+    host: 'localhost:3000',
+  };
+
   it('rejects chat request with invalid schema (400)', async () => {
     const req = new NextRequest('http://localhost:3000/api/chat', {
       method: 'POST',
+      headers: defaultHeaders,
       body: JSON.stringify({ message: '' }), // Missing eventPlan, invalid empty message
     });
     const res = await chatHandler(req);
@@ -38,6 +45,7 @@ describe('API Route Handlers (Integration)', () => {
   it('streams response for valid chat request', async () => {
     const req = new NextRequest('http://localhost:3000/api/chat', {
       method: 'POST',
+      headers: defaultHeaders,
       body: JSON.stringify({
         message: 'Can we add a sound system to the budget?',
         eventPlan: validPlan,
@@ -55,7 +63,7 @@ describe('API Route Handlers (Integration)', () => {
     for (let i = 0; i < 10; i++) {
       const req = new NextRequest('http://localhost:3000/api/ideas', {
         method: 'POST',
-        headers: { 'x-forwarded-for': '192.168.1.100' },
+        headers: { ...defaultHeaders, 'x-forwarded-for': '192.168.1.100' },
         body: JSON.stringify({
           eventType: 'birthday',
           guestCount: 50,
@@ -67,7 +75,7 @@ describe('API Route Handlers (Integration)', () => {
 
     const blockedReq = new NextRequest('http://localhost:3000/api/ideas', {
       method: 'POST',
-      headers: { 'x-forwarded-for': '192.168.1.100' },
+      headers: { ...defaultHeaders, 'x-forwarded-for': '192.168.1.100' },
       body: JSON.stringify({
         eventType: 'birthday',
         guestCount: 50,
@@ -82,6 +90,7 @@ describe('API Route Handlers (Integration)', () => {
   it('generates timeline items with valid request', async () => {
     const req = new NextRequest('http://localhost:3000/api/timeline', {
       method: 'POST',
+      headers: defaultHeaders,
       body: JSON.stringify({
         eventType: 'wedding',
         eventStartTime: '15:00',
