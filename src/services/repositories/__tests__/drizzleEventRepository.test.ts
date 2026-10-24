@@ -20,6 +20,7 @@ describe('DrizzleEventRepository (SQLite in-memory)', () => {
       dietary: ['Halal', 'Vegetarian'],
       accessibilityNeeds: ['Wheelchair Access'],
     },
+    userId: 'usr_test_1',
     createdAt: new Date().toISOString(),
   };
 
