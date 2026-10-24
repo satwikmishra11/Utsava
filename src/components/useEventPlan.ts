@@ -11,6 +11,23 @@ import {
   VendorStatus,
 } from '@/domain/types';
 import { buildMockIdeas, buildMockTimeline } from '@/services/aiService';
+import {
+  generateBudgetPlan,
+  generateTimeline,
+  generateVendorChecklist,
+  generateIdeas,
+  GeneratedBudgetItem,
+  GeneratedTimelineTask,
+  GeneratedVendorItem,
+} from '@/services/ai';
+import { detectOverspend } from '@/domain/budgetLogic';
+import {
+  exportPlanToICS,
+  exportPlanToPrintablePDF,
+  generateShareableLink,
+  copyToClipboard,
+} from '@/lib/exportUtils';
+import { WizardData } from './OnboardingWizard';
 
 export const INITIAL_PLAN: EventPlan = {
   id: 'evt-utsava-main',
@@ -26,7 +43,7 @@ export const INITIAL_PLAN: EventPlan = {
       id: 'b-1',
       eventId: 'evt-utsava-main',
       category: 'venue',
-      notes: 'Grand Heritage Palace Banquet Hall',
+      notes: 'Grand Palace Hall',
       estimated: 15000,
       actual: 15000,
     },
@@ -34,7 +51,7 @@ export const INITIAL_PLAN: EventPlan = {
       id: 'b-2',
       eventId: 'evt-utsava-main',
       category: 'catering',
-      notes: 'Curated 4-Course Multi-Cuisine Feast',
+      notes: 'Multi-Cuisine Feast',
       estimated: 12000,
       actual: 11500,
     },
@@ -42,7 +59,7 @@ export const INITIAL_PLAN: EventPlan = {
       id: 'b-3',
       eventId: 'evt-utsava-main',
       category: 'photography',
-      notes: 'Cinematography & Candid Photo Package',
+      notes: 'Cinematography Package',
       estimated: 4500,
       actual: 4500,
     },
@@ -53,110 +70,229 @@ export const INITIAL_PLAN: EventPlan = {
       id: 'v-1',
       category: 'venue',
       name: 'Grand Heritage Estate',
-      contactEmail: 'events@grandheritage.test',
+      contactEmail: 'events@heritage.test',
       status: 'booked',
       quotedAmount: 15000,
-      deliverables: ['Main Ballroom', 'Bridal Suite Access'],
+      deliverables: ['Main Ballroom', 'Bridal Suite'],
     },
   ],
   ideas: buildMockIdeas('wedding', 'South Asian Traditional & Fusion'),
 };
 
-export function useEventPlan() {
-  const [plan, setPlan] = useState<EventPlan>(INITIAL_PLAN);
+export function usePlanExports(plan: EventPlan, showToast: (msg: string) => void) {
+  const handleExportICS = () => {
+    exportPlanToICS(plan);
+    showToast('Downloaded timeline calendar (.ics) file.');
+  };
+  const handleExportPDF = () => exportPlanToPrintablePDF();
+  const handleShareLink = async () => {
+    const link = generateShareableLink(plan);
+    const success = await copyToClipboard(link);
+    showToast(success ? 'Shareable link copied to clipboard!' : 'Unable to copy link.');
+  };
+  return { handleExportICS, handleExportPDF, handleShareLink };
+}
 
-  const switchEventType = (newType: EventType): void => {
-    setPlan((prev) => ({
-      ...prev,
-      eventType: newType,
-      title:
-        newType === 'wedding'
-          ? 'Ananya & Rohan Royal Wedding'
-          : newType === 'birthday'
-            ? 'Devon 30th Milestone Jubilee'
-            : 'Silverwood Annual Cultural Gala',
-      totalBudget: newType === 'wedding' ? 45000 : newType === 'birthday' ? 8500 : 25000,
-      timelineItems: buildMockTimeline(newType, '16:00'),
-      ideas: buildMockIdeas(newType, prev.culturalContext),
+function useBudgetAiSync(
+  plan: EventPlan,
+  setPlan: React.Dispatch<React.SetStateAction<EventPlan>>,
+  showToast: (m: string) => void
+) {
+  const [loading, setLoading] = useState(false);
+  const [pending, setPending] = useState<readonly GeneratedBudgetItem[] | null>(null);
+
+  const regenerate = async (target: EventPlan = plan) => {
+    setLoading(true);
+    const res = await generateBudgetPlan({
+      eventType: target.eventType,
+      guestCount: target.guestCount,
+      totalBudget: target.totalBudget,
+      currency: target.currency,
+      culture: target.culturalContext,
+    });
+    setPending(res.data.items);
+    setLoading(false);
+  };
+
+  const accept = () => {
+    if (!pending) return;
+    const items: BudgetItem[] = pending.map((b, idx) => ({
+      id: `b-ai-${Date.now()}-${idx}`,
+      eventId: plan.id,
+      category: b.category,
+      estimated: b.estimated,
+      actual: 0,
+      notes: b.notes,
     }));
+    setPlan((prev) => ({ ...prev, budgetItems: items }));
+    setPending(null);
+    showToast('Applied AI Budget Allocation to your plan.');
   };
 
-  const addBudgetItem = (item: BudgetItem) => {
-    setPlan((prev) => ({ ...prev, budgetItems: [...prev.budgetItems, item] }));
+  return { loading, pending, setPending, regenerate, accept };
+}
+
+function useTimelineAiSync(
+  plan: EventPlan,
+  setPlan: React.Dispatch<React.SetStateAction<EventPlan>>,
+  showToast: (m: string) => void
+) {
+  const [loading, setLoading] = useState(false);
+  const [pending, setPending] = useState<readonly GeneratedTimelineTask[] | null>(null);
+
+  const regenerate = async (target: EventPlan = plan) => {
+    setLoading(true);
+    const res = await generateTimeline({
+      eventType: target.eventType,
+      guestCount: target.guestCount,
+      eventDate: target.date,
+      culture: target.culturalContext,
+    });
+    setPending(res.data.tasks);
+    setLoading(false);
   };
 
-  const removeBudgetItem = (id: string) => {
-    setPlan((prev) => ({
-      ...prev,
-      budgetItems: prev.budgetItems.filter((i) => i.id !== id),
+  const accept = () => {
+    if (!pending) return;
+    const items: TimelineItem[] = pending.map((t) => ({
+      id: t.id,
+      phase: 'preparation',
+      title: t.title,
+      time: t.dueDate ?? plan.date,
+      durationMinutes: 60,
+      completed: false,
+      notes: t.category,
     }));
+    setPlan((prev) => ({ ...prev, timelineItems: items }));
+    setPending(null);
+    showToast('Applied AI Timeline tasks to your schedule.');
   };
 
-  const updateBudgetStatus = (id: string) => {
-    setPlan((prev) => ({
-      ...prev,
-      budgetItems: prev.budgetItems.map((i) =>
+  return { loading, pending, setPending, regenerate, accept };
+}
+
+function useVendorAiSync(
+  plan: EventPlan,
+  setPlan: React.Dispatch<React.SetStateAction<EventPlan>>,
+  showToast: (m: string) => void
+) {
+  const [loading, setLoading] = useState(false);
+  const [pending, setPending] = useState<readonly GeneratedVendorItem[] | null>(null);
+
+  const regenerate = async (target: EventPlan = plan) => {
+    setLoading(true);
+    const res = await generateVendorChecklist({
+      eventType: target.eventType,
+      guestCount: target.guestCount,
+      totalBudget: target.totalBudget,
+      currency: target.currency,
+      culture: target.culturalContext,
+    });
+    setPending(res.data.vendors);
+    setLoading(false);
+  };
+
+  const accept = () => {
+    if (!pending) return;
+    const vendors: VendorItem[] = pending.map((v, idx) => ({
+      id: `v-ai-${Date.now()}-${idx}`,
+      category: v.category,
+      name: v.name,
+      status: v.status,
+      quotedAmount: v.estimatedQuote,
+      deliverables: [...v.deliverables],
+      notes: v.role,
+    }));
+    setPlan((prev) => ({ ...prev, vendors: [...prev.vendors, ...vendors] }));
+    setPending(null);
+    showToast('Added AI Recommended Vendors to your checklist.');
+  };
+
+  return { loading, pending, setPending, regenerate, accept };
+}
+
+function useIdeaAiSync(
+  plan: EventPlan,
+  setPlan: React.Dispatch<React.SetStateAction<EventPlan>>,
+  showToast: (m: string) => void
+) {
+  const [loading, setLoading] = useState(false);
+  const [pending, setPending] = useState<readonly IdeaRecommendation[] | null>(null);
+
+  const regenerate = async (target: EventPlan = plan) => {
+    setLoading(true);
+    const res = await generateIdeas({
+      eventType: target.eventType,
+      guestCount: target.guestCount,
+      culture: target.culturalContext,
+    });
+    setPending(res.data.ideas);
+    setLoading(false);
+  };
+
+  const accept = () => {
+    if (!pending) return;
+    setPlan((prev) => ({ ...prev, ideas: [...prev.ideas, ...pending] }));
+    setPending(null);
+    showToast('Saved AI creative recommendations to your gallery.');
+  };
+
+  return { loading, pending, setPending, regenerate, accept };
+}
+
+function useItemMutations(
+  setPlan: React.Dispatch<React.SetStateAction<EventPlan>>,
+  plan: EventPlan,
+  showToast: (m: string) => void
+) {
+  const addBudgetItem = (item: BudgetItem) =>
+    setPlan((p) => ({ ...p, budgetItems: [...p.budgetItems, item] }));
+  const removeBudgetItem = (id: string) =>
+    setPlan((p) => ({ ...p, budgetItems: p.budgetItems.filter((i) => i.id !== id) }));
+  const updateBudgetStatus = (id: string) =>
+    setPlan((p) => ({
+      ...p,
+      budgetItems: p.budgetItems.map((i) =>
         i.id === id ? { ...i, actual: i.actual > 0 ? 0 : i.estimated } : i
       ),
     }));
-  };
-
-  const addTimelineItem = (item: TimelineItem) => {
-    setPlan((prev) => ({
-      ...prev,
-      timelineItems: [...prev.timelineItems, item].sort((a, b) => a.time.localeCompare(b.time)),
+  const addTimelineItem = (item: TimelineItem) =>
+    setPlan((p) => ({
+      ...p,
+      timelineItems: [...p.timelineItems, item].sort((a, b) => a.time.localeCompare(b.time)),
     }));
-  };
-
-  const toggleTimeline = (id: string) => {
-    setPlan((prev) => ({
-      ...prev,
-      timelineItems: prev.timelineItems.map((i) =>
+  const toggleTimeline = (id: string) =>
+    setPlan((p) => ({
+      ...p,
+      timelineItems: p.timelineItems.map((i) =>
         i.id === id ? { ...i, completed: !i.completed } : i
       ),
     }));
-  };
-
-  const replaceTimeline = (items: readonly TimelineItem[]) => {
-    setPlan((prev) => ({ ...prev, timelineItems: items }));
-  };
-
-  const addVendor = (v: VendorItem) => {
-    setPlan((prev) => ({ ...prev, vendors: [...prev.vendors, v] }));
-  };
-
-  const updateVendorStatus = (id: string, status: VendorStatus) => {
-    setPlan((prev) => ({
-      ...prev,
-      vendors: prev.vendors.map((v) => (v.id === id ? { ...v, status } : v)),
+  const replaceTimeline = (items: readonly TimelineItem[]) =>
+    setPlan((p) => ({ ...p, timelineItems: items }));
+  const addVendor = (v: VendorItem) => setPlan((p) => ({ ...p, vendors: [...p.vendors, v] }));
+  const updateVendorStatus = (id: string, status: VendorStatus) =>
+    setPlan((p) => ({
+      ...p,
+      vendors: p.vendors.map((v) => (v.id === id ? { ...v, status } : v)),
     }));
-  };
-
-  const saveIdea = (idea: IdeaRecommendation) => {
-    setPlan((prev) => ({ ...prev, ideas: [...prev.ideas, idea] }));
-  };
-
-  const replaceIdeas = (ideas: readonly IdeaRecommendation[]) => {
-    setPlan((prev) => ({ ...prev, ideas }));
-  };
-
+  const saveIdea = (idea: IdeaRecommendation) =>
+    setPlan((p) => ({ ...p, ideas: [...p.ideas, idea] }));
+  const replaceIdeas = (ideas: readonly IdeaRecommendation[]) => setPlan((p) => ({ ...p, ideas }));
   const applyPlanAction = (actionType: string, payload: Record<string, unknown>) => {
     if (actionType === 'add_budget_item') {
-      const newItem: BudgetItem = {
+      addBudgetItem({
         id: `budget-auto-${Date.now()}`,
         eventId: plan.id,
         category: 'miscellaneous',
         estimated: Number(payload.estimatedCost) || 1000,
         actual: Number(payload.estimatedCost) || 1000,
         notes: String(payload.name ?? 'Contingency Allocation'),
-      };
-      addBudgetItem(newItem);
+      });
+      showToast('Applied assistant action: Added contingency budget item.');
     }
   };
-
   return {
-    plan,
-    switchEventType,
     addBudgetItem,
     removeBudgetItem,
     updateBudgetStatus,
@@ -168,5 +304,99 @@ export function useEventPlan() {
     saveIdea,
     replaceIdeas,
     applyPlanAction,
+  };
+}
+
+export function useEventPlan() {
+  const [plan, setPlan] = useState<EventPlan>(INITIAL_PLAN);
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const budgetAi = useBudgetAiSync(plan, setPlan, showToast);
+  const timelineAi = useTimelineAiSync(plan, setPlan, showToast);
+  const vendorAi = useVendorAiSync(plan, setPlan, showToast);
+  const ideaAi = useIdeaAiSync(plan, setPlan, showToast);
+  const mutations = useItemMutations(setPlan, plan, showToast);
+  const exports = usePlanExports(plan, showToast);
+
+  const switchEventType = (newType: EventType): void => {
+    setPlan((prev) => ({
+      ...prev,
+      eventType: newType,
+      title:
+        newType === 'wedding'
+          ? 'Ananya & Rohan Royal Wedding'
+          : newType === 'birthday'
+            ? 'Milestone 30th Celebration'
+            : 'Annual Community Festival',
+      totalBudget: newType === 'wedding' ? 45000 : newType === 'birthday' ? 8500 : 25000,
+      timelineItems: buildMockTimeline(newType, '16:00'),
+      ideas: buildMockIdeas(newType, prev.culturalContext),
+    }));
+  };
+
+  const completeWizard = async (data: WizardData) => {
+    const newPlan: EventPlan = {
+      id: `evt-${Date.now()}`,
+      title: data.title,
+      eventType: data.eventType,
+      date: data.date,
+      guestCount: data.guestCount,
+      totalBudget: data.totalBudget,
+      currency: data.currency,
+      culturalContext: data.culture,
+      budgetItems: [],
+      timelineItems: [],
+      vendors: [],
+      ideas: [],
+    };
+    setPlan(newPlan);
+    showToast(`Created plan for ${data.title}! Generating suggestions...`);
+    await Promise.all([
+      budgetAi.regenerate(newPlan),
+      timelineAi.regenerate(newPlan),
+      vendorAi.regenerate(newPlan),
+      ideaAi.regenerate(newPlan),
+    ]);
+  };
+
+  return {
+    plan,
+    setPlan,
+    isWizardOpen,
+    setIsWizardOpen,
+    toastMessage,
+    switchEventType,
+    completeWizard,
+    loading: {
+      budget: budgetAi.loading,
+      timeline: timelineAi.loading,
+      vendors: vendorAi.loading,
+      ideas: ideaAi.loading,
+    },
+    pendingBudget: budgetAi.pending,
+    setPendingBudget: budgetAi.setPending,
+    regenerateBudget: budgetAi.regenerate,
+    acceptBudgetSuggestions: budgetAi.accept,
+    pendingTimeline: timelineAi.pending,
+    setPendingTimeline: timelineAi.setPending,
+    regenerateTimeline: timelineAi.regenerate,
+    acceptTimelineSuggestions: timelineAi.accept,
+    pendingVendors: vendorAi.pending,
+    setPendingVendors: vendorAi.setPending,
+    regenerateVendors: vendorAi.regenerate,
+    acceptVendorSuggestions: vendorAi.accept,
+    pendingIdeas: ideaAi.pending,
+    setPendingIdeas: ideaAi.setPending,
+    regenerateIdeas: ideaAi.regenerate,
+    acceptIdeaSuggestions: ideaAi.accept,
+    overspendAnalysis: detectOverspend(plan.totalBudget, plan.budgetItems),
+    ...mutations,
+    ...exports,
   };
 }

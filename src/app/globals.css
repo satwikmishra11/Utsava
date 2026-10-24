@@ -34,6 +34,27 @@
   --shadow-glow: 0 0 25px rgba(245, 158, 11, 0.2);
 }
 
+[data-theme='light'] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #e2e8f0;
+  --border-subtle: rgba(0, 0, 0, 0.12);
+  --border-accent: rgba(217, 119, 6, 0.4);
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-inverse: #ffffff;
+
+  --accent-gold: #d97706;
+  --accent-gold-hover: #b45309;
+  --accent-gold-glow: rgba(217, 119, 6, 0.2);
+
+  --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.08);
+  --shadow-glow: 0 0 25px rgba(217, 119, 6, 0.15);
+}
+
 *,
 *::before,
 *::after {
@@ -214,4 +235,60 @@ body {
 .select:focus {
   border-color: var(--accent-gold);
   outline: none;
+}
+
+/* Button Variants */
+.btn-ghost {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: transparent;
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--bg-surface-elevated);
+}
+.btn-danger {
+  background: var(--accent-rose);
+  color: #ffffff;
+}
+.btn-danger:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+/* Skeletons */
+@keyframes shimmer {
+  0% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0.45;
+  }
+}
+
+.skeleton-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Print Styles for PDF Export */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print,
+  nav,
+  header button,
+  footer,
+  .tab-btn {
+    display: none !important;
+  }
+  .card {
+    border: 1px solid #ccc !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+    margin-bottom: 20px;
+  }
 }

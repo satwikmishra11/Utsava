@@ -152,3 +152,54 @@ Event planning features (budget allocations, back-scheduled timelines, vendor ch
 - All capabilities function deterministically in test environments with `MockProvider`.
 - Full graceful degradation under network or model outages via Phase 2 fallbacks.
 - Strict function length (<40 lines) and strict TypeScript without `any`.
+
+---
+
+## ADR 008: Design System Primitives, Onboarding Wizard, Human-in-the-Loop AI Controls, and Accessible Exports
+
+- **Date:** 2026-10-25
+- **Status:** Accepted
+
+### Context & Problem Statement
+
+Event planning requires an intuitive, accessible, and responsive user journey that puts users firmly in control of AI-generated suggestions. The interface must provide a multi-step onboarding wizard with validation and step reversal, an interactive dashboard covering budgets, timelines, vendors, and ideas, explicit "Regenerate" and "Accept / Dismiss suggestion" controls on all AI outputs, calendar (.ics) and PDF export capabilities, and WCAG 2.2 AA keyboard accessibility allowing complete planning in under 2 minutes without mouse interaction.
+
+### Decision
+
+1. **Design System Primitives (`src/components/ui/`)**:
+   - `Button`: Accessible interactive button with variants (`primary`, `secondary`, `outline`, `ghost`, `danger`), sizes (`sm`, `md`, `lg`), loading spinner states, and left/right icon integration.
+   - `Input`: Labelled text/number/date input with accessible error states (`aria-invalid`, `aria-describedby`), helper text, and WCAG color contrasts.
+   - `Card`: Glassmorphic elevated container with modular subcomponents (`CardHeader`, `CardTitle`, `CardContent`, `CardFooter`).
+   - `Dialog`: Accessible modal container with `role="dialog"`, `aria-modal="true"`, focus containment, Escape key dismissal, and backdrop target detection.
+   - `Tabs`: WAI-ARIA tablist container with arrow key navigation (`ArrowLeft`, `ArrowRight`, `Home`, `End`), `aria-selected`, and tabpanel associations.
+   - `Skeleton` & `EmptyState`: Shimmer loading states and accessible empty/error banners with actionable recovery buttons.
+
+2. **Validated Onboarding Wizard (`OnboardingWizard.tsx`)**:
+   - 5-step wizard covering event type (`wedding`, `birthday`, `community`), title/date/location, guest count, target budget & currency, and cultural/dietary/accessibility preferences.
+   - Real-time step validation displaying accessible error alerts (`role="alert"`).
+   - Retrospective "Back" navigation allowing full step review and modification without data loss.
+   - Full keyboard navigation enabling wedding plan configuration and submission in under 2 minutes.
+
+3. **Human-in-the-Loop AI Suggestions & State Sync**:
+   - "Regenerate AI" triggers capability executions on demand.
+   - AI outputs are held in a pending suggestion state (`pendingBudget`, `pendingTimeline`, `pendingVendors`, `pendingIdeas`) displayed in prominent notification cards with explicit "Accept" and "Dismiss" actions.
+   - The user remains in total control: suggestions are never applied without explicit user approval.
+   - Budget dashboard includes instant overspend alerts when commitments exceed targets.
+   - Timeline dashboard provides an "Upcoming Milestone Priorities" panel alongside full schedule views.
+   - Vendor board visualizes procurement across three kanban-style stages (`shortlisted`, `booked`, `paid`).
+   - Ideas gallery provides category chips for filtering personalized themes, decor, and dining experiences.
+
+4. **Multi-Format Export & Sharing (`src/lib/exportUtils.ts`)**:
+   - `exportPlanToICS`: Client-side RFC 5545 iCalendar file generation mapping scheduled milestones into downloadable `.ics` calendar events.
+   - `exportPlanToPrintablePDF`: Responsive `@media print` CSS stylesheet formatting the dashboard into clean printable documents via `window.print()`.
+   - `generateShareableLink`: Base64 URL-safe encoding of event parameters for link sharing with clipboard copying.
+
+5. **Theme Support (`ThemeToggle.tsx`)**:
+   - Responsive dark and light theme tokens with CSS variables and system preference detection (`prefers-color-scheme`).
+
+### Consequences
+
+- All functions strictly under 40 lines across all components, hooks, and utilities.
+- Zero `any` types, zero dead code, and full compliance with strict TypeScript compiler options (`noUncheckedIndexedAccess`).
+- Zero ESLint and jsx-a11y warnings or errors.
+- 121 unit, integration, and axe-core accessibility tests passing with 100% success rate.

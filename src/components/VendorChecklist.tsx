@@ -2,46 +2,268 @@
 
 import React, { useState } from 'react';
 import { VendorItem, VendorStatus, BudgetCategory } from '@/domain/types';
-import { filterVendorsByStatus, calculateVendorTotalCommitment } from '@/domain/vendors';
+import { calculateVendorTotalCommitment } from '@/domain/vendors';
 import { ALL_BUDGET_CATEGORIES } from '@/domain/budget';
-import { Plus, Check } from 'lucide-react';
+import { GeneratedVendorItem } from '@/services/ai';
+import { Plus, Check, Sparkles, X, ArrowRight } from 'lucide-react';
+import { Button } from './ui/Button';
+import { CardSkeleton } from './ui/Skeleton';
+import { EmptyState } from './ui/EmptyState';
 
-interface VendorChecklistProps {
+export interface VendorChecklistProps {
   readonly vendors: readonly VendorItem[];
   readonly currency: string;
   readonly onAddVendor: (vendor: VendorItem) => void;
   readonly onUpdateStatus: (id: string, status: VendorStatus) => void;
+  readonly onRegenerateAI?: () => void;
+  readonly isLoadingAI?: boolean;
+  readonly pendingSuggestions?: readonly GeneratedVendorItem[] | null;
+  readonly onAcceptSuggestions?: () => void;
+  readonly onDismissSuggestions?: () => void;
 }
 
-export function VendorChecklist({
+const STATUS_TITLES: Record<VendorStatus, { label: string; badge: string; next?: VendorStatus }> = {
+  shortlisted: { label: 'Shortlisted', badge: 'badge-gold', next: 'booked' },
+  booked: { label: 'Booked & Contracted', badge: 'badge-emerald', next: 'paid' },
+  paid: { label: 'Paid in Full', badge: 'badge-emerald' },
+};
+
+function VendorSuggestionsAlert({
+  suggestions,
+  onAccept,
+  onDismiss,
+}: {
+  readonly suggestions: readonly GeneratedVendorItem[];
+  readonly onAccept: () => void;
+  readonly onDismiss: () => void;
+}): React.JSX.Element {
+  return (
+    <div
+      style={{
+        background: 'var(--bg-surface-elevated)',
+        border: '1px solid var(--accent-gold)',
+        borderRadius: 'var(--radius-sm)',
+        padding: '16px',
+        marginBottom: '24px',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px',
+        }}
+      >
+        <div>
+          <span style={{ fontWeight: 700, color: 'var(--accent-gold)' }}>
+            ✨ AI Recommended Vendors Ready
+          </span>
+          <p style={{ fontSize: '0.875rem', marginTop: '2px' }}>
+            {suggestions.length} specialist vendor profiles generated.
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <Button
+            onClick={onAccept}
+            size="sm"
+            variant="primary"
+            leftIcon={<Check size={14} />}
+            id="btn-accept-vendors-ai"
+          >
+            Accept Vendors
+          </Button>
+          <Button
+            onClick={onDismiss}
+            size="sm"
+            variant="ghost"
+            leftIcon={<X size={14} />}
+            id="btn-dismiss-vendors-ai"
+          >
+            Dismiss
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function VendorCard({
+  vendor,
+  currency,
+  onUpdate,
+}: {
+  readonly vendor: VendorItem;
+  readonly currency: string;
+  readonly onUpdate: (id: string, s: VendorStatus) => void;
+}): React.JSX.Element {
+  const meta = STATUS_TITLES[vendor.status];
+  return (
+    <div
+      style={{
+        background: 'var(--bg-secondary)',
+        border: '1px solid var(--border-subtle)',
+        borderRadius: 'var(--radius-sm)',
+        padding: '14px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <h4 style={{ fontSize: '1rem', fontWeight: 700 }}>{vendor.name}</h4>
+        <span className={`badge ${meta.badge}`}>{vendor.category}</span>
+      </div>
+      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+        {vendor.deliverables.join(' • ') || 'General services'}
+      </p>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginTop: '6px',
+        }}
+      >
+        <span style={{ fontWeight: 700, color: 'var(--accent-gold)' }}>
+          {currency} {vendor.quotedAmount.toLocaleString()}
+        </span>
+        {meta.next && (
+          <Button
+            onClick={() => onUpdate(vendor.id, meta.next!)}
+            size="sm"
+            variant="secondary"
+            rightIcon={<ArrowRight size={14} />}
+          >
+            Move to {meta.next}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function VendorBoardColumn({
+  status,
   vendors,
   currency,
-  onAddVendor,
-  onUpdateStatus,
-}: VendorChecklistProps): React.JSX.Element {
-  const [filter, setFilter] = useState<VendorStatus | 'all'>('all');
+  onUpdate,
+}: {
+  readonly status: VendorStatus;
+  readonly vendors: readonly VendorItem[];
+  readonly currency: string;
+  readonly onUpdate: (id: string, s: VendorStatus) => void;
+}): React.JSX.Element {
+  const colVendors = vendors.filter((v) => v.status === status);
+  const meta = STATUS_TITLES[status];
+  return (
+    <div
+      style={{
+        background: 'var(--bg-surface-elevated)',
+        border: '1px solid var(--border-subtle)',
+        borderRadius: 'var(--radius-sm)',
+        padding: '16px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          borderBottom: '1px solid var(--border-subtle)',
+          paddingBottom: '8px',
+        }}
+      >
+        <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>{meta.label}</h3>
+        <span className="badge badge-gold">{colVendors.length}</span>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {colVendors.map((v) => (
+          <VendorCard key={v.id} vendor={v} currency={currency} onUpdate={onUpdate} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function VendorForm({
+  onAdd,
+}: {
+  readonly onAdd: (name: string, cat: BudgetCategory, amount: string) => void;
+}): React.JSX.Element {
   const [name, setName] = useState('');
   const [category, setCategory] = useState<BudgetCategory>('catering');
   const [quotedAmount, setQuotedAmount] = useState('');
-
-  const displayedVendors = filter === 'all' ? vendors : filterVendorsByStatus(vendors, filter);
-  const totalCommitment = calculateVendorTotalCommitment(vendors);
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-
-    onAddVendor({
-      id: `v-${Date.now()}`,
-      category,
-      name: name.trim(),
-      status: 'shortlisted',
-      quotedAmount: Number(quotedAmount) || 0,
-      deliverables: ['Contract Review', 'Deposit Payment'],
-    });
+    onAdd(name.trim(), category, quotedAmount);
     setName('');
     setQuotedAmount('');
   };
+  return (
+    <form
+      onSubmit={handleSubmit}
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr)) auto',
+        gap: '12px',
+        marginBottom: '24px',
+      }}
+    >
+      <input
+        className="input"
+        placeholder="Vendor business name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        aria-label="Vendor business name"
+        required
+      />
+      <select
+        className="select"
+        value={category}
+        onChange={(e) => setCategory(e.target.value as BudgetCategory)}
+        aria-label="Vendor category"
+      >
+        {ALL_BUDGET_CATEGORIES.map((c) => (
+          <option key={c} value={c}>
+            {c}
+          </option>
+        ))}
+      </select>
+      <input
+        className="input"
+        type="number"
+        min="0"
+        placeholder="Quote amount"
+        value={quotedAmount}
+        onChange={(e) => setQuotedAmount(e.target.value)}
+        aria-label="Quote amount"
+      />
+      <Button type="submit" variant="primary" leftIcon={<Plus size={16} />} id="btn-add-vendor">
+        Add Vendor
+      </Button>
+    </form>
+  );
+}
+
+export function VendorChecklist(props: VendorChecklistProps): React.JSX.Element {
+  const {
+    vendors,
+    currency,
+    onAddVendor,
+    onUpdateStatus,
+    onRegenerateAI,
+    isLoadingAI = false,
+    pendingSuggestions,
+    onAcceptSuggestions,
+    onDismissSuggestions,
+  } = props;
+  const totalCommitment = calculateVendorTotalCommitment(vendors);
 
   return (
     <section id="panel-vendors" role="tabpanel" aria-labelledby="tab-vendors" className="card">
@@ -50,220 +272,79 @@ export function VendorChecklist({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '16px',
           marginBottom: '20px',
+          flexWrap: 'wrap',
+          gap: '12px',
         }}
       >
         <div>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>Vendor Procurement & Checklists</h2>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>Vendor Procurement Board</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-            Manage contracts, quoted fees, and deliverable handoffs.
+            Committed quotes: {currency} {totalCommitment.toLocaleString()}
           </p>
         </div>
+        {onRegenerateAI && (
+          <Button
+            onClick={onRegenerateAI}
+            isLoading={isLoadingAI}
+            variant="outline"
+            size="sm"
+            leftIcon={<Sparkles size={16} />}
+            id="btn-regenerate-vendors"
+          >
+            Regenerate Vendors
+          </Button>
+        )}
+      </div>
+      {isLoadingAI && <CardSkeleton />}
+      {pendingSuggestions &&
+        pendingSuggestions.length > 0 &&
+        onAcceptSuggestions &&
+        onDismissSuggestions && (
+          <VendorSuggestionsAlert
+            suggestions={pendingSuggestions}
+            onAccept={onAcceptSuggestions}
+            onDismiss={onDismissSuggestions}
+          />
+        )}
+      <VendorForm
+        onAdd={(name, cat, amount) =>
+          onAddVendor({
+            id: `v-${Date.now()}`,
+            category: cat,
+            name,
+            status: 'shortlisted',
+            quotedAmount: Number(amount) || 0,
+            deliverables: ['Contract Review'],
+          })
+        }
+      />
+      {vendors.length === 0 ? (
+        <EmptyState
+          title="No Vendors Onboarded"
+          description="Add vendors manually or click 'Regenerate Vendors' to get curated recommendations."
+          actionLabel={onRegenerateAI ? 'Auto-Recommend Vendors' : undefined}
+          onAction={onRegenerateAI}
+        />
+      ) : (
         <div
           style={{
-            padding: '10px 16px',
-            background: 'var(--bg-secondary)',
-            borderRadius: 'var(--radius-sm)',
-            border: '1px solid var(--border-subtle)',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '16px',
           }}
         >
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-            Total Quoted / Hired
-          </span>
-          <p style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--accent-gold)' }}>
-            {currency} {totalCommitment.toLocaleString()}
-          </p>
+          {(['shortlisted', 'booked', 'paid'] as const).map((s) => (
+            <VendorBoardColumn
+              key={s}
+              status={s}
+              vendors={vendors}
+              currency={currency}
+              onUpdate={onUpdateStatus}
+            />
+          ))}
         </div>
-      </div>
-
-      {/* Add Vendor Form */}
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          display: 'flex',
-          gap: '12px',
-          flexWrap: 'wrap',
-          marginBottom: '24px',
-          alignItems: 'flex-end',
-        }}
-      >
-        <div style={{ flex: '2 1 200px' }}>
-          <label
-            htmlFor="vendor-name"
-            style={{
-              display: 'block',
-              fontSize: '0.85rem',
-              marginBottom: '4px',
-              color: 'var(--text-secondary)',
-            }}
-          >
-            Vendor Name
-          </label>
-          <input
-            id="vendor-name"
-            className="input"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Amber Glow Photography"
-            required
-          />
-        </div>
-        <div style={{ flex: '1 1 140px' }}>
-          <label
-            htmlFor="vendor-cat"
-            style={{
-              display: 'block',
-              fontSize: '0.85rem',
-              marginBottom: '4px',
-              color: 'var(--text-secondary)',
-            }}
-          >
-            Category
-          </label>
-          <select
-            id="vendor-cat"
-            className="select"
-            value={category}
-            onChange={(e) => setCategory(e.target.value as BudgetCategory)}
-          >
-            {ALL_BUDGET_CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c.toUpperCase()}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div style={{ flex: '1 1 120px' }}>
-          <label
-            htmlFor="vendor-quote"
-            style={{
-              display: 'block',
-              fontSize: '0.85rem',
-              marginBottom: '4px',
-              color: 'var(--text-secondary)',
-            }}
-          >
-            Quoted ({currency})
-          </label>
-          <input
-            id="vendor-quote"
-            type="number"
-            min="0"
-            className="input"
-            value={quotedAmount}
-            onChange={(e) => setQuotedAmount(e.target.value)}
-            placeholder="2500"
-          />
-        </div>
-        <button type="submit" className="btn btn-primary" id="btn-add-vendor">
-          <Plus size={16} aria-hidden="true" />
-          <span>Add Vendor</span>
-        </button>
-      </form>
-
-      {/* Vendor Status Filters */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
-        {(['all', 'shortlisted', 'booked', 'paid'] as const).map((st) => (
-          <button
-            key={st}
-            type="button"
-            onClick={() => setFilter(st)}
-            className={filter === st ? 'btn btn-primary' : 'btn btn-secondary'}
-            style={{ padding: '6px 14px', fontSize: '0.8rem', textTransform: 'capitalize' }}
-          >
-            {st}
-          </button>
-        ))}
-      </div>
-
-      {/* Vendor Cards Grid */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '16px',
-        }}
-      >
-        {displayedVendors.map((vendor) => (
-          <div
-            key={vendor.id}
-            style={{
-              padding: '16px',
-              background: 'var(--bg-secondary)',
-              borderRadius: 'var(--radius-sm)',
-              border: '1px solid var(--border-subtle)',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                marginBottom: '8px',
-              }}
-            >
-              <div>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>{vendor.name}</h3>
-                <span className="badge badge-gold" style={{ marginTop: '4px' }}>
-                  {vendor.category}
-                </span>
-              </div>
-              <select
-                aria-label={`Status for ${vendor.name}`}
-                className="select"
-                value={vendor.status}
-                onChange={(e) => onUpdateStatus(vendor.id, e.target.value as VendorStatus)}
-                style={{ width: 'auto', padding: '4px 8px', fontSize: '0.8rem' }}
-              >
-                <option value="shortlisted">Shortlisted</option>
-                <option value="booked">Booked</option>
-                <option value="paid">Paid</option>
-              </select>
-            </div>
-
-            <p
-              style={{
-                fontSize: '0.95rem',
-                fontWeight: 600,
-                color: 'var(--text-primary)',
-                marginTop: '8px',
-              }}
-            >
-              Quoted: {currency} {vendor.quotedAmount.toLocaleString()}
-            </p>
-
-            <div
-              style={{
-                marginTop: '12px',
-                borderTop: '1px solid var(--border-subtle)',
-                paddingTop: '8px',
-              }}
-            >
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                Deliverables:
-              </span>
-              <ul style={{ listStyle: 'none', marginTop: '4px', fontSize: '0.85rem' }}>
-                {vendor.deliverables.map((d, i) => (
-                  <li
-                    key={i}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      color: 'var(--text-secondary)',
-                    }}
-                  >
-                    <Check size={14} color="var(--accent-emerald)" aria-hidden="true" />
-                    <span>{d}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        ))}
-      </div>
+      )}
     </section>
   );
 }

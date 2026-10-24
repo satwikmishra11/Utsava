@@ -3,66 +3,316 @@
 import React, { useState } from 'react';
 import { TimelineItem, TimelinePhase, EventType } from '@/domain/types';
 import { findTimelineConflicts, filterTimelineByPhase } from '@/domain/timeline';
-import { Clock, AlertCircle, Plus, Sparkles, CheckSquare, Square } from 'lucide-react';
+import { GeneratedTimelineTask } from '@/services/ai';
+import {
+  Clock,
+  AlertCircle,
+  Plus,
+  Sparkles,
+  CheckSquare,
+  Square,
+  Check,
+  X,
+  ListFilter,
+} from 'lucide-react';
+import { Button } from './ui/Button';
+import { CardSkeleton } from './ui/Skeleton';
+import { EmptyState } from './ui/EmptyState';
 
-interface TimelineGeneratorProps {
+export interface TimelineGeneratorProps {
   readonly items: readonly TimelineItem[];
   readonly eventType: EventType;
   readonly onAddItem: (item: TimelineItem) => void;
   readonly onToggleComplete: (id: string) => void;
   readonly onBulkReplaceTimeline: (items: readonly TimelineItem[]) => void;
+  readonly onRegenerateAI?: () => void;
+  readonly isLoadingAI?: boolean;
+  readonly pendingSuggestions?: readonly GeneratedTimelineTask[] | null;
+  readonly onAcceptSuggestions?: () => void;
+  readonly onDismissSuggestions?: () => void;
 }
 
-export function TimelineGenerator({
+const PHASES: readonly (TimelinePhase | 'all')[] = [
+  'all',
+  'preparation',
+  'ceremony',
+  'reception',
+  'teardown',
+];
+
+function UpcomingTasksPanel({
   items,
-  eventType,
-  onAddItem,
-  onToggleComplete,
-  onBulkReplaceTimeline,
-}: TimelineGeneratorProps): React.JSX.Element {
-  const [phaseFilter, setPhaseFilter] = useState<TimelinePhase | 'all'>('all');
+  onToggle,
+}: {
+  readonly items: readonly TimelineItem[];
+  readonly onToggle: (id: string) => void;
+}): React.JSX.Element {
+  const pending = items.filter((i) => !i.completed).slice(0, 4);
+  return (
+    <div
+      style={{
+        background: 'var(--bg-secondary)',
+        border: '1px solid var(--border-subtle)',
+        borderRadius: 'var(--radius-sm)',
+        padding: '16px',
+        marginBottom: '20px',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+        <Clock size={16} color="var(--accent-gold)" />
+        <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>
+          Upcoming Milestone Priorities ({pending.length} pending)
+        </span>
+      </div>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '10px',
+        }}
+      >
+        {pending.map((item) => (
+          <div
+            key={item.id}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '10px 12px',
+              background: 'var(--bg-surface)',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--border-subtle)',
+            }}
+          >
+            <div>
+              <p style={{ fontSize: '0.875rem', fontWeight: 600 }}>{item.title}</p>
+              <span style={{ fontSize: '0.75rem', color: 'var(--accent-gold)' }}>{item.time}</span>
+            </div>
+            <button
+              onClick={() => onToggle(item.id)}
+              className="btn btn-secondary"
+              style={{ padding: '4px' }}
+              aria-label={`Complete ${item.title}`}
+            >
+              <Square size={16} />
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TimelineSuggestionsAlert({
+  suggestions,
+  onAccept,
+  onDismiss,
+}: {
+  readonly suggestions: readonly GeneratedTimelineTask[];
+  readonly onAccept: () => void;
+  readonly onDismiss: () => void;
+}): React.JSX.Element {
+  return (
+    <div
+      style={{
+        background: 'var(--bg-surface-elevated)',
+        border: '1px solid var(--accent-gold)',
+        borderRadius: 'var(--radius-sm)',
+        padding: '16px',
+        marginBottom: '20px',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px',
+        }}
+      >
+        <div>
+          <span style={{ fontWeight: 700, color: 'var(--accent-gold)' }}>
+            ✨ AI Timeline Schedule Ready
+          </span>
+          <p style={{ fontSize: '0.875rem', marginTop: '2px' }}>
+            {suggestions.length} back-scheduled milestones generated.
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <Button
+            onClick={onAccept}
+            size="sm"
+            variant="primary"
+            leftIcon={<Check size={14} />}
+            id="btn-accept-timeline-ai"
+          >
+            Accept Schedule
+          </Button>
+          <Button
+            onClick={onDismiss}
+            size="sm"
+            variant="ghost"
+            leftIcon={<X size={14} />}
+            id="btn-dismiss-timeline-ai"
+          >
+            Dismiss
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TimelineConflictBanner({ count }: { readonly count: number }): React.JSX.Element | null {
+  if (count === 0) return null;
+  return (
+    <div
+      role="alert"
+      style={{
+        background: 'rgba(244, 63, 94, 0.1)',
+        border: '1px solid var(--accent-rose)',
+        borderRadius: 'var(--radius-sm)',
+        padding: '12px',
+        marginBottom: '20px',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          color: 'var(--accent-rose)',
+          fontWeight: 600,
+        }}
+      >
+        <AlertCircle size={18} />
+        <span>Timeline Scheduling Overlaps Detected</span>
+      </div>
+      <p style={{ fontSize: '0.85rem', color: '#fca5a5', marginTop: '4px' }}>
+        {count} overlapping items may cause setup delays.
+      </p>
+    </div>
+  );
+}
+
+function TimelineForm({
+  onAdd,
+}: {
+  readonly onAdd: (title: string, time: string) => void;
+}): React.JSX.Element {
   const [title, setTitle] = useState('');
   const [time, setTime] = useState('14:00');
-  const [duration, setDuration] = useState('60');
-  const [isGenerating, setIsGenerating] = useState(false);
-
-  const conflicts = findTimelineConflicts(items);
-  const displayedItems = phaseFilter === 'all' ? items : filterTimelineByPhase(items, phaseFilter);
-
-  const handleGenerateAI = async () => {
-    setIsGenerating(true);
-    try {
-      const res = await fetch('/api/timeline', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          eventType,
-          eventStartTime: time,
-          durationHours: 6,
-        }),
-      });
-      if (res.ok) {
-        const json = await res.json();
-        if (json.timelineItems) onBulkReplaceTimeline(json.timelineItems);
-      }
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleAdd = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    onAddItem({
-      id: `time-${Date.now()}`,
-      phase: 'ceremony',
-      title: title.trim(),
-      time,
-      durationMinutes: Number(duration) || 30,
-      completed: false,
-    });
+    onAdd(title.trim(), time);
     setTitle('');
   };
+  return (
+    <form
+      onSubmit={handleSubmit}
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr auto auto',
+        gap: '12px',
+        marginBottom: '20px',
+      }}
+    >
+      <input
+        className="input"
+        placeholder="Add custom milestone (e.g. Ring Exchange)"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        aria-label="Milestone title"
+        required
+      />
+      <input
+        type="time"
+        className="input"
+        value={time}
+        onChange={(e) => setTime(e.target.value)}
+        style={{ width: '130px' }}
+        aria-label="Milestone time"
+        required
+      />
+      <Button
+        type="submit"
+        variant="primary"
+        leftIcon={<Plus size={16} />}
+        id="btn-add-timeline-item"
+      >
+        Add
+      </Button>
+    </form>
+  );
+}
+
+function TimelineItemRow({
+  item,
+  onToggle,
+}: {
+  readonly item: TimelineItem;
+  readonly onToggle: (id: string) => void;
+}): React.JSX.Element {
+  return (
+    <li
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '14px',
+        background: item.completed ? 'rgba(16, 185, 129, 0.05)' : 'var(--bg-secondary)',
+        borderRadius: 'var(--radius-sm)',
+        border: '1px solid var(--border-subtle)',
+        textDecoration: item.completed ? 'line-through' : 'none',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <button
+          onClick={() => onToggle(item.id)}
+          className="btn btn-secondary"
+          style={{ padding: '4px' }}
+          aria-label={`Toggle completion for ${item.title}`}
+        >
+          {item.completed ? (
+            <CheckSquare size={18} color="var(--accent-emerald)" />
+          ) : (
+            <Square size={18} />
+          )}
+        </button>
+        <div>
+          <span style={{ fontWeight: 600 }}>{item.title}</span>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
+            <span className="badge badge-gold">{item.phase}</span>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              {item.durationMinutes} mins
+            </span>
+          </div>
+        </div>
+      </div>
+      <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--accent-gold)' }}>
+        {item.time}
+      </span>
+    </li>
+  );
+}
+
+export function TimelineGenerator(props: TimelineGeneratorProps): React.JSX.Element {
+  const {
+    items,
+    onAddItem,
+    onToggleComplete,
+    onRegenerateAI,
+    isLoadingAI = false,
+    pendingSuggestions,
+    onAcceptSuggestions,
+    onDismissSuggestions,
+  } = props;
+  const [phaseFilter, setPhaseFilter] = useState<TimelinePhase | 'all'>('all');
+  const [viewMode, setViewMode] = useState<'all' | 'upcoming'>('all');
+  const conflicts = findTimelineConflicts(items);
+  const displayed = phaseFilter === 'all' ? items : filterTimelineByPhase(items, phaseFilter);
 
   return (
     <section id="panel-timeline" role="tabpanel" aria-labelledby="tab-timeline" className="card">
@@ -71,221 +321,100 @@ export function TimelineGenerator({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '16px',
           marginBottom: '20px',
+          flexWrap: 'wrap',
+          gap: '12px',
         }}
       >
         <div>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>Run of Show & Timeline</h2>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>Event Timeline & Milestones</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-            Ensure seamless coordination across every milestone and ritual.
+            Acyclic milestone scheduling with dependency resolution.
           </p>
         </div>
-        <button
-          onClick={handleGenerateAI}
-          disabled={isGenerating}
-          className="btn btn-primary"
-          id="btn-generate-ai-timeline"
-        >
-          <Sparkles size={16} aria-hidden="true" />
-          <span>{isGenerating ? 'Synthesizing...' : 'AI Auto-Schedule'}</span>
-        </button>
-      </div>
-
-      {conflicts.length > 0 && (
-        <div
-          role="alert"
-          style={{
-            background: 'rgba(244, 63, 94, 0.1)',
-            border: '1px solid var(--accent-rose)',
-            borderRadius: 'var(--radius-sm)',
-            padding: '12px 16px',
-            marginBottom: '20px',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              color: 'var(--accent-rose)',
-              fontWeight: 600,
-            }}
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <Button
+            onClick={() => setViewMode((v) => (v === 'all' ? 'upcoming' : 'all'))}
+            variant="secondary"
+            size="sm"
+            leftIcon={<ListFilter size={16} />}
           >
-            <AlertCircle size={18} aria-hidden="true" />
-            <span>Schedule Overlap Detected ({conflicts.length})</span>
-          </div>
-          <p style={{ fontSize: '0.85rem', color: '#fca5a5', marginTop: '4px' }}>
-            {conflicts[0]?.itemA.title} ({conflicts[0]?.itemA.time}) overlaps with{' '}
-            {conflicts[0]?.itemB.title} ({conflicts[0]?.itemB.time}).
-          </p>
+            {viewMode === 'all' ? 'Upcoming Only' : 'Full Schedule'}
+          </Button>
+          {onRegenerateAI && (
+            <Button
+              onClick={onRegenerateAI}
+              isLoading={isLoadingAI}
+              variant="outline"
+              size="sm"
+              leftIcon={<Sparkles size={16} />}
+              id="btn-regenerate-timeline"
+            >
+              Regenerate AI Timeline
+            </Button>
+          )}
         </div>
-      )}
-
-      {/* Add Milestone Form */}
-      <form
-        onSubmit={handleAdd}
+      </div>
+      <div
         style={{
           display: 'flex',
-          gap: '12px',
-          flexWrap: 'wrap',
-          marginBottom: '24px',
-          alignItems: 'flex-end',
+          gap: '6px',
+          marginBottom: '16px',
+          overflowX: 'auto',
+          paddingBottom: '4px',
         }}
       >
-        <div style={{ flex: '2 1 200px' }}>
-          <label
-            htmlFor="timeline-title"
-            style={{
-              display: 'block',
-              fontSize: '0.85rem',
-              marginBottom: '4px',
-              color: 'var(--text-secondary)',
-            }}
-          >
-            Milestone / Activity
-          </label>
-          <input
-            id="timeline-title"
-            className="input"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g. Guest Reception & Welcome Drinks"
-            required
-          />
-        </div>
-        <div style={{ flex: '1 1 100px' }}>
-          <label
-            htmlFor="timeline-time"
-            style={{
-              display: 'block',
-              fontSize: '0.85rem',
-              marginBottom: '4px',
-              color: 'var(--text-secondary)',
-            }}
-          >
-            Start Time
-          </label>
-          <input
-            id="timeline-time"
-            type="time"
-            className="input"
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
-            required
-          />
-        </div>
-        <div style={{ flex: '1 1 100px' }}>
-          <label
-            htmlFor="timeline-duration"
-            style={{
-              display: 'block',
-              fontSize: '0.85rem',
-              marginBottom: '4px',
-              color: 'var(--text-secondary)',
-            }}
-          >
-            Duration (min)
-          </label>
-          <input
-            id="timeline-duration"
-            type="number"
-            min="5"
-            className="input"
-            value={duration}
-            onChange={(e) => setDuration(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit" className="btn btn-secondary" id="btn-add-timeline-item">
-          <Plus size={16} aria-hidden="true" />
-          <span>Add</span>
-        </button>
-      </form>
-
-      {/* Phase Filter Controls */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
-        {(['all', 'preparation', 'ceremony', 'reception', 'teardown'] as const).map((phase) => (
+        {PHASES.map((p) => (
           <button
-            key={phase}
+            key={p}
             type="button"
-            onClick={() => setPhaseFilter(phase)}
-            className={phaseFilter === phase ? 'btn btn-primary' : 'btn btn-secondary'}
-            style={{ padding: '6px 14px', fontSize: '0.8rem', textTransform: 'capitalize' }}
+            onClick={() => setPhaseFilter(p)}
+            className={`btn ${phaseFilter === p ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ padding: '4px 10px', fontSize: '0.78rem', textTransform: 'capitalize' }}
           >
-            {phase}
+            {p}
           </button>
         ))}
       </div>
-
-      {/* Timeline List */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {displayedItems.map((item) => (
-          <div
-            key={item.id}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '14px 18px',
-              background: 'var(--bg-secondary)',
-              borderRadius: 'var(--radius-sm)',
-              borderLeft: `4px solid ${item.completed ? 'var(--accent-emerald)' : 'var(--accent-gold)'}`,
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <button
-                onClick={() => onToggleComplete(item.id)}
-                className="btn btn-secondary"
-                style={{ padding: '6px', background: 'transparent', border: 'none' }}
-                aria-label={
-                  item.completed
-                    ? `Mark ${item.title} as incomplete`
-                    : `Mark ${item.title} as completed`
-                }
-              >
-                {item.completed ? (
-                  <CheckSquare size={20} color="var(--accent-emerald)" aria-hidden="true" />
-                ) : (
-                  <Square size={20} color="var(--text-muted)" aria-hidden="true" />
-                )}
-              </button>
-              <div>
-                <p
-                  style={{
-                    fontWeight: 600,
-                    textDecoration: item.completed ? 'line-through' : 'none',
-                    color: item.completed ? 'var(--text-muted)' : 'var(--text-primary)',
-                  }}
-                >
-                  {item.title}
-                </p>
-                <span
-                  className="badge badge-gold"
-                  style={{ marginTop: '4px', fontSize: '0.75rem' }}
-                >
-                  {item.phase}
-                </span>
-              </div>
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                color: 'var(--text-secondary)',
-                fontSize: '0.875rem',
-              }}
-            >
-              <Clock size={16} aria-hidden="true" />
-              <span>
-                {item.time} ({item.durationMinutes} min)
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
+      <UpcomingTasksPanel items={items} onToggle={onToggleComplete} />
+      <TimelineConflictBanner count={conflicts.length} />
+      {isLoadingAI && <CardSkeleton />}
+      {pendingSuggestions &&
+        pendingSuggestions.length > 0 &&
+        onAcceptSuggestions &&
+        onDismissSuggestions && (
+          <TimelineSuggestionsAlert
+            suggestions={pendingSuggestions}
+            onAccept={onAcceptSuggestions}
+            onDismiss={onDismissSuggestions}
+          />
+        )}
+      <TimelineForm
+        onAdd={(title, time) =>
+          onAddItem({
+            id: `time-${Date.now()}`,
+            phase: 'ceremony',
+            title,
+            time,
+            durationMinutes: 60,
+            completed: false,
+          })
+        }
+      />
+      {items.length === 0 ? (
+        <EmptyState
+          title="No Milestones Scheduled"
+          description="Schedule key event milestones or click 'Regenerate AI Timeline' to back-schedule automatically."
+          actionLabel={onRegenerateAI ? 'Auto-Schedule AI Timeline' : undefined}
+          onAction={onRegenerateAI}
+        />
+      ) : (
+        <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {(viewMode === 'upcoming' ? items.filter((i) => !i.completed) : displayed).map((item) => (
+            <TimelineItemRow key={item.id} item={item} onToggle={onToggleComplete} />
+          ))}
+        </ul>
+      )}
     </section>
   );
 }
