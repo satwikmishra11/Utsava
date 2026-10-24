@@ -14,15 +14,17 @@ export async function GET(req: NextRequest): Promise<Response> {
   }
 
   const repo = getEventRepository();
-  const allUserEvents = await repo.listEvents(auth.user.id);
-  const filtered = parsedQuery.data.type
-    ? allUserEvents.filter((e) => e.type === parsedQuery.data.type)
-    : allUserEvents;
+  const offset = (parsedQuery.data.page - 1) * parsedQuery.data.limit;
+  const [events, total] = await Promise.all([
+    repo.listEvents(auth.user.id, {
+      type: parsedQuery.data.type,
+      limit: parsedQuery.data.limit,
+      offset,
+    }),
+    repo.countEvents(auth.user.id, parsedQuery.data.type),
+  ]);
 
-  const startIndex = (parsedQuery.data.page - 1) * parsedQuery.data.limit;
-  const events = filtered.slice(startIndex, startIndex + parsedQuery.data.limit);
-
-  return NextResponse.json({ events, total: filtered.length }, { status: 200 });
+  return NextResponse.json({ events, total }, { status: 200 });
 }
 
 export async function POST(req: NextRequest): Promise<Response> {

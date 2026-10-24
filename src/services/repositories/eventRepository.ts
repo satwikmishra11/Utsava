@@ -1,9 +1,29 @@
-import { Event, BudgetItem, TimelineTask, Vendor, IdeaSet } from '@/domain/schemas';
+import { Event, BudgetItem, TimelineTask, Vendor, IdeaSet, EventType } from '@/domain/schemas';
+
+export interface EventQueryOptions {
+  readonly limit?: number;
+  readonly offset?: number;
+  readonly type?: EventType;
+}
+
+export interface EventDetails {
+  readonly event: Event;
+  readonly budgetItems: readonly BudgetItem[];
+  readonly timelineTasks: readonly TimelineTask[];
+  readonly vendors: readonly Vendor[];
+  readonly ideaSets: readonly IdeaSet[];
+}
 
 export interface EventRepository {
   createEvent(event: Event): Promise<Event>;
   getEventById(id: string, userId?: string): Promise<Event | null>;
-  listEvents(userId?: string): Promise<readonly Event[]>;
+  listEvents(userId?: string, options?: EventQueryOptions): Promise<readonly Event[]>;
+  countEvents(userId?: string, type?: EventType): Promise<number>;
+  getEventWithDetails(id: string, userId?: string): Promise<EventDetails | null>;
+  getBatchEventsWithDetails(
+    eventIds: readonly string[],
+    userId?: string
+  ): Promise<readonly EventDetails[]>;
   updateEvent(id: string, updates: Partial<Event>, userId?: string): Promise<Event | null>;
   deleteEvent(id: string, userId?: string): Promise<boolean>;
   isEventOwner(eventId: string, userId: string): Promise<boolean>;

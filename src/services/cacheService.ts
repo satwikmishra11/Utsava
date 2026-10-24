@@ -1,5 +1,5 @@
 /**
- * Cache service for repeated AI generations with TTL support
+ * Cache service for repeated AI generations with TTL support and input invalidation
  */
 
 interface CacheEntry<T> {
@@ -7,9 +7,17 @@ interface CacheEntry<T> {
   readonly expiresAt: number;
 }
 
+export interface CacheStats {
+  readonly size: number;
+  readonly hits: number;
+  readonly misses: number;
+}
+
 export class GenerationCache {
   private readonly defaultTtlMs: number;
   private readonly cache = new Map<string, CacheEntry<unknown>>();
+  private hitsCount = 0;
+  private missesCount = 0;
 
   constructor(defaultTtlMs: number = 600000) {
     this.defaultTtlMs = defaultTtlMs;
@@ -17,11 +25,16 @@ export class GenerationCache {
 
   public get<T>(key: string, now: number = Date.now()): T | null {
     const entry = this.cache.get(key) as CacheEntry<T> | undefined;
-    if (!entry) return null;
-    if (now > entry.expiresAt) {
-      this.cache.delete(key);
+    if (!entry) {
+      this.missesCount++;
       return null;
     }
+    if (now > entry.expiresAt) {
+      this.cache.delete(key);
+      this.missesCount++;
+      return null;
+    }
+    this.hitsCount++;
     return entry.value;
   }
 
@@ -34,8 +47,33 @@ export class GenerationCache {
     return this.get(key, now) !== null;
   }
 
+  public invalidate(key: string): boolean {
+    return this.cache.delete(key);
+  }
+
+  public invalidatePrefix(prefix: string): number {
+    let count = 0;
+    for (const key of this.cache.keys()) {
+      if (key.startsWith(prefix)) {
+        this.cache.delete(key);
+        count++;
+      }
+    }
+    return count;
+  }
+
   public clear(): void {
     this.cache.clear();
+    this.hitsCount = 0;
+    this.missesCount = 0;
+  }
+
+  public getStats(): CacheStats {
+    return {
+      size: this.cache.size,
+      hits: this.hitsCount,
+      misses: this.missesCount,
+    };
   }
 
   public static createHashKey(prefix: string, payload: Record<string, unknown>): string {
