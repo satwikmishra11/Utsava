@@ -549,7 +549,7 @@ export class DrizzleEventRepository implements EventRepository {
       arr.push({
         id: r.id,
         eventId: r.eventId,
-        category: r.category,
+        category: r.category as BudgetCategory,
         name: r.name,
         contact: r.contact,
         quote: r.quote,
