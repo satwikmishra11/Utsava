@@ -3,7 +3,6 @@ import {
   IdeaRecommendation,
   TimelineItem,
   EventPlan,
-  ChatMessage,
   EventType,
 } from '../domain/types';
 import { detectPromptInjection, buildSecurePromptEnvelope } from '../domain/security';
@@ -130,7 +129,10 @@ export function buildMockTimeline(
 export async function generateIdeas(
   params: GenerateIdeasParams
 ): Promise<readonly IdeaRecommendation[]> {
-  const cacheKey = GenerationCache.createHashKey('ideas', params as Record<string, unknown>);
+  const cacheKey = GenerationCache.createHashKey(
+    'ideas',
+    params as unknown as Record<string, unknown>
+  );
   const cached = generationCache.get<readonly IdeaRecommendation[]>(cacheKey);
   if (cached) return cached;
 
@@ -159,10 +161,15 @@ export async function generateIdeas(
   }
 }
 
+export interface ChatHistoryEntry {
+  readonly role: 'user' | 'assistant' | 'system';
+  readonly content: string;
+}
+
 export async function chatWithPlanAssistant(
   userMessage: string,
   eventPlan: EventPlan,
-  chatHistory: readonly ChatMessage[]
+  chatHistory: readonly ChatHistoryEntry[]
 ): Promise<ReadableStream<Uint8Array>> {
   const injection = detectPromptInjection(userMessage);
   if (!injection.isSafe) {

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { VendorItem, VendorStatus, BudgetCategory } from '@/domain/types';
 import { filterVendorsByStatus, calculateVendorTotalCommitment } from '@/domain/vendors';
 import { ALL_BUDGET_CATEGORIES } from '@/domain/budget';
-import { Plus, Check, Mail, Phone, DollarSign } from 'lucide-react';
+import { Plus, Check } from 'lucide-react';
 
 interface VendorChecklistProps {
   readonly vendors: readonly VendorItem[];
@@ -109,6 +109,21 @@ export function VendorChecklist({
           <span>Add Vendor</span>
         </button>
       </form>
+
+      {/* Vendor Status Filters */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+        {(['all', 'researching', 'contacted', 'quoted', 'hired', 'declined'] as const).map((st) => (
+          <button
+            key={st}
+            type="button"
+            onClick={() => setFilter(st)}
+            className={filter === st ? 'btn btn-primary' : 'btn btn-secondary'}
+            style={{ padding: '6px 14px', fontSize: '0.8rem', textTransform: 'capitalize' }}
+          >
+            {st}
+          </button>
+        ))}
+      </div>
 
       {/* Vendor Cards Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>

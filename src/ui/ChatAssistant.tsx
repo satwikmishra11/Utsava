@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { EventPlan, ChatMessage } from '@/domain/types';
-import { Send, Sparkles, Check, Bot, User, ShieldCheck } from 'lucide-react';
+import { Send, Check, Bot, User, ShieldCheck } from 'lucide-react';
 
 interface ChatAssistantProps {
   readonly plan: EventPlan;

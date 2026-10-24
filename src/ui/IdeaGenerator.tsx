@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { IdeaRecommendation, EventType } from '@/domain/types';
-import { Sparkles, Tag, Plus, Check } from 'lucide-react';
+import { Sparkles, Plus, Check } from 'lucide-react';
 
 interface IdeaGeneratorProps {
   readonly eventType: EventType;

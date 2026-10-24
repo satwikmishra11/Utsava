@@ -144,6 +144,21 @@ export function TimelineGenerator({
         </button>
       </form>
 
+      {/* Phase Filter Controls */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+        {(['all', 'preparation', 'ceremony', 'reception', 'teardown'] as const).map((phase) => (
+          <button
+            key={phase}
+            type="button"
+            onClick={() => setPhaseFilter(phase)}
+            className={phaseFilter === phase ? 'btn btn-primary' : 'btn btn-secondary'}
+            style={{ padding: '6px 14px', fontSize: '0.8rem', textTransform: 'capitalize' }}
+          >
+            {phase}
+          </button>
+        ))}
+      </div>
+
       {/* Timeline List */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {displayedItems.map((item) => (
