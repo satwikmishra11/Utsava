@@ -44,6 +44,22 @@ export interface CapabilityOptions {
   readonly skipCache?: boolean;
 }
 
+export function invalidateCapabilityCache(
+  capability: 'budget' | 'timeline' | 'vendor' | 'ideas' | 'all',
+  context?: PersonalizationContext
+): void {
+  if (capability === 'all') {
+    generationCache.clear();
+    return;
+  }
+  if (context) {
+    const key = createNormalizedHashKey(capability, context);
+    generationCache.invalidate(key);
+  } else {
+    generationCache.invalidatePrefix(`${capability}:`);
+  }
+}
+
 export async function generateBudgetPlan(
   context: PersonalizationContext,
   options?: CapabilityOptions
