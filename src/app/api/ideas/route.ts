@@ -1,10 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { GenerateIdeasRequestSchema } from '@/domain/schemas';
-import { enforceRateLimit, jsonValidationError } from '../helpers';
+import { enforceRateLimit, enforceCsrf, enforceInputLength, jsonValidationError } from '../helpers';
+import { getSessionUser } from '@/services/auth/session';
 import { generateIdeas } from '@/services/aiService';
 
+const QuerySchema = z.object({}).strict();
+
 export async function POST(req: NextRequest): Promise<Response> {
-  const rateLimitResponse = enforceRateLimit(req);
+  const queryParsed = QuerySchema.safeParse(Object.fromEntries(req.nextUrl.searchParams));
+  if (!queryParsed.success) {
+    return jsonValidationError(queryParsed.error.flatten());
+  }
+
+  const csrfErr = enforceCsrf(req);
+  if (csrfErr) return csrfErr;
+
+  const sessionUser = await getSessionUser(req);
+  const rateLimitResponse = enforceRateLimit(req, sessionUser?.id);
   if (rateLimitResponse) return rateLimitResponse;
 
   let body: unknown;
@@ -17,6 +30,11 @@ export async function POST(req: NextRequest): Promise<Response> {
   const parsed = GenerateIdeasRequestSchema.safeParse(body);
   if (!parsed.success) {
     return jsonValidationError(parsed.error.flatten());
+  }
+
+  if (parsed.data.culturalContext) {
+    const lenErr = enforceInputLength(parsed.data.culturalContext, 500);
+    if (lenErr) return lenErr;
   }
 
   const ideas = await generateIdeas(parsed.data);
