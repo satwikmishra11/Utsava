@@ -144,7 +144,7 @@ export type ChatRequest = z.infer<typeof ChatRequestSchema>;
 
 export const GenerateIdeasRequestSchema = z.object({
   eventType: EventTypeSchema,
-  culturalContext: z.string().max(200).optional(),
+  culturalContext: z.string().max(500).optional(),
   budgetTier: z.enum(['budget', 'moderate', 'luxury']).default('moderate'),
   guestCount: z.number().int().positive(),
   existingTags: z.array(z.string()).max(10).default([]),
