@@ -2,10 +2,11 @@ import { Event, BudgetItem, TimelineTask, Vendor, IdeaSet } from '@/domain/schem
 
 export interface EventRepository {
   createEvent(event: Event): Promise<Event>;
-  getEventById(id: string): Promise<Event | null>;
-  listEvents(): Promise<readonly Event[]>;
-  updateEvent(id: string, updates: Partial<Event>): Promise<Event | null>;
-  deleteEvent(id: string): Promise<boolean>;
+  getEventById(id: string, userId?: string): Promise<Event | null>;
+  listEvents(userId?: string): Promise<readonly Event[]>;
+  updateEvent(id: string, updates: Partial<Event>, userId?: string): Promise<Event | null>;
+  deleteEvent(id: string, userId?: string): Promise<boolean>;
+  isEventOwner(eventId: string, userId: string): Promise<boolean>;
 
   addBudgetItem(item: BudgetItem): Promise<BudgetItem>;
   getBudgetItems(eventId: string): Promise<readonly BudgetItem[]>;
