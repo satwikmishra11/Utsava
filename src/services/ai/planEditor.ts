@@ -1,12 +1,12 @@
 import { EventPlan, TimelineItem, VendorItem, BudgetItem } from '@/domain/types';
-import { ToolCall } from './types';
+import { ToolCall, ToolCallSchema } from './types';
 
 function applyAddTask(
   plan: EventPlan,
   params: Extract<ToolCall, { tool: 'add_task' }>['parameters']
 ): EventPlan {
   const newItem: TimelineItem = {
-    id: `task-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    id: `task_${crypto.randomUUID()}`,
     phase: 'preparation',
     title: params.title,
     time: params.dueDate ?? '09:00',
@@ -31,7 +31,7 @@ function applyUpdateBudgetItem(
     : [
         ...plan.budgetItems,
         {
-          id: `b-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          id: `budget_${crypto.randomUUID()}`,
           eventId: plan.id,
           category: params.category,
           estimated: params.estimated,
@@ -47,7 +47,7 @@ function applyShortlistVendor(
   params: Extract<ToolCall, { tool: 'shortlist_vendor' }>['parameters']
 ): EventPlan {
   const newVendor: VendorItem = {
-    id: `v-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    id: `vendor_${crypto.randomUUID()}`,
     category: params.category,
     name: params.name,
     status: 'shortlisted',
@@ -58,7 +58,8 @@ function applyShortlistVendor(
   return { ...plan, vendors: [...plan.vendors, newVendor] };
 }
 
-export function applyToolCallToPlan(plan: EventPlan, toolCall: ToolCall): EventPlan {
+export function applyToolCallToPlan(plan: EventPlan, rawToolCall: unknown): EventPlan {
+  const toolCall = ToolCallSchema.parse(rawToolCall);
   switch (toolCall.tool) {
     case 'add_task':
       return applyAddTask(plan, toolCall.parameters);
