@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { ChatRequestSchema } from '@/domain/schemas';
-import { enforceRateLimit, enforceCsrf, enforceInputLength, jsonValidationError } from '../helpers';
+import { enforceRateLimit, enforceCsrf, enforceFieldLength, jsonValidationError } from '../helpers';
 import { getSessionUser } from '@/services/auth/session';
 import { chatWithPlanAssistant } from '@/services/aiService';
 
@@ -9,9 +9,7 @@ const QuerySchema = z.object({}).strict();
 
 export async function POST(req: NextRequest): Promise<Response> {
   const queryParsed = QuerySchema.safeParse(Object.fromEntries(req.nextUrl.searchParams));
-  if (!queryParsed.success) {
-    return jsonValidationError(queryParsed.error.flatten());
-  }
+  if (!queryParsed.success) return jsonValidationError(queryParsed.error.flatten());
 
   const csrfErr = enforceCsrf(req);
   if (csrfErr) return csrfErr;
@@ -27,13 +25,11 @@ export async function POST(req: NextRequest): Promise<Response> {
     return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 });
   }
 
-  const parsed = ChatRequestSchema.safeParse(body);
-  if (!parsed.success) {
-    return jsonValidationError(parsed.error.flatten());
-  }
-
-  const lengthErr = enforceInputLength(parsed.data.message, 2000);
+  const lengthErr = enforceFieldLength(body, 'message', 2000);
   if (lengthErr) return lengthErr;
+
+  const parsed = ChatRequestSchema.safeParse(body);
+  if (!parsed.success) return jsonValidationError(parsed.error.flatten());
 
   const stream = await chatWithPlanAssistant(
     parsed.data.message,
