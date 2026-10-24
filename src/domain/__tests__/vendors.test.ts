@@ -15,7 +15,7 @@ describe('Vendor Domain Functions', () => {
       category: 'photography',
       name: 'Lens & Light Studios',
       contactEmail: 'contact@lenslight.test',
-      status: 'hired',
+      status: 'booked',
       quotedAmount: 2500,
       deliverables: ['Highlight Reel', 'RAW Photos', 'Digital Album'],
     },
@@ -23,7 +23,7 @@ describe('Vendor Domain Functions', () => {
       id: 'v-2',
       category: 'catering',
       name: 'Royal Feast Caterers',
-      status: 'quoted',
+      status: 'paid',
       quotedAmount: 4000,
       deliverables: ['Appetizers', 'Main Course', 'Dessert Table'],
     },
@@ -31,27 +31,27 @@ describe('Vendor Domain Functions', () => {
       id: 'v-3',
       category: 'entertainment',
       name: 'Beats DJ Crew',
-      status: 'researching',
+      status: 'shortlisted',
       quotedAmount: 1200,
       deliverables: [],
     },
   ];
 
   it('filters vendors by status', () => {
-    const hired = filterVendorsByStatus(sampleVendors, 'hired');
-    expect(hired).toHaveLength(1);
-    expect(hired[0]?.name).toBe('Lens & Light Studios');
+    const booked = filterVendorsByStatus(sampleVendors, 'booked');
+    expect(booked).toHaveLength(1);
+    expect(booked[0]?.name).toBe('Lens & Light Studios');
   });
 
-  it('calculates total commitment from hired and quoted vendors', () => {
+  it('calculates total commitment from booked and paid vendors', () => {
     const total = calculateVendorTotalCommitment(sampleVendors);
     expect(total).toBe(6500); // 2500 + 4000
   });
 
   it('updates vendor status immutably', () => {
-    const next = updateVendorStatus(sampleVendors, 'v-2', 'hired');
-    expect(next.find((v) => v.id === 'v-2')?.status).toBe('hired');
-    expect(sampleVendors.find((v) => v.id === 'v-2')?.status).toBe('quoted');
+    const next = updateVendorStatus(sampleVendors, 'v-3', 'booked');
+    expect(next.find((v) => v.id === 'v-3')?.status).toBe('booked');
+    expect(sampleVendors.find((v) => v.id === 'v-3')?.status).toBe('shortlisted');
   });
 
   it('adds vendor item immutably', () => {
@@ -59,7 +59,7 @@ describe('Vendor Domain Functions', () => {
       id: 'v-4',
       category: 'decor',
       name: 'Bloom Floral Designs',
-      status: 'researching',
+      status: 'shortlisted',
       quotedAmount: 1500,
       deliverables: ['Stage Decor', 'Table Runners'],
     };
@@ -68,7 +68,7 @@ describe('Vendor Domain Functions', () => {
     expect(sampleVendors).toHaveLength(3);
   });
 
-  it('retrieves pending deliverables for hired vendors', () => {
+  it('retrieves pending deliverables for booked vendors', () => {
     const deliverables = getPendingVendorDeliverables(sampleVendors);
     expect(deliverables).toHaveLength(1);
     expect(deliverables[0]?.vendorName).toBe('Lens & Light Studios');

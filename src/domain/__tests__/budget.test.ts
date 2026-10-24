@@ -7,27 +7,25 @@ import {
   removeBudgetItem,
   detectBudgetRisks,
 } from '../budget';
-import { BudgetItem } from '../types';
+import { BudgetItem } from '../schemas';
 
 describe('Budget Domain Functions', () => {
   const sampleItems: readonly BudgetItem[] = [
     {
       id: 'b-1',
+      eventId: 'evt-1',
       category: 'venue',
-      name: 'Banquet Hall',
-      estimatedCost: 5000,
-      actualCost: 5200,
-      paidCost: 2000,
-      status: 'booked',
+      estimated: 5000,
+      actual: 5200,
+      notes: 'Banquet Hall',
     },
     {
       id: 'b-2',
+      eventId: 'evt-1',
       category: 'catering',
-      name: 'Buffet Dinner',
-      estimatedCost: 3000,
-      actualCost: 2800,
-      paidCost: 1000,
-      status: 'booked',
+      estimated: 3000,
+      actual: 2800,
+      notes: 'Buffet Dinner',
     },
   ];
 
@@ -47,7 +45,7 @@ describe('Budget Domain Functions', () => {
     expect(summary.totalBudget).toBe(10000);
     expect(summary.totalEstimated).toBe(8000);
     expect(summary.totalActual).toBe(8000);
-    expect(summary.totalPaid).toBe(3000);
+    expect(summary.totalPaid).toBe(8000);
     expect(summary.remainingBudget).toBe(2000);
     expect(summary.isOverBudget).toBe(false);
   });
@@ -61,12 +59,11 @@ describe('Budget Domain Functions', () => {
   it('adds item immutably', () => {
     const newItem: BudgetItem = {
       id: 'b-3',
+      eventId: 'evt-1',
       category: 'decor',
-      name: 'Floral Centerpieces',
-      estimatedCost: 800,
-      actualCost: 0,
-      paidCost: 0,
-      status: 'planned',
+      estimated: 800,
+      actual: 0,
+      notes: 'Floral Centerpieces',
     };
     const next = addBudgetItem(sampleItems, newItem);
     expect(next).toHaveLength(3);
@@ -76,11 +73,11 @@ describe('Budget Domain Functions', () => {
   it('updates item immutably', () => {
     const updated: BudgetItem = {
       ...sampleItems[0]!,
-      actualCost: 5500,
+      actual: 5500,
     };
     const next = updateBudgetItem(sampleItems, updated);
-    expect(next[0]?.actualCost).toBe(5500);
-    expect(sampleItems[0]?.actualCost).toBe(5200);
+    expect(next[0]?.actual).toBe(5500);
+    expect(sampleItems[0]?.actual).toBe(5200);
   });
 
   it('removes item immutably', () => {

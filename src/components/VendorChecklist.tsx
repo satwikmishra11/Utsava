@@ -35,7 +35,7 @@ export function VendorChecklist({
       id: `v-${Date.now()}`,
       category,
       name: name.trim(),
-      status: 'researching',
+      status: 'shortlisted',
       quotedAmount: Number(quotedAmount) || 0,
       deliverables: ['Contract Review', 'Deposit Payment'],
     });
@@ -165,7 +165,7 @@ export function VendorChecklist({
 
       {/* Vendor Status Filters */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
-        {(['all', 'researching', 'contacted', 'quoted', 'hired', 'declined'] as const).map((st) => (
+        {(['all', 'shortlisted', 'booked', 'paid'] as const).map((st) => (
           <button
             key={st}
             type="button"
@@ -217,11 +217,9 @@ export function VendorChecklist({
                 onChange={(e) => onUpdateStatus(vendor.id, e.target.value as VendorStatus)}
                 style={{ width: 'auto', padding: '4px 8px', fontSize: '0.8rem' }}
               >
-                <option value="researching">Researching</option>
-                <option value="contacted">Contacted</option>
-                <option value="quoted">Quoted</option>
-                <option value="hired">Hired</option>
-                <option value="declined">Declined</option>
+                <option value="shortlisted">Shortlisted</option>
+                <option value="booked">Booked</option>
+                <option value="paid">Paid</option>
               </select>
             </div>
 

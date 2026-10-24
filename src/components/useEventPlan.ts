@@ -8,7 +8,6 @@ import {
   TimelineItem,
   VendorItem,
   IdeaRecommendation,
-  PaymentStatus,
   VendorStatus,
 } from '@/domain/types';
 import { buildMockIdeas, buildMockTimeline } from '@/services/aiService';
@@ -25,30 +24,27 @@ export const INITIAL_PLAN: EventPlan = {
   budgetItems: [
     {
       id: 'b-1',
+      eventId: 'evt-utsava-main',
       category: 'venue',
-      name: 'Grand Heritage Palace Banquet Hall',
-      estimatedCost: 15000,
-      actualCost: 15000,
-      paidCost: 8000,
-      status: 'booked',
+      notes: 'Grand Heritage Palace Banquet Hall',
+      estimated: 15000,
+      actual: 15000,
     },
     {
       id: 'b-2',
+      eventId: 'evt-utsava-main',
       category: 'catering',
-      name: 'Curated 4-Course Multi-Cuisine Feast',
-      estimatedCost: 12000,
-      actualCost: 11500,
-      paidCost: 4000,
-      status: 'booked',
+      notes: 'Curated 4-Course Multi-Cuisine Feast',
+      estimated: 12000,
+      actual: 11500,
     },
     {
       id: 'b-3',
+      eventId: 'evt-utsava-main',
       category: 'photography',
-      name: 'Cinematography & Candid Photo Package',
-      estimatedCost: 4500,
-      actualCost: 4500,
-      paidCost: 1500,
-      status: 'booked',
+      notes: 'Cinematography & Candid Photo Package',
+      estimated: 4500,
+      actual: 4500,
     },
   ],
   timelineItems: buildMockTimeline('wedding', '16:00'),
@@ -58,7 +54,7 @@ export const INITIAL_PLAN: EventPlan = {
       category: 'venue',
       name: 'Grand Heritage Estate',
       contactEmail: 'events@grandheritage.test',
-      status: 'hired',
+      status: 'booked',
       quotedAmount: 15000,
       deliverables: ['Main Ballroom', 'Bridal Suite Access'],
     },
@@ -96,11 +92,11 @@ export function useEventPlan() {
     }));
   };
 
-  const updateBudgetStatus = (id: string, status: PaymentStatus) => {
+  const updateBudgetStatus = (id: string) => {
     setPlan((prev) => ({
       ...prev,
       budgetItems: prev.budgetItems.map((i) =>
-        i.id === id ? { ...i, status, paidCost: status === 'paid' ? i.actualCost : 0 } : i
+        i.id === id ? { ...i, actual: i.actual > 0 ? 0 : i.estimated } : i
       ),
     }));
   };
@@ -148,12 +144,11 @@ export function useEventPlan() {
     if (actionType === 'add_budget_item') {
       const newItem: BudgetItem = {
         id: `budget-auto-${Date.now()}`,
-        name: String(payload.name ?? 'Contingency Allocation'),
+        eventId: plan.id,
         category: 'miscellaneous',
-        estimatedCost: Number(payload.estimatedCost) || 1000,
-        actualCost: Number(payload.estimatedCost) || 1000,
-        paidCost: 0,
-        status: 'planned',
+        estimated: Number(payload.estimatedCost) || 1000,
+        actual: Number(payload.estimatedCost) || 1000,
+        notes: String(payload.name ?? 'Contingency Allocation'),
       };
       addBudgetItem(newItem);
     }

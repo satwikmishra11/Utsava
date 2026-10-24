@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { BudgetItem, BudgetCategory, PaymentStatus } from '@/domain/types';
+import { BudgetItem, BudgetCategory } from '@/domain/types';
 import { calculateBudgetSummary, detectBudgetRisks, ALL_BUDGET_CATEGORIES } from '@/domain/budget';
 import { Plus, Trash2, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
@@ -11,7 +11,7 @@ interface BudgetPlannerProps {
   readonly items: readonly BudgetItem[];
   readonly onAddItem: (item: BudgetItem) => void;
   readonly onRemoveItem: (id: string) => void;
-  readonly onUpdateStatus: (id: string, status: PaymentStatus) => void;
+  readonly onUpdateStatus: (id: string) => void;
 }
 
 export function BudgetPlanner({
@@ -36,12 +36,11 @@ export function BudgetPlanner({
 
     onAddItem({
       id: `budget-${Date.now()}`,
+      eventId: 'evt-utsava-main',
       category,
-      name: name.trim(),
-      estimatedCost: cost,
-      actualCost: cost,
-      paidCost: 0,
-      status: 'planned',
+      estimated: cost,
+      actual: cost,
+      notes: name.trim(),
     });
     setName('');
     setEstimatedCost('');
@@ -162,7 +161,12 @@ export function BudgetPlanner({
             <span>Budget Risk Alerts</span>
           </div>
           <ul
-            style={{ marginTop: '8px', paddingLeft: '24px', fontSize: '0.9rem', color: '#fca5a5' }}
+            style={{
+              marginTop: '8px',
+              paddingLeft: '24px',
+              fontSize: '0.9rem',
+              color: '#fca5a5',
+            }}
           >
             {risks.map((r, i) => (
               <li key={i}>{r}</li>
@@ -295,23 +299,21 @@ export function BudgetPlanner({
           <tbody>
             {items.map((item) => (
               <tr key={item.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                <td style={{ padding: '12px 8px', fontWeight: 600 }}>{item.name}</td>
+                <td style={{ padding: '12px 8px', fontWeight: 600 }}>{item.notes ?? item.id}</td>
                 <td style={{ padding: '12px 8px' }}>
                   <span className="badge badge-gold">{item.category}</span>
                 </td>
                 <td style={{ padding: '12px 8px' }}>
-                  {currency} {item.estimatedCost.toLocaleString()}
+                  {currency} {item.estimated.toLocaleString()}
                 </td>
                 <td style={{ padding: '12px 8px' }}>
                   <button
-                    onClick={() =>
-                      onUpdateStatus(item.id, item.status === 'paid' ? 'booked' : 'paid')
-                    }
+                    onClick={() => onUpdateStatus(item.id)}
                     className="btn btn-secondary"
                     style={{ padding: '4px 10px', fontSize: '0.8rem' }}
-                    aria-label={`Toggle payment status for ${item.name}`}
+                    aria-label={`Toggle payment status for ${item.notes ?? item.id}`}
                   >
-                    {item.status === 'paid' ? (
+                    {item.actual > 0 ? (
                       <span
                         style={{
                           color: 'var(--accent-emerald)',
@@ -323,7 +325,7 @@ export function BudgetPlanner({
                         <CheckCircle2 size={14} aria-hidden="true" /> Paid
                       </span>
                     ) : (
-                      item.status
+                      'planned'
                     )}
                   </button>
                 </td>
@@ -332,7 +334,7 @@ export function BudgetPlanner({
                     onClick={() => onRemoveItem(item.id)}
                     className="btn btn-secondary"
                     style={{ padding: '6px', color: 'var(--accent-rose)' }}
-                    aria-label={`Delete ${item.name}`}
+                    aria-label={`Delete ${item.notes ?? item.id}`}
                   >
                     <Trash2 size={16} aria-hidden="true" />
                   </button>
