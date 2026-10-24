@@ -13,6 +13,7 @@ export interface HeaderProps {
   readonly onExportICS: () => void;
   readonly onExportPDF: () => void;
   readonly onShareLink: () => void;
+  readonly saveStatus?: 'saved' | 'saving' | 'unsaved' | 'error';
 }
 
 function HeaderBrand({ title }: { readonly title: string }): React.JSX.Element {
@@ -74,11 +75,13 @@ function HeaderMeta({
   onExportICS,
   onExportPDF,
   onShareLink,
+  saveStatus,
 }: {
   readonly plan: EventPlan;
   readonly onExportICS: () => void;
   readonly onExportPDF: () => void;
   readonly onShareLink: () => void;
+  readonly saveStatus?: 'saved' | 'saving' | 'unsaved' | 'error';
 }): React.JSX.Element {
   return (
     <div
@@ -129,6 +132,23 @@ function HeaderMeta({
             {plan.currency} {plan.totalBudget.toLocaleString()}
           </span>
         </div>
+        {saveStatus && (
+          <div
+            role="status"
+            aria-live="polite"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '0.8rem',
+              color: saveStatus === 'saving' ? 'var(--accent-gold)' : 'var(--accent-emerald)',
+              fontWeight: 500,
+            }}
+          >
+            <span>{saveStatus === 'saving' ? '⏳' : '✓'}</span>
+            <span>{saveStatus === 'saving' ? 'Saving...' : 'Saved'}</span>
+          </div>
+        )}
       </div>
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
         <Button
@@ -187,6 +207,7 @@ export function Header(props: HeaderProps): React.JSX.Element {
         onExportICS={props.onExportICS}
         onExportPDF={props.onExportPDF}
         onShareLink={props.onShareLink}
+        saveStatus={props.saveStatus}
       />
     </header>
   );

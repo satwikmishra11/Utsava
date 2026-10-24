@@ -1,13 +1,28 @@
 'use client';
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { TabId } from './NavigationTabs';
 import { BudgetPlanner } from './BudgetPlanner';
-import { TimelineGenerator } from './TimelineGenerator';
-import { VendorChecklist } from './VendorChecklist';
-import { IdeaGenerator } from './IdeaGenerator';
-import { ChatAssistant } from './ChatAssistant';
+import { CardSkeleton } from './ui/Skeleton';
 import { useEventPlan } from './useEventPlan';
+
+const TimelineGenerator = dynamic(
+  () => import('./TimelineGenerator').then((m) => m.TimelineGenerator),
+  { loading: () => <CardSkeleton count={3} /> }
+);
+
+const VendorChecklist = dynamic(() => import('./VendorChecklist').then((m) => m.VendorChecklist), {
+  loading: () => <CardSkeleton count={3} />,
+});
+
+const IdeaGenerator = dynamic(() => import('./IdeaGenerator').then((m) => m.IdeaGenerator), {
+  loading: () => <CardSkeleton count={3} />,
+});
+
+const ChatAssistant = dynamic(() => import('./ChatAssistant').then((m) => m.ChatAssistant), {
+  loading: () => <CardSkeleton count={2} />,
+});
 
 interface ActiveTabPanelProps {
   readonly activeTab: TabId;

@@ -16,10 +16,12 @@ import {
   generateTimeline,
   generateVendorChecklist,
   generateIdeas,
+  invalidateCapabilityCache,
   GeneratedBudgetItem,
   GeneratedTimelineTask,
   GeneratedVendorItem,
 } from '@/services/ai';
+import { useDebouncedAutosave } from './useAutosave';
 import { detectOverspend } from '@/domain/budgetLogic';
 import {
   exportPlanToICS,
@@ -323,8 +325,10 @@ export function useEventPlan() {
   const ideaAi = useIdeaAiSync(plan, setPlan, showToast);
   const mutations = useItemMutations(setPlan, plan, showToast);
   const exports = usePlanExports(plan, showToast);
+  const autosave = useDebouncedAutosave(plan);
 
   const switchEventType = (newType: EventType): void => {
+    invalidateCapabilityCache('all');
     setPlan((prev) => ({
       ...prev,
       eventType: newType,
@@ -396,6 +400,9 @@ export function useEventPlan() {
     regenerateIdeas: ideaAi.regenerate,
     acceptIdeaSuggestions: ideaAi.accept,
     overspendAnalysis: detectOverspend(plan.totalBudget, plan.budgetItems),
+    saveStatus: autosave.saveStatus,
+    lastSavedAt: autosave.lastSavedAt,
+    forceSave: autosave.forceSave,
     ...mutations,
     ...exports,
   };
