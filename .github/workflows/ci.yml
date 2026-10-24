@@ -33,5 +33,12 @@ jobs:
       - name: Unit & Integration Tests (Mocked LLM)
         run: npm test
 
+      - name: CI Secret Scan
+        run: bash scripts/secret-scan.sh
+
+      - name: Dependency Vulnerability Audit
+        run: npm audit --audit-level=critical
+
       - name: Next.js Production Build
         run: npm run build
+
