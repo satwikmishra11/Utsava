@@ -4,7 +4,7 @@ import { LLMProvider, LLMOptions } from '../llm/types';
 export interface ExecuteStructuredOptions<T> {
   readonly provider: LLMProvider;
   readonly prompt: string;
-  readonly schema: z.ZodSchema<T>;
+  readonly schema: z.ZodType<T, z.ZodTypeDef, unknown>;
   readonly buildRetryPrompt: (originalPrompt: string, validationErrors: string) => string;
   readonly fallback: () => T;
   readonly llmOptions?: LLMOptions;
@@ -19,7 +19,7 @@ export interface StructuredExecutionResult<T> {
 async function attemptStructured<T>(
   provider: LLMProvider,
   prompt: string,
-  schema: z.ZodSchema<T>,
+  schema: z.ZodType<T, z.ZodTypeDef, unknown>,
   options?: LLMOptions
 ): Promise<{ success: true; data: T } | { success: false; error: string }> {
   try {

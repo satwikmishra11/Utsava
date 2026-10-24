@@ -18,7 +18,19 @@ export const PersonalizationContextSchema = z.object({
   location: z.string().max(200).optional(),
   eventDate: z.string().optional(),
 });
-export type PersonalizationContext = z.infer<typeof PersonalizationContextSchema>;
+
+export interface PersonalizationContext {
+  readonly eventType: import('@/domain/schemas').EventType;
+  readonly culture?: string;
+  readonly budgetBand?: 'budget' | 'moderate' | 'luxury';
+  readonly totalBudget?: number;
+  readonly currency?: string;
+  readonly guestCount: number;
+  readonly dietary?: readonly string[];
+  readonly accessibilityNeeds?: readonly string[];
+  readonly location?: string;
+  readonly eventDate?: string;
+}
 
 export const GeneratedBudgetItemSchema = z.object({
   category: BudgetCategorySchema,

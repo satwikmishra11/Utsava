@@ -3,6 +3,17 @@ import { LLMProvider, LLMOptions } from './types';
 
 function buildMockPayload(prompt: string): unknown {
   const p = prompt.toLowerCase();
+  if (p.includes('toolcalls') || p.includes('user_message') || p.includes('shortlist_vendor')) {
+    return {
+      reply: 'I can assist you with that! I will adjust the catering budget accordingly.',
+      toolCalls: [
+        {
+          tool: 'update_budget_item',
+          parameters: { category: 'catering', estimated: 3200, notes: 'Adjusted per chat' },
+        },
+      ],
+    };
+  }
   if (p.includes('budget') || p.includes('allocated')) {
     return {
       items: [
@@ -50,17 +61,6 @@ function buildMockPayload(prompt: string): unknown {
       ],
     };
   }
-  if (p.includes('user_message') || p.includes('reply')) {
-    return {
-      reply: 'I can assist you with that! I will adjust the catering budget accordingly.',
-      toolCalls: [
-        {
-          tool: 'update_budget_item',
-          parameters: { category: 'catering', estimated: 3200, notes: 'Adjusted per chat' },
-        },
-      ],
-    };
-  }
   return {
     ideas: [
       {
@@ -80,6 +80,7 @@ export class MockProvider implements LLMProvider {
   public readonly name = 'mock';
   private readonly defaultResponse: string;
   private failureCount: number = 0;
+  private customStructuredHandler?: (prompt: string) => unknown;
 
   constructor(defaultResponse: string = 'This is a deterministic response from MockProvider.') {
     this.defaultResponse = defaultResponse;
@@ -87,6 +88,10 @@ export class MockProvider implements LLMProvider {
 
   public setFailureCount(count: number): void {
     this.failureCount = count;
+  }
+
+  public setCustomStructuredHandler(handler: (prompt: string) => unknown): void {
+    this.customStructuredHandler = handler;
   }
 
   public async generateText(prompt: string, options?: LLMOptions): Promise<string> {
@@ -117,12 +122,15 @@ export class MockProvider implements LLMProvider {
 
   public async generateStructured<T>(
     prompt: string,
-    schema: z.ZodSchema<T>,
+    schema: z.ZodType<T, z.ZodTypeDef, unknown>,
     _options?: LLMOptions
   ): Promise<T> {
     if (this.failureCount > 0) {
       this.failureCount--;
       throw new Error('Simulated MockProvider generateStructured failure');
+    }
+    if (this.customStructuredHandler) {
+      return schema.parse(this.customStructuredHandler(prompt));
     }
     const payload = buildMockPayload(prompt);
     const parsed = schema.safeParse(payload);

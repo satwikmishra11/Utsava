@@ -47,7 +47,7 @@ export class ClaudeProvider implements LLMProvider {
 
   public async generateStructured<T>(
     prompt: string,
-    schema: z.ZodSchema<T>,
+    schema: z.ZodType<T, z.ZodTypeDef, unknown>,
     options?: LLMOptions
   ): Promise<T> {
     const system = `${options?.systemPrompt ?? ''}\nReturn ONLY valid JSON matching the required schema. No markdown formatting, no backticks.`;

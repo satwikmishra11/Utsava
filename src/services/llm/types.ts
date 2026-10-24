@@ -16,5 +16,9 @@ export interface LLMProvider {
   readonly name: string;
   generateText(prompt: string, options?: LLMOptions): Promise<string>;
   streamText(prompt: string, options?: LLMOptions): Promise<ReadableStream<string>>;
-  generateStructured<T>(prompt: string, schema: z.ZodSchema<T>, options?: LLMOptions): Promise<T>;
+  generateStructured<T>(
+    prompt: string,
+    schema: z.ZodType<T, z.ZodTypeDef, unknown>,
+    options?: LLMOptions
+  ): Promise<T>;
 }

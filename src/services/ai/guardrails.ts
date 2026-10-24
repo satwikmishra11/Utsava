@@ -1,8 +1,8 @@
 import { detectPromptInjection } from '@/domain/security';
 
 const OUT_OF_SCOPE_PATTERNS: readonly RegExp[] = [
-  /\b(write|debug|fix|explain)\s+(python|javascript|typescript|c\+\+|java|rust|sql|code|function|class|script|html)\b/i,
-  /\b(stock|cryptocurrency|crypto|bitcoin|investing|portfolio)\s+(advice|tips|picks)\b/i,
+  /\b(write|debug|fix|explain)\s+(?:a\s+|an\s+|the\s+)?(python|javascript|typescript|c\+\+|java|rust|sql|code|function|class|script|html)\b/i,
+  /\b(stock|cryptocurrency|crypto|bitcoin|investing|portfolio)\b.*\b(advice|tips|picks)\b/i,
   /\b(medical|diagnosis|prescribe|symptoms|cure)\b/i,
   /\b(political\s+campaign|election|candidate|vote\s+for)\b/i,
   /\b(hack|exploit|ddos|vulnerability|malware|keylogger)\b/i,

@@ -3,8 +3,8 @@
  */
 
 const INJECTION_PATTERNS: readonly RegExp[] = [
-  /ignore\s+(all\s+)?(previous|prior|above)\s+instructions/i,
-  /disregard\s+(the\s+)?(previous|system|above)\s+(prompt|instructions)/i,
+  /ignore\s+(all\s+)?(previous|prior|above)\s+(instructions|guidelines|rules|prompts?)/i,
+  /disregard\s+(the\s+)?(previous|system|above)\s+(prompt|instructions|guidelines|rules)/i,
   /system\s+prompt\s+override/i,
   /you\s+are\s+now\s+in\s+developer\s+mode/i,
   /\bjailbreak\b/i,

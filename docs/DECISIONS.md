@@ -113,3 +113,42 @@ Utsava requires strong schema validation with exported inferred types for Event,
 - Route handlers remain strictly thin adapters without embedded business logic.
 - Functions strictly under 40 lines with complete pure modular separation.
 - Database queries and persistence are decoupled behind the `EventRepository` interface.
+
+---
+
+## ADR 007: Structured Validated AI Outputs, Multi-Capability Prompt Versioning, and Fallback Strategy
+
+- **Date:** 2026-10-24
+- **Status:** Accepted
+
+### Context
+
+Event planning features (budget allocations, back-scheduled timelines, vendor checklists, personalized creative themes, and chat planning assistant) must leverage GenAI while strictly adhering to system safety, privacy, and reliability constraints. Raw LLM text must never reach the user interface unvalidated, and provider failures or schema parse errors must never crash the user experience.
+
+### Decision
+
+1. **Versioned Parameterized Prompt Templates**:
+   - Structured templates in `src/services/ai/prompts/` (one file per capability: `budgetPrompt.ts`, `timelinePrompt.ts`, `vendorPrompt.ts`, `ideasPrompt.ts`, `chatPrompt.ts`).
+   - Every template is parameterized by `PersonalizationContext` (eventType, culture, budget band, guest count, dietary, accessibilityNeeds, location, eventDate).
+   - Raw user input is never string-concatenated into system instructions; inputs are sanitized and safely enclosed in structured markdown/JSON boundaries.
+
+2. **Structured Execution with Single Retry & Deterministic Fallback**:
+   - `executeStructuredWithRetry` validates every LLM response against a Zod schema.
+   - On parse failure, retries once with the exact validation error formatted for the model.
+   - On second failure or provider exception, transparently falls back to deterministic Phase 2 domain logic (`allocateBudget`, `backScheduleTimeline`, `getVendorChecklistTemplates`, `buildMockIdeas`).
+
+3. **Tool Calling & Plan Modification**:
+   - The chat assistant supports three validated tool calls: `add_task`, `update_budget_item`, and `shortlist_vendor`.
+   - Tool calls are validated via `ToolCallSchema` and applied to `EventPlan` immutably using pure editor functions in `planEditor.ts`.
+   - Chat replies are streamed to the client via `ReadableStream<Uint8Array>`.
+
+4. **Guardrails & Normalized Input Caching**:
+   - `checkScopeGuardrails` enforces event planning scope and polite refusals for unrelated queries (coding, politics, medical, trading) while defending against prompt injections.
+   - `createNormalizedHashKey` normalizes string casing, trims whitespace, and sorts nested keys and arrays, caching identical requests in `generationCache`.
+
+### Consequences
+
+- Zero unvalidated LLM output reaches the UI.
+- All capabilities function deterministically in test environments with `MockProvider`.
+- Full graceful degradation under network or model outages via Phase 2 fallbacks.
+- Strict function length (<40 lines) and strict TypeScript without `any`.
