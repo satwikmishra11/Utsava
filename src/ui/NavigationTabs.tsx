@@ -49,7 +49,6 @@ export function NavigationTabs({ activeTab, onTabChange }: NavigationTabsProps):
               id={`tab-${tab.id}`}
               role="tab"
               aria-selected={isSelected}
-              aria-controls={`panel-${tab.id}`}
               tabIndex={isSelected ? 0 : -1}
               onClick={() => onTabChange(tab.id)}
               onKeyDown={(e) => handleKeyDown(e, idx)}
