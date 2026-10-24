@@ -8,7 +8,11 @@ export type TabId = 'budget' | 'timeline' | 'vendors' | 'ideas' | 'chat';
 interface TabItem {
   readonly id: TabId;
   readonly label: string;
-  readonly icon: React.ComponentType<{ size?: number; className?: string; 'aria-hidden'?: boolean }>;
+  readonly icon: React.ComponentType<{
+    size?: number;
+    className?: string;
+    'aria-hidden'?: boolean;
+  }>;
 }
 
 const TABS: readonly TabItem[] = [
@@ -39,7 +43,10 @@ export function NavigationTabs({ activeTab, onTabChange }: NavigationTabsProps):
 
   return (
     <nav aria-label="Main Navigation" style={{ marginBottom: '24px' }}>
-      <div role="tablist" style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
+      <div
+        role="tablist"
+        style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}
+      >
         {TABS.map((tab, idx) => {
           const Icon = tab.icon;
           const isSelected = activeTab === tab.id;

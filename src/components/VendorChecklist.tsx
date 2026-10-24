@@ -45,15 +45,33 @@ export function VendorChecklist({
 
   return (
     <section id="panel-vendors" role="tabpanel" aria-labelledby="tab-vendors" className="card">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '16px',
+          marginBottom: '20px',
+        }}
+      >
         <div>
           <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>Vendor Procurement & Checklists</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
             Manage contracts, quoted fees, and deliverable handoffs.
           </p>
         </div>
-        <div style={{ padding: '10px 16px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Total Quoted / Hired</span>
+        <div
+          style={{
+            padding: '10px 16px',
+            background: 'var(--bg-secondary)',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--border-subtle)',
+          }}
+        >
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+            Total Quoted / Hired
+          </span>
           <p style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--accent-gold)' }}>
             {currency} {totalCommitment.toLocaleString()}
           </p>
@@ -61,9 +79,26 @@ export function VendorChecklist({
       </div>
 
       {/* Add Vendor Form */}
-      <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px', alignItems: 'flex-end' }}>
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          display: 'flex',
+          gap: '12px',
+          flexWrap: 'wrap',
+          marginBottom: '24px',
+          alignItems: 'flex-end',
+        }}
+      >
         <div style={{ flex: '2 1 200px' }}>
-          <label htmlFor="vendor-name" style={{ display: 'block', fontSize: '0.85rem', marginBottom: '4px', color: 'var(--text-secondary)' }}>
+          <label
+            htmlFor="vendor-name"
+            style={{
+              display: 'block',
+              fontSize: '0.85rem',
+              marginBottom: '4px',
+              color: 'var(--text-secondary)',
+            }}
+          >
             Vendor Name
           </label>
           <input
@@ -76,7 +111,15 @@ export function VendorChecklist({
           />
         </div>
         <div style={{ flex: '1 1 140px' }}>
-          <label htmlFor="vendor-cat" style={{ display: 'block', fontSize: '0.85rem', marginBottom: '4px', color: 'var(--text-secondary)' }}>
+          <label
+            htmlFor="vendor-cat"
+            style={{
+              display: 'block',
+              fontSize: '0.85rem',
+              marginBottom: '4px',
+              color: 'var(--text-secondary)',
+            }}
+          >
             Category
           </label>
           <select
@@ -86,12 +129,22 @@ export function VendorChecklist({
             onChange={(e) => setCategory(e.target.value as BudgetCategory)}
           >
             {ALL_BUDGET_CATEGORIES.map((c) => (
-              <option key={c} value={c}>{c.toUpperCase()}</option>
+              <option key={c} value={c}>
+                {c.toUpperCase()}
+              </option>
             ))}
           </select>
         </div>
         <div style={{ flex: '1 1 120px' }}>
-          <label htmlFor="vendor-quote" style={{ display: 'block', fontSize: '0.85rem', marginBottom: '4px', color: 'var(--text-secondary)' }}>
+          <label
+            htmlFor="vendor-quote"
+            style={{
+              display: 'block',
+              fontSize: '0.85rem',
+              marginBottom: '4px',
+              color: 'var(--text-secondary)',
+            }}
+          >
             Quoted ({currency})
           </label>
           <input
@@ -126,13 +179,36 @@ export function VendorChecklist({
       </div>
 
       {/* Vendor Cards Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '16px',
+        }}
+      >
         {displayedVendors.map((vendor) => (
-          <div key={vendor.id} style={{ padding: '16px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+          <div
+            key={vendor.id}
+            style={{
+              padding: '16px',
+              background: 'var(--bg-secondary)',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--border-subtle)',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                marginBottom: '8px',
+              }}
+            >
               <div>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>{vendor.name}</h3>
-                <span className="badge badge-gold" style={{ marginTop: '4px' }}>{vendor.category}</span>
+                <span className="badge badge-gold" style={{ marginTop: '4px' }}>
+                  {vendor.category}
+                </span>
               </div>
               <select
                 aria-label={`Status for ${vendor.name}`}
@@ -149,15 +225,38 @@ export function VendorChecklist({
               </select>
             </div>
 
-            <p style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)', marginTop: '8px' }}>
+            <p
+              style={{
+                fontSize: '0.95rem',
+                fontWeight: 600,
+                color: 'var(--text-primary)',
+                marginTop: '8px',
+              }}
+            >
               Quoted: {currency} {vendor.quotedAmount.toLocaleString()}
             </p>
 
-            <div style={{ marginTop: '12px', borderTop: '1px solid var(--border-subtle)', paddingTop: '8px' }}>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Deliverables:</span>
+            <div
+              style={{
+                marginTop: '12px',
+                borderTop: '1px solid var(--border-subtle)',
+                paddingTop: '8px',
+              }}
+            >
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                Deliverables:
+              </span>
               <ul style={{ listStyle: 'none', marginTop: '4px', fontSize: '0.85rem' }}>
                 {vendor.deliverables.map((d, i) => (
-                  <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}>
+                  <li
+                    key={i}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      color: 'var(--text-secondary)',
+                    }}
+                  >
                     <Check size={14} color="var(--accent-emerald)" aria-hidden="true" />
                     <span>{d}</span>
                   </li>

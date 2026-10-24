@@ -12,7 +12,15 @@ interface HeaderProps {
 export function Header({ plan, onEventTypeChange }: HeaderProps): React.JSX.Element {
   return (
     <header className="card" style={{ marginBottom: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '16px',
+        }}
+      >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Sparkles size={24} color="#f59e0b" aria-hidden="true" />
@@ -21,12 +29,14 @@ export function Header({ plan, onEventTypeChange }: HeaderProps): React.JSX.Elem
             </h1>
           </div>
           <p style={{ color: 'var(--text-secondary)', marginTop: '4px', fontSize: '0.95rem' }}>
-            GenAI-powered planning assistant for life's most cherished gatherings.
+            GenAI-powered planning assistant for life&apos;s most cherished gatherings.
           </p>
         </div>
 
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <label htmlFor="event-type-select" className="sr-only">Event Type</label>
+          <label htmlFor="event-type-select" className="sr-only">
+            Event Type
+          </label>
           <select
             id="event-type-select"
             className="select"
@@ -41,18 +51,50 @@ export function Header({ plan, onEventTypeChange }: HeaderProps): React.JSX.Elem
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '24px', marginTop: '20px', flexWrap: 'wrap', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)' }}>
+      <div
+        style={{
+          display: 'flex',
+          gap: '24px',
+          marginTop: '20px',
+          flexWrap: 'wrap',
+          borderTop: '1px solid var(--border-subtle)',
+          paddingTop: '16px',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            color: 'var(--text-secondary)',
+          }}
+        >
           <Calendar size={18} aria-hidden="true" />
           <span>{plan.date}</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            color: 'var(--text-secondary)',
+          }}
+        >
           <Users size={18} aria-hidden="true" />
           <span>{plan.guestCount} Guests</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            color: 'var(--text-secondary)',
+          }}
+        >
           <DollarSign size={18} aria-hidden="true" />
-          <span>Budget: {plan.currency} {plan.totalBudget.toLocaleString()}</span>
+          <span>
+            Budget: {plan.currency} {plan.totalBudget.toLocaleString()}
+          </span>
         </div>
       </div>
     </header>

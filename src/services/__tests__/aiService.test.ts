@@ -1,11 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  generateIdeas,
-  chatWithPlanAssistant,
-  buildMockTimeline,
-  buildMockIdeas,
-  createMockStream,
-} from '../aiService';
+import { generateIdeas, chatWithPlanAssistant, buildMockTimeline } from '../aiService';
 import { EventPlan } from '../../domain/types';
 
 describe('AI Service (Mocked LLM in tests)', () => {

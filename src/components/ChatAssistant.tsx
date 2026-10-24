@@ -90,10 +90,16 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
         );
       }
     } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : 'An error occurred while connecting to AI.';
+      const errorMsg =
+        err instanceof Error ? err.message : 'An error occurred while connecting to AI.';
       setMessages((prev) => [
         ...prev,
-        { id: `err-${Date.now()}`, role: 'assistant', content: `⚠️ ${errorMsg}`, timestamp: Date.now() },
+        {
+          id: `err-${Date.now()}`,
+          role: 'assistant',
+          content: `⚠️ ${errorMsg}`,
+          timestamp: Date.now(),
+        },
       ]);
     } finally {
       setIsStreaming(false);
@@ -112,20 +118,52 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
   };
 
   return (
-    <section id="panel-chat" role="tabpanel" aria-labelledby="tab-chat" className="card" style={{ display: 'flex', flexDirection: 'column', height: '640px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '12px', marginBottom: '16px' }}>
+    <section
+      id="panel-chat"
+      role="tabpanel"
+      aria-labelledby="tab-chat"
+      className="card"
+      style={{ display: 'flex', flexDirection: 'column', height: '640px' }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          borderBottom: '1px solid var(--border-subtle)',
+          paddingBottom: '12px',
+          marginBottom: '16px',
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Bot size={22} color="var(--accent-gold)" aria-hidden="true" />
           <h2 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Plan-Acting AI Assistant</h2>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--accent-emerald)', fontSize: '0.8rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            color: 'var(--accent-emerald)',
+            fontSize: '0.8rem',
+          }}
+        >
           <ShieldCheck size={16} aria-hidden="true" />
           <span>Prompt Guard Active</span>
         </div>
       </div>
 
       {/* Messages Scroll Area */}
-      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px', paddingRight: '8px' }}>
+      <div
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+          paddingRight: '8px',
+        }}
+      >
         {messages.map((m) => (
           <div
             key={m.id}
@@ -149,7 +187,11 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
                 flexShrink: 0,
               }}
             >
-              {m.role === 'user' ? <User size={16} aria-hidden="true" /> : <Bot size={16} color="var(--accent-gold)" aria-hidden="true" />}
+              {m.role === 'user' ? (
+                <User size={16} aria-hidden="true" />
+              ) : (
+                <Bot size={16} color="var(--accent-gold)" aria-hidden="true" />
+              )}
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -179,11 +221,15 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
                   <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--accent-gold)' }}>
                     ✨ Action Recommendation
                   </p>
-                  <p style={{ fontSize: '0.875rem', marginTop: '4px', color: 'var(--text-primary)' }}>
+                  <p
+                    style={{ fontSize: '0.875rem', marginTop: '4px', color: 'var(--text-primary)' }}
+                  >
                     {m.actionProposal.description}
                   </p>
                   <button
-                    onClick={() => handleApply(m.id, m.actionProposal!.actionType, m.actionProposal!.payload)}
+                    onClick={() =>
+                      handleApply(m.id, m.actionProposal!.actionType, m.actionProposal!.payload)
+                    }
                     disabled={m.actionProposal.applied}
                     className="btn btn-primary"
                     style={{ marginTop: '8px', padding: '6px 14px', fontSize: '0.8rem' }}
@@ -207,7 +253,9 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
 
       {/* Input Form */}
       <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-        <label htmlFor="chat-user-input" className="sr-only">Message the event assistant</label>
+        <label htmlFor="chat-user-input" className="sr-only">
+          Message the event assistant
+        </label>
         <input
           id="chat-user-input"
           className="input"

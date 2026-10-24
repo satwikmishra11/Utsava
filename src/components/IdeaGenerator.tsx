@@ -63,9 +63,26 @@ export function IdeaGenerator({
         </p>
       </div>
 
-      <form onSubmit={handleGenerate} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px', alignItems: 'flex-end' }}>
+      <form
+        onSubmit={handleGenerate}
+        style={{
+          display: 'flex',
+          gap: '12px',
+          flexWrap: 'wrap',
+          marginBottom: '24px',
+          alignItems: 'flex-end',
+        }}
+      >
         <div style={{ flex: '2 1 200px' }}>
-          <label htmlFor="idea-culture" style={{ display: 'block', fontSize: '0.85rem', marginBottom: '4px', color: 'var(--text-secondary)' }}>
+          <label
+            htmlFor="idea-culture"
+            style={{
+              display: 'block',
+              fontSize: '0.85rem',
+              marginBottom: '4px',
+              color: 'var(--text-secondary)',
+            }}
+          >
             Cultural Context / Heritage
           </label>
           <input
@@ -77,7 +94,15 @@ export function IdeaGenerator({
           />
         </div>
         <div style={{ flex: '1 1 140px' }}>
-          <label htmlFor="idea-tier" style={{ display: 'block', fontSize: '0.85rem', marginBottom: '4px', color: 'var(--text-secondary)' }}>
+          <label
+            htmlFor="idea-tier"
+            style={{
+              display: 'block',
+              fontSize: '0.85rem',
+              marginBottom: '4px',
+              color: 'var(--text-secondary)',
+            }}
+          >
             Budget Tier
           </label>
           <select
@@ -91,28 +116,86 @@ export function IdeaGenerator({
             <option value="luxury">Luxury / Extravagant</option>
           </select>
         </div>
-        <button type="submit" disabled={loading} className="btn btn-primary" id="btn-generate-ideas">
+        <button
+          type="submit"
+          disabled={loading}
+          className="btn btn-primary"
+          id="btn-generate-ideas"
+        >
           <Sparkles size={16} aria-hidden="true" />
           <span>{loading ? 'Synthesizing...' : 'Generate AI Concepts'}</span>
         </button>
       </form>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '16px',
+        }}
+      >
         {ideas.map((idea) => (
-          <div key={idea.id} style={{ padding: '18px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div
+            key={idea.id}
+            style={{
+              padding: '18px',
+              background: 'var(--bg-secondary)',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--border-subtle)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+            }}
+          >
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  marginBottom: '8px',
+                }}
+              >
                 <span className="badge badge-gold">{idea.category}</span>
                 <span className="badge badge-emerald">Cost: {idea.estimatedCostTier}</span>
               </div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 600, marginTop: '8px', color: 'var(--text-primary)' }}>{idea.title}</h3>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '8px', lineHeight: 1.5 }}>{idea.description}</p>
+              <h3
+                style={{
+                  fontSize: '1.15rem',
+                  fontWeight: 600,
+                  marginTop: '8px',
+                  color: 'var(--text-primary)',
+                }}
+              >
+                {idea.title}
+              </h3>
+              <p
+                style={{
+                  fontSize: '0.9rem',
+                  color: 'var(--text-secondary)',
+                  marginTop: '8px',
+                  lineHeight: 1.5,
+                }}
+              >
+                {idea.description}
+              </p>
             </div>
 
-            <div style={{ marginTop: '16px', borderTop: '1px solid var(--border-subtle)', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div
+              style={{
+                marginTop: '16px',
+                borderTop: '1px solid var(--border-subtle)',
+                paddingTop: '12px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                 {idea.tags.map((t, idx) => (
-                  <span key={idx} style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>#{t}</span>
+                  <span key={idx} style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    #{t}
+                  </span>
                 ))}
               </div>
               <button
@@ -123,7 +206,14 @@ export function IdeaGenerator({
                 aria-label={`Save ${idea.title} to event plan`}
               >
                 {savedIds.has(idea.id) ? (
-                  <span style={{ color: 'var(--accent-emerald)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <span
+                    style={{
+                      color: 'var(--accent-emerald)',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
                     <Check size={14} aria-hidden="true" /> Saved
                   </span>
                 ) : (

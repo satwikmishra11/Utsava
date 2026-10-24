@@ -66,7 +66,16 @@ export function TimelineGenerator({
 
   return (
     <section id="panel-timeline" role="tabpanel" aria-labelledby="tab-timeline" className="card">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '16px',
+          marginBottom: '20px',
+        }}
+      >
         <div>
           <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>Run of Show & Timeline</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
@@ -85,21 +94,56 @@ export function TimelineGenerator({
       </div>
 
       {conflicts.length > 0 && (
-        <div role="alert" style={{ background: 'rgba(244, 63, 94, 0.1)', border: '1px solid var(--accent-rose)', borderRadius: 'var(--radius-sm)', padding: '12px 16px', marginBottom: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-rose)', fontWeight: 600 }}>
+        <div
+          role="alert"
+          style={{
+            background: 'rgba(244, 63, 94, 0.1)',
+            border: '1px solid var(--accent-rose)',
+            borderRadius: 'var(--radius-sm)',
+            padding: '12px 16px',
+            marginBottom: '20px',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              color: 'var(--accent-rose)',
+              fontWeight: 600,
+            }}
+          >
             <AlertCircle size={18} aria-hidden="true" />
             <span>Schedule Overlap Detected ({conflicts.length})</span>
           </div>
           <p style={{ fontSize: '0.85rem', color: '#fca5a5', marginTop: '4px' }}>
-            {conflicts[0]?.itemA.title} ({conflicts[0]?.itemA.time}) overlaps with {conflicts[0]?.itemB.title} ({conflicts[0]?.itemB.time}).
+            {conflicts[0]?.itemA.title} ({conflicts[0]?.itemA.time}) overlaps with{' '}
+            {conflicts[0]?.itemB.title} ({conflicts[0]?.itemB.time}).
           </p>
         </div>
       )}
 
       {/* Add Milestone Form */}
-      <form onSubmit={handleAdd} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px', alignItems: 'flex-end' }}>
+      <form
+        onSubmit={handleAdd}
+        style={{
+          display: 'flex',
+          gap: '12px',
+          flexWrap: 'wrap',
+          marginBottom: '24px',
+          alignItems: 'flex-end',
+        }}
+      >
         <div style={{ flex: '2 1 200px' }}>
-          <label htmlFor="timeline-title" style={{ display: 'block', fontSize: '0.85rem', marginBottom: '4px', color: 'var(--text-secondary)' }}>
+          <label
+            htmlFor="timeline-title"
+            style={{
+              display: 'block',
+              fontSize: '0.85rem',
+              marginBottom: '4px',
+              color: 'var(--text-secondary)',
+            }}
+          >
             Milestone / Activity
           </label>
           <input
@@ -112,7 +156,15 @@ export function TimelineGenerator({
           />
         </div>
         <div style={{ flex: '1 1 100px' }}>
-          <label htmlFor="timeline-time" style={{ display: 'block', fontSize: '0.85rem', marginBottom: '4px', color: 'var(--text-secondary)' }}>
+          <label
+            htmlFor="timeline-time"
+            style={{
+              display: 'block',
+              fontSize: '0.85rem',
+              marginBottom: '4px',
+              color: 'var(--text-secondary)',
+            }}
+          >
             Start Time
           </label>
           <input
@@ -125,7 +177,15 @@ export function TimelineGenerator({
           />
         </div>
         <div style={{ flex: '1 1 100px' }}>
-          <label htmlFor="timeline-duration" style={{ display: 'block', fontSize: '0.85rem', marginBottom: '4px', color: 'var(--text-secondary)' }}>
+          <label
+            htmlFor="timeline-duration"
+            style={{
+              display: 'block',
+              fontSize: '0.85rem',
+              marginBottom: '4px',
+              color: 'var(--text-secondary)',
+            }}
+          >
             Duration (min)
           </label>
           <input
@@ -179,7 +239,11 @@ export function TimelineGenerator({
                 onClick={() => onToggleComplete(item.id)}
                 className="btn btn-secondary"
                 style={{ padding: '6px', background: 'transparent', border: 'none' }}
-                aria-label={item.completed ? `Mark ${item.title} as incomplete` : `Mark ${item.title} as completed`}
+                aria-label={
+                  item.completed
+                    ? `Mark ${item.title} as incomplete`
+                    : `Mark ${item.title} as completed`
+                }
               >
                 {item.completed ? (
                   <CheckSquare size={20} color="var(--accent-emerald)" aria-hidden="true" />
@@ -188,15 +252,36 @@ export function TimelineGenerator({
                 )}
               </button>
               <div>
-                <p style={{ fontWeight: 600, textDecoration: item.completed ? 'line-through' : 'none', color: item.completed ? 'var(--text-muted)' : 'var(--text-primary)' }}>
+                <p
+                  style={{
+                    fontWeight: 600,
+                    textDecoration: item.completed ? 'line-through' : 'none',
+                    color: item.completed ? 'var(--text-muted)' : 'var(--text-primary)',
+                  }}
+                >
                   {item.title}
                 </p>
-                <span className="badge badge-gold" style={{ marginTop: '4px', fontSize: '0.75rem' }}>{item.phase}</span>
+                <span
+                  className="badge badge-gold"
+                  style={{ marginTop: '4px', fontSize: '0.75rem' }}
+                >
+                  {item.phase}
+                </span>
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                color: 'var(--text-secondary)',
+                fontSize: '0.875rem',
+              }}
+            >
               <Clock size={16} aria-hidden="true" />
-              <span>{item.time} ({item.durationMinutes} min)</span>
+              <span>
+                {item.time} ({item.durationMinutes} min)
+              </span>
             </div>
           </div>
         ))}

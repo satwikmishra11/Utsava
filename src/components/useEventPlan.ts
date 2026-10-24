@@ -77,8 +77,8 @@ export function useEventPlan() {
         newType === 'wedding'
           ? 'Ananya & Rohan Royal Wedding'
           : newType === 'birthday'
-          ? 'Devon 30th Milestone Jubilee'
-          : 'Silverwood Annual Cultural Gala',
+            ? 'Devon 30th Milestone Jubilee'
+            : 'Silverwood Annual Cultural Gala',
       totalBudget: newType === 'wedding' ? 45000 : newType === 'birthday' ? 8500 : 25000,
       timelineItems: buildMockTimeline(newType, '16:00'),
       ideas: buildMockIdeas(newType, prev.culturalContext),
