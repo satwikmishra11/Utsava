@@ -1,6 +1,6 @@
 import Database from 'better-sqlite3';
 import { drizzle, BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import * as schema from '@/domain/db/schema';
 import {
   Event,
@@ -30,6 +30,7 @@ export class DrizzleEventRepository implements EventRepository {
     this.sqlite.exec(`
       CREATE TABLE IF NOT EXISTS events (
         id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL DEFAULT 'usr_default',
         type TEXT NOT NULL,
         title TEXT NOT NULL,
         date TEXT NOT NULL,
