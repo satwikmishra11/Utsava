@@ -9,19 +9,19 @@ import { useEventPlan } from './useEventPlan';
 
 const TimelineGenerator = dynamic(
   () => import('./TimelineGenerator').then((m) => m.TimelineGenerator),
-  { loading: () => <CardSkeleton count={3} /> }
+  { loading: () => <CardSkeleton /> }
 );
 
 const VendorChecklist = dynamic(() => import('./VendorChecklist').then((m) => m.VendorChecklist), {
-  loading: () => <CardSkeleton count={3} />,
+  loading: () => <CardSkeleton />,
 });
 
 const IdeaGenerator = dynamic(() => import('./IdeaGenerator').then((m) => m.IdeaGenerator), {
-  loading: () => <CardSkeleton count={3} />,
+  loading: () => <CardSkeleton />,
 });
 
 const ChatAssistant = dynamic(() => import('./ChatAssistant').then((m) => m.ChatAssistant), {
-  loading: () => <CardSkeleton count={2} />,
+  loading: () => <CardSkeleton />,
 });
 
 interface ActiveTabPanelProps {
