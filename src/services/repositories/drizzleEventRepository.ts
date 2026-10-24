@@ -86,6 +86,7 @@ export class DrizzleEventRepository implements EventRepository {
       .insert(schema.events)
       .values({
         id: event.id,
+        userId: event.userId ?? 'usr_default',
         type: event.type,
         title: event.title,
         date: event.date,
@@ -100,11 +101,15 @@ export class DrizzleEventRepository implements EventRepository {
     return event;
   }
 
-  public async getEventById(id: string): Promise<Event | null> {
-    const row = this.db.select().from(schema.events).where(eq(schema.events.id, id)).get();
+  public async getEventById(id: string, userId?: string): Promise<Event | null> {
+    const condition = userId
+      ? and(eq(schema.events.id, id), eq(schema.events.userId, userId))
+      : eq(schema.events.id, id);
+    const row = this.db.select().from(schema.events).where(condition).get();
     if (!row) return null;
     return {
       id: row.id,
+      userId: row.userId,
       type: row.type as EventType,
       title: row.title,
       date: row.date,
@@ -117,10 +122,14 @@ export class DrizzleEventRepository implements EventRepository {
     };
   }
 
-  public async listEvents(): Promise<readonly Event[]> {
-    const rows = this.db.select().from(schema.events).all();
+  public async listEvents(userId?: string): Promise<readonly Event[]> {
+    const query = userId
+      ? this.db.select().from(schema.events).where(eq(schema.events.userId, userId))
+      : this.db.select().from(schema.events);
+    const rows = query.all();
     return rows.map((r) => ({
       id: r.id,
+      userId: r.userId,
       type: r.type as EventType,
       title: r.title,
       date: r.date,
@@ -133,8 +142,12 @@ export class DrizzleEventRepository implements EventRepository {
     }));
   }
 
-  public async updateEvent(id: string, updates: Partial<Event>): Promise<Event | null> {
-    const existing = await this.getEventById(id);
+  public async updateEvent(
+    id: string,
+    updates: Partial<Event>,
+    userId?: string
+  ): Promise<Event | null> {
+    const existing = await this.getEventById(id, userId);
     if (!existing) return null;
     const merged: Event = { ...existing, ...updates };
 
@@ -156,9 +169,17 @@ export class DrizzleEventRepository implements EventRepository {
     return merged;
   }
 
-  public async deleteEvent(id: string): Promise<boolean> {
-    const res = this.db.delete(schema.events).where(eq(schema.events.id, id)).run();
+  public async deleteEvent(id: string, userId?: string): Promise<boolean> {
+    const condition = userId
+      ? and(eq(schema.events.id, id), eq(schema.events.userId, userId))
+      : eq(schema.events.id, id);
+    const res = this.db.delete(schema.events).where(condition).run();
     return res.changes > 0;
+  }
+
+  public async isEventOwner(eventId: string, userId: string): Promise<boolean> {
+    const ev = await this.getEventById(eventId, userId);
+    return ev !== null;
   }
 
   public async addBudgetItem(item: BudgetItem): Promise<BudgetItem> {
