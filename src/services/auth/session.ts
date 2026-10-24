@@ -66,11 +66,9 @@ export async function verifySession(token: string): Promise<SessionUser | null> 
     const key = await getCryptoKey(env.SESSION_SECRET);
     const enc = new TextEncoder();
     const sigBytes = base64UrlDecode(sigB64);
-    const sigBuffer = sigBytes.buffer.slice(
-      sigBytes.byteOffset,
-      sigBytes.byteOffset + sigBytes.byteLength
-    );
-    const isValid = await crypto.subtle.verify('HMAC', key, sigBuffer, enc.encode(payloadB64));
+    const sigArrayBuffer = new ArrayBuffer(sigBytes.length);
+    new Uint8Array(sigArrayBuffer).set(sigBytes);
+    const isValid = await crypto.subtle.verify('HMAC', key, sigArrayBuffer, enc.encode(payloadB64));
     if (!isValid) return null;
 
     const payloadBytes = base64UrlDecode(payloadB64);
