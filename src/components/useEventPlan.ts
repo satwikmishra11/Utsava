@@ -23,12 +23,6 @@ import {
 } from '@/services/ai';
 import { useDebouncedAutosave } from './useAutosave';
 import { detectOverspend } from '@/domain/budgetLogic';
-import {
-  exportPlanToICS,
-  exportPlanToPrintablePDF,
-  generateShareableLink,
-  copyToClipboard,
-} from '@/lib/exportUtils';
 import { WizardData } from './OnboardingWizard';
 
 export const INITIAL_PLAN: EventPlan = {
@@ -82,12 +76,17 @@ export const INITIAL_PLAN: EventPlan = {
 };
 
 export function usePlanExports(plan: EventPlan, showToast: (msg: string) => void) {
-  const handleExportICS = () => {
+  const handleExportICS = async () => {
+    const { exportPlanToICS } = await import('@/lib/exportUtils');
     exportPlanToICS(plan);
     showToast('Downloaded timeline calendar (.ics) file.');
   };
-  const handleExportPDF = () => exportPlanToPrintablePDF();
+  const handleExportPDF = async () => {
+    const { exportPlanToPrintablePDF } = await import('@/lib/exportUtils');
+    exportPlanToPrintablePDF();
+  };
   const handleShareLink = async () => {
+    const { generateShareableLink, copyToClipboard } = await import('@/lib/exportUtils');
     const link = generateShareableLink(plan);
     const success = await copyToClipboard(link);
     showToast(success ? 'Shareable link copied to clipboard!' : 'Unable to copy link.');
