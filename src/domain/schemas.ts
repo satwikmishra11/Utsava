@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const EventTypeSchema = z.enum(['wedding', 'birthday', 'community']);
+export type EventType = z.infer<typeof EventTypeSchema>;
 
 export const BudgetCategorySchema = z.enum([
   'venue',
@@ -12,117 +13,86 @@ export const BudgetCategorySchema = z.enum([
   'logistics',
   'miscellaneous',
 ]);
+export type BudgetCategory = z.infer<typeof BudgetCategorySchema>;
 
-export const PaymentStatusSchema = z.enum(['planned', 'booked', 'paid']);
+export const EventPreferencesSchema = z.object({
+  culture: z.string().max(100).optional(),
+  theme: z.string().max(100).optional(),
+  dietary: z.array(z.string().max(60)).default([]),
+  accessibilityNeeds: z.array(z.string().max(100)).default([]),
+});
+export type EventPreferences = z.infer<typeof EventPreferencesSchema>;
+
+export const EventSchema = z.object({
+  id: z.string().min(1),
+  type: EventTypeSchema,
+  title: z.string().min(1).max(150),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be YYYY-MM-DD format'),
+  guestCount: z.number().int().positive(),
+  location: z.string().min(1).max(200),
+  totalBudget: z.number().positive(),
+  currency: z.string().min(1).max(5).default('USD'),
+  preferences: EventPreferencesSchema.default({ dietary: [], accessibilityNeeds: [] }),
+  createdAt: z
+    .string()
+    .datetime()
+    .default(() => new Date().toISOString()),
+});
+export type Event = z.infer<typeof EventSchema>;
 
 export const BudgetItemSchema = z.object({
   id: z.string().min(1),
+  eventId: z.string().min(1),
   category: BudgetCategorySchema,
-  name: z.string().min(1).max(100),
-  estimatedCost: z.number().nonnegative(),
-  actualCost: z.number().nonnegative().default(0),
-  paidCost: z.number().nonnegative().default(0),
-  status: PaymentStatusSchema.default('planned'),
+  estimated: z.number().nonnegative(),
+  actual: z.number().nonnegative().default(0),
+  vendorId: z.string().optional(),
   notes: z.string().max(500).optional(),
 });
+export type BudgetItem = z.infer<typeof BudgetItemSchema>;
 
-export const TimelinePhaseSchema = z.enum([
-  'preparation',
-  'ceremony',
-  'reception',
-  'teardown',
-]);
+export const TimelineTaskStatusSchema = z.enum(['pending', 'in_progress', 'completed', 'blocked']);
+export type TimelineTaskStatus = z.infer<typeof TimelineTaskStatusSchema>;
 
-export const TimelineItemSchema = z.object({
+export const TimelineTaskSchema = z.object({
   id: z.string().min(1),
-  phase: TimelinePhaseSchema,
-  title: z.string().min(1).max(120),
-  time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Must be in HH:MM format'),
-  durationMinutes: z.number().int().positive().max(1440),
-  location: z.string().max(100).optional(),
-  completed: z.boolean().default(false),
-  assignedTo: z.string().max(80).optional(),
-  notes: z.string().max(500).optional(),
+  eventId: z.string().min(1),
+  title: z.string().min(1).max(150),
+  dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be YYYY-MM-DD format'),
+  status: TimelineTaskStatusSchema.default('pending'),
+  dependsOn: z.array(z.string().min(1)).default([]),
+  category: z.string().min(1).max(80),
+  assignee: z.string().max(100).optional(),
 });
+export type TimelineTask = z.infer<typeof TimelineTaskSchema>;
 
-export const VendorStatusSchema = z.enum([
-  'researching',
-  'contacted',
-  'quoted',
-  'hired',
-  'declined',
-]);
+export const VendorStatusSchema = z.enum(['shortlisted', 'booked', 'paid']);
+export type VendorStatus = z.infer<typeof VendorStatusSchema>;
 
-export const VendorItemSchema = z.object({
+export const VendorSchema = z.object({
   id: z.string().min(1),
+  eventId: z.string().min(1),
   category: BudgetCategorySchema,
-  name: z.string().min(1).max(100),
-  contactEmail: z.string().email().optional(),
-  contactPhone: z.string().max(25).optional(),
-  status: VendorStatusSchema.default('researching'),
-  quotedAmount: z.number().nonnegative().default(0),
-  notes: z.string().max(500).optional(),
-  deliverables: z.array(z.string().min(1).max(100)).default([]),
+  name: z.string().min(1).max(120),
+  contact: z.string().min(1).max(150),
+  quote: z.number().nonnegative().default(0),
+  status: VendorStatusSchema.default('shortlisted'),
 });
+export type Vendor = z.infer<typeof VendorSchema>;
 
-export const IdeaCategorySchema = z.enum([
-  'theme',
-  'decor',
-  'entertainment',
-  'food_beverage',
-  'cultural',
-]);
-
-export const IdeaRecommendationSchema = z.object({
+export const IdeaSetSchema = z.object({
   id: z.string().min(1),
-  category: IdeaCategorySchema,
-  title: z.string().min(1).max(100),
-  description: z.string().min(1).max(600),
-  estimatedCostTier: z.enum(['low', 'medium', 'high']),
-  culturalContext: z.string().max(200).optional(),
-  tags: z.array(z.string().min(1).max(40)),
+  eventId: z.string().min(1),
+  theme: z.string().min(1).max(120),
+  decor: z.array(z.string().min(1).max(150)).default([]),
+  menu: z.array(z.string().min(1).max(150)).default([]),
+  activities: z.array(z.string().min(1).max(150)).default([]),
+  generatedMetadata: z
+    .object({
+      model: z.string().optional(),
+      generatedAt: z.string().optional(),
+      tags: z.array(z.string()).optional(),
+    })
+    .default({}),
 });
-
-export const EventPlanSchema = z.object({
-  id: z.string().min(1),
-  title: z.string().min(1).max(120),
-  eventType: EventTypeSchema,
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be YYYY-MM-DD'),
-  guestCount: z.number().int().positive(),
-  totalBudget: z.number().positive(),
-  currency: z.string().length(3).default('USD'),
-  culturalContext: z.string().max(300).optional(),
-  budgetItems: z.array(BudgetItemSchema).default([]),
-  timelineItems: z.array(TimelineItemSchema).default([]),
-  vendors: z.array(VendorItemSchema).default([]),
-  ideas: z.array(IdeaRecommendationSchema).default([]),
-});
-
-export const ChatRequestSchema = z.object({
-  message: z.string().min(1).max(2000),
-  eventPlan: EventPlanSchema,
-  chatHistory: z
-    .array(
-      z.object({
-        role: z.enum(['user', 'assistant', 'system']),
-        content: z.string().max(2000),
-      })
-    )
-    .max(20)
-    .default([]),
-});
-
-export const GenerateIdeasRequestSchema = z.object({
-  eventType: EventTypeSchema,
-  culturalContext: z.string().max(200).optional(),
-  budgetTier: z.enum(['budget', 'moderate', 'luxury']).default('moderate'),
-  guestCount: z.number().int().positive(),
-  existingTags: z.array(z.string()).max(10).default([]),
-});
-
-export const GenerateTimelineRequestSchema = z.object({
-  eventType: EventTypeSchema,
-  eventStartTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/),
-  durationHours: z.number().positive().max(48),
-  keyTraditions: z.array(z.string().max(80)).default([]),
-});
+export type IdeaSet = z.infer<typeof IdeaSetSchema>;

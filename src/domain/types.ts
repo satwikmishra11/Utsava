@@ -3,33 +3,23 @@
  * Strict TypeScript without 'any'
  */
 
-export type EventType = 'wedding' | 'birthday' | 'community';
-
-export type BudgetCategory =
-  | 'venue'
-  | 'catering'
-  | 'photography'
-  | 'decor'
-  | 'entertainment'
-  | 'attire'
-  | 'logistics'
-  | 'miscellaneous';
+export type {
+  EventType,
+  BudgetCategory,
+  EventPreferences,
+  Event,
+  BudgetItem,
+  TimelineTaskStatus,
+  TimelineTask,
+  VendorStatus,
+  Vendor,
+  IdeaSet,
+} from './schemas';
 
 export type PaymentStatus = 'planned' | 'booked' | 'paid';
 
-export interface BudgetItem {
-  readonly id: string;
-  readonly category: BudgetCategory;
-  readonly name: string;
-  readonly estimatedCost: number;
-  readonly actualCost: number;
-  readonly paidCost: number;
-  readonly status: PaymentStatus;
-  readonly notes?: string;
-}
-
 export interface CategoryAllocation {
-  readonly category: BudgetCategory;
+  readonly category: import('./schemas').BudgetCategory;
   readonly allocated: number;
   readonly actual: number;
   readonly percentage: number;
@@ -52,7 +42,7 @@ export interface TimelineItem {
   readonly id: string;
   readonly phase: TimelinePhase;
   readonly title: string;
-  readonly time: string; // e.g. "14:00" or ISO time
+  readonly time: string;
   readonly durationMinutes: number;
   readonly location?: string;
   readonly completed: boolean;
@@ -60,15 +50,13 @@ export interface TimelineItem {
   readonly notes?: string;
 }
 
-export type VendorStatus = 'researching' | 'contacted' | 'quoted' | 'hired' | 'declined';
-
 export interface VendorItem {
   readonly id: string;
-  readonly category: BudgetCategory;
+  readonly category: import('./schemas').BudgetCategory;
   readonly name: string;
   readonly contactEmail?: string;
   readonly contactPhone?: string;
-  readonly status: VendorStatus;
+  readonly status: import('./schemas').VendorStatus;
   readonly quotedAmount: number;
   readonly notes?: string;
   readonly deliverables: readonly string[];
@@ -113,13 +101,13 @@ export interface ChatMessage {
 export interface EventPlan {
   readonly id: string;
   readonly title: string;
-  readonly eventType: EventType;
+  readonly eventType: import('./schemas').EventType;
   readonly date: string;
   readonly guestCount: number;
   readonly totalBudget: number;
   readonly currency: string;
   readonly culturalContext?: string;
-  readonly budgetItems: readonly BudgetItem[];
+  readonly budgetItems: readonly import('./schemas').BudgetItem[];
   readonly timelineItems: readonly TimelineItem[];
   readonly vendors: readonly VendorItem[];
   readonly ideas: readonly IdeaRecommendation[];
