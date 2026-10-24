@@ -3,6 +3,7 @@ import type { EventPreferences } from '../schemas';
 
 export const events = sqliteTable('events', {
   id: text('id').primaryKey(),
+  userId: text('user_id').notNull().default('usr_default'),
   type: text('type').notNull(),
   title: text('title').notNull(),
   date: text('date').notNull(),

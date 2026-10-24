@@ -33,12 +33,32 @@ export const EventSchema = z.object({
   totalBudget: z.number().positive(),
   currency: z.string().min(1).max(5).default('USD'),
   preferences: EventPreferencesSchema.default({ dietary: [], accessibilityNeeds: [] }),
+  userId: z.string().min(1).default('usr_default'),
   createdAt: z
     .string()
     .datetime()
     .default(() => new Date().toISOString()),
 });
 export type Event = z.infer<typeof EventSchema>;
+
+export const CreateEventSchema = EventSchema.omit({ createdAt: true }).extend({
+  id: z.string().min(1).optional(),
+});
+export type CreateEvent = z.infer<typeof CreateEventSchema>;
+
+export const UpdateEventSchema = EventSchema.partial().omit({
+  id: true,
+  userId: true,
+  createdAt: true,
+});
+export type UpdateEvent = z.infer<typeof UpdateEventSchema>;
+
+export const ListEventsQuerySchema = z.object({
+  type: EventTypeSchema.optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+  page: z.coerce.number().int().min(1).default(1),
+});
+export type ListEventsQuery = z.infer<typeof ListEventsQuerySchema>;
 
 export const BudgetItemSchema = z.object({
   id: z.string().min(1),
