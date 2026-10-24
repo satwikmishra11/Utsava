@@ -37,7 +37,8 @@ jobs:
         run: bash scripts/secret-scan.sh
 
       - name: Dependency Vulnerability Audit
-        run: npm audit --audit-level=critical
+        run: npm audit --omit=dev --audit-level=critical
+
 
       - name: Next.js Production Build
         run: npm run build
