@@ -164,6 +164,14 @@ export interface ChatAssistantResult {
   readonly updatedPlan?: EventPlan;
 }
 
+function applyToolsToPlan(
+  plan: EventPlan | undefined,
+  tools: readonly ToolCall[]
+): EventPlan | undefined {
+  if (!plan) return undefined;
+  return tools.reduce((acc, tool) => applyToolCallToPlan(acc, tool), plan);
+}
+
 export async function executeChatAssistant(
   params: ChatAssistantParams,
   fullPlanToEdit?: EventPlan
@@ -192,17 +200,10 @@ export async function executeChatAssistant(
     }),
   });
 
-  let updatedPlan = fullPlanToEdit;
-  if (updatedPlan) {
-    for (const tool of res.data.toolCalls) {
-      updatedPlan = applyToolCallToPlan(updatedPlan, tool);
-    }
-  }
-
   return {
     replyText: res.data.reply,
     stream: createTextStream(res.data.reply),
     toolCalls: res.data.toolCalls,
-    updatedPlan,
+    updatedPlan: applyToolsToPlan(fullPlanToEdit, res.data.toolCalls),
   };
 }
