@@ -16,7 +16,7 @@ PATTERNS=(
 FOUND=0
 
 for pattern in "${PATTERNS[@]}"; do
-  if grep -rE --exclude-dir={node_modules,.git,.next,coverage} --exclude={package-lock.json,.env.example} "$pattern" . ; then
+  if grep -rE --exclude-dir={node_modules,.git,.next,coverage} --exclude={package-lock.json,.env.example} -e "$pattern" . ; then
     echo "❌ High-confidence secret pattern detected matching: $pattern"
     FOUND=1
   fi
