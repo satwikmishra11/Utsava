@@ -1,10 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
-import {
-  IdeaRecommendation,
-  TimelineItem,
-  EventPlan,
-  EventType,
-} from '../domain/types';
+import { IdeaRecommendation, TimelineItem, EventPlanSummary, EventType } from '../domain/types';
 import { detectPromptInjection, buildSecurePromptEnvelope } from '../domain/security';
 import { generationCache, GenerationCache } from './cacheService';
 
@@ -50,7 +45,8 @@ export function buildMockIdeas(
       id: 'idea-2',
       category: 'food_beverage',
       title: 'Curated Artisan Tasting Stations',
-      description: 'Interactive live cooking corners featuring regional delicacies and artisanal non-alcoholic craft mocktails.',
+      description:
+        'Interactive live cooking corners featuring regional delicacies and artisanal non-alcoholic craft mocktails.',
       estimatedCostTier: 'medium',
       tags: ['interactive', 'dining', 'culinary'],
     },
@@ -58,7 +54,8 @@ export function buildMockIdeas(
       id: 'idea-3',
       category: 'entertainment',
       title: 'Acoustic Fusion Ensemble',
-      description: 'Live instrumentalists pairing classical strings with contemporary acoustic beats during guest arrivals.',
+      description:
+        'Live instrumentalists pairing classical strings with contemporary acoustic beats during guest arrivals.',
       estimatedCostTier: 'low',
       tags: ['live-music', 'welcome', 'acoustic'],
     },
@@ -66,7 +63,8 @@ export function buildMockIdeas(
       id: 'idea-4',
       category: 'cultural',
       title: 'Interactive Community Memory Wall',
-      description: 'A beautifully illuminated polaroid and note station where attendees leave personalized blessings and photos.',
+      description:
+        'A beautifully illuminated polaroid and note station where attendees leave personalized blessings and photos.',
       estimatedCostTier: 'low',
       tags: ['interactive', 'keepsake', 'sentimental'],
     },
@@ -168,12 +166,13 @@ export interface ChatHistoryEntry {
 
 export async function chatWithPlanAssistant(
   userMessage: string,
-  eventPlan: EventPlan,
+  eventPlan: EventPlanSummary,
   chatHistory: readonly ChatHistoryEntry[]
 ): Promise<ReadableStream<Uint8Array>> {
   const injection = detectPromptInjection(userMessage);
   if (!injection.isSafe) {
-    const refusal = 'I detected an unsafe instruction or attempt to override safety constraints. Please provide an event planning question.';
+    const refusal =
+      'I detected an unsafe instruction or attempt to override safety constraints. Please provide an event planning question.';
     return createMockStream(refusal);
   }
 

@@ -51,6 +51,26 @@ export function detectCycles(tasks: readonly TaskTemplate[]): readonly string[] 
   return null;
 }
 
+function resolveTaskDate(
+  id: string,
+  eventDateStr: string,
+  taskMap: Map<string, TaskTemplate>,
+  scheduledDates: Map<string, string>
+): string {
+  const cached = scheduledDates.get(id);
+  if (cached) return cached;
+  const task = taskMap.get(id);
+  if (!task) throw new Error(`Referenced task ID not found: ${id}`);
+
+  let computedDate = subtractDays(eventDateStr, task.daysBeforeEvent);
+  for (const depId of task.dependsOn) {
+    const depDate = resolveTaskDate(depId, eventDateStr, taskMap, scheduledDates);
+    if (depDate > computedDate) computedDate = depDate;
+  }
+  scheduledDates.set(id, computedDate);
+  return computedDate;
+}
+
 export function backScheduleTimeline(
   eventDateStr: string,
   templates: readonly TaskTemplate[]
@@ -62,24 +82,7 @@ export function backScheduleTimeline(
 
   const taskMap = new Map(templates.map((t) => [t.id, t]));
   const scheduledDates = new Map<string, string>();
-
-  function resolveTask(id: string): string {
-    if (scheduledDates.has(id)) return scheduledDates.get(id)!;
-    const task = taskMap.get(id);
-    if (!task) throw new Error(`Referenced task ID not found: ${id}`);
-
-    let computedDate = subtractDays(eventDateStr, task.daysBeforeEvent);
-    for (const depId of task.dependsOn) {
-      const depDate = resolveTask(depId);
-      // Prerequisite depDate must be <= computedDate. If not, push computedDate
-      if (depDate > computedDate) computedDate = depDate;
-    }
-
-    scheduledDates.set(id, computedDate);
-    return computedDate;
-  }
-
-  templates.forEach((t) => resolveTask(t.id));
+  templates.forEach((t) => resolveTaskDate(t.id, eventDateStr, taskMap, scheduledDates));
 
   return templates
     .map((t) => ({

@@ -111,5 +111,5 @@ Utsava requires strong schema validation with exported inferred types for Event,
 
 - Over 99% statement and line coverage on `src/domain`.
 - Route handlers remain strictly thin adapters without embedded business logic.
-- Functions strictly under 40 lines.- Provider implementations can be swapped without touching UI or domain code.
-- 100% deterministic test execution with zero external network flakiness.
+- Functions strictly under 40 lines with complete pure modular separation.
+- Database queries and persistence are decoupled behind the `EventRepository` interface.

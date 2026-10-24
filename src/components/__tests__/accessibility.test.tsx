@@ -36,12 +36,11 @@ describe('UI Accessibility & Interaction (WCAG 2.2 AA)', () => {
         items={[
           {
             id: 'b-1',
+            eventId: 'evt-1',
             category: 'venue',
-            name: 'Ballroom',
-            estimatedCost: 8000,
-            actualCost: 8000,
-            paidCost: 4000,
-            status: 'booked',
+            estimated: 8000,
+            actual: 8000,
+            notes: 'Ballroom',
           },
         ]}
         onAddItem={() => {}}
@@ -86,7 +85,7 @@ describe('UI Accessibility & Interaction (WCAG 2.2 AA)', () => {
             id: 'v-1',
             category: 'catering',
             name: 'Delicious Catering',
-            status: 'hired',
+            status: 'booked',
             quotedAmount: 5000,
             deliverables: ['Dinner', 'Drinks'],
           },

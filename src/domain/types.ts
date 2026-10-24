@@ -98,7 +98,7 @@ export interface ChatMessage {
   readonly actionProposal?: ActionProposal;
 }
 
-export interface EventPlan {
+export interface EventPlanSummary {
   readonly id: string;
   readonly title: string;
   readonly eventType: import('./schemas').EventType;
@@ -107,6 +107,9 @@ export interface EventPlan {
   readonly totalBudget: number;
   readonly currency: string;
   readonly culturalContext?: string;
+}
+
+export interface EventPlan extends EventPlanSummary {
   readonly budgetItems: readonly import('./schemas').BudgetItem[];
   readonly timelineItems: readonly TimelineItem[];
   readonly vendors: readonly VendorItem[];
