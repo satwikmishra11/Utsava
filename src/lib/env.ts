@@ -6,6 +6,10 @@ export const EnvSchema = z.object({
   LLM_PROVIDER: z.enum(['claude', 'gemini', 'mock']).default('mock'),
   ANTHROPIC_API_KEY: z.string().min(1).optional(),
   GEMINI_API_KEY: z.string().min(1).optional(),
+  SESSION_SECRET: z
+    .string()
+    .min(32)
+    .default('utsava-dev-session-secret-must-be-at-least-32-chars-long'),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
