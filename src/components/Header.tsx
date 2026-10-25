@@ -33,14 +33,14 @@ function HeaderBrand({ title }: { readonly title: string }): React.JSX.Element {
             gap: '6px',
             padding: '3px 10px',
             borderRadius: '9999px',
-            background: 'rgba(245, 158, 11, 0.15)',
+            background: 'var(--bg-secondary)',
             border: '1px solid var(--accent-gold)',
-            color: 'var(--accent-gold)',
+            color: 'var(--text-primary)',
             fontSize: '0.75rem',
             fontWeight: 700,
           }}
         >
-          <Sparkles size={12} aria-hidden="true" />
+          <Sparkles size={12} color="var(--accent-gold)" aria-hidden="true" />
           <span>Demo Mode (MockProvider)</span>
         </span>
       </div>
