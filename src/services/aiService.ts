@@ -24,50 +24,74 @@ export function createMockStream(text: string): ReadableStream<Uint8Array> {
   });
 }
 
+const createIdea = (
+  id: string,
+  category: IdeaRecommendation['category'],
+  title: string,
+  description: string,
+  estimatedCostTier: 'low' | 'medium' | 'high',
+  tags: string[],
+  culturalContext?: string
+): IdeaRecommendation => ({
+  id,
+  category,
+  title,
+  description,
+  estimatedCostTier,
+  tags,
+  ...(culturalContext ? { culturalContext } : {}),
+});
+
 export function buildMockIdeas(
   eventType: EventType,
   culturalContext?: string
 ): readonly IdeaRecommendation[] {
   const prefix = culturalContext ? `${culturalContext} ` : '';
+  const themeTitle = `${prefix}${eventType === 'wedding' ? 'Royal Heritage' : 'Sunset Radiance'} Theme`;
   return [
-    {
-      id: 'idea-1',
-      category: 'theme',
-      title: `${prefix}${eventType === 'wedding' ? 'Royal Heritage' : 'Sunset Radiance'} Theme`,
-      description: `A rich visual motif blending traditional floral installations with ambient warm lighting.`,
-      estimatedCostTier: 'medium',
-      culturalContext: culturalContext ?? 'Traditional',
-      tags: ['decor', 'lighting', 'festive'],
-    },
-    {
-      id: 'idea-2',
-      category: 'food_beverage',
-      title: 'Curated Artisan Tasting Stations',
-      description:
-        'Interactive live cooking corners featuring regional delicacies and craft mocktails.',
-      estimatedCostTier: 'medium',
-      tags: ['interactive', 'dining', 'culinary'],
-    },
-    {
-      id: 'idea-3',
-      category: 'entertainment',
-      title: 'Acoustic Fusion Ensemble',
-      description:
-        'Live instrumentalists pairing classical strings with contemporary acoustic beats.',
-      estimatedCostTier: 'low',
-      tags: ['live-music', 'welcome', 'acoustic'],
-    },
-    {
-      id: 'idea-4',
-      category: 'cultural',
-      title: 'Interactive Community Memory Wall',
-      description:
-        'An illuminated polaroid station where attendees leave personalized blessings and photos.',
-      estimatedCostTier: 'low',
-      tags: ['interactive', 'keepsake', 'sentimental'],
-    },
+    createIdea(
+      'idea-1',
+      'theme',
+      themeTitle,
+      'A rich visual motif blending traditional floral installations with ambient warm lighting.',
+      'medium',
+      ['decor', 'lighting', 'festive'],
+      culturalContext ?? 'Traditional'
+    ),
+    createIdea(
+      'idea-2',
+      'food_beverage',
+      'Curated Artisan Tasting Stations',
+      'Interactive live cooking corners featuring regional delicacies and craft mocktails.',
+      'medium',
+      ['interactive', 'dining', 'culinary']
+    ),
+    createIdea(
+      'idea-3',
+      'entertainment',
+      'Acoustic Fusion Ensemble',
+      'Live instrumentalists pairing classical strings with contemporary acoustic beats.',
+      'low',
+      ['live-music', 'welcome', 'acoustic']
+    ),
+    createIdea(
+      'idea-4',
+      'cultural',
+      'Interactive Community Memory Wall',
+      'An illuminated polaroid station where attendees leave personalized blessings and photos.',
+      'low',
+      ['interactive', 'keepsake', 'sentimental']
+    ),
   ];
 }
+
+const createTimelineItem = (
+  id: string,
+  phase: TimelineItem['phase'],
+  title: string,
+  time: string,
+  durationMinutes: number
+): TimelineItem => ({ id, phase, title, time, durationMinutes, completed: false });
 
 export function buildMockTimeline(
   eventType: EventType,
@@ -77,48 +101,20 @@ export function buildMockTimeline(
   const h = Number(hStr);
   const m = Number(mStr);
   const pad = (n: number) => n.toString().padStart(2, '0');
+  const fmt = (offsetH: number) => `${pad(Math.max(0, h + offsetH))}:${pad(m)}`;
 
   return [
-    {
-      id: 'gen-t-1',
-      phase: 'preparation',
-      title: 'Vendor Check-in & Floral Setup',
-      time: `${pad(Math.max(0, h - 2))}:${pad(m)}`,
-      durationMinutes: 90,
-      completed: false,
-    },
-    {
-      id: 'gen-t-2',
-      phase: 'preparation',
-      title: 'Soundcheck & Lighting Calibration',
-      time: `${pad(Math.max(0, h - 1))}:${pad(m)}`,
-      durationMinutes: 30,
-      completed: false,
-    },
-    {
-      id: 'gen-t-3',
-      phase: 'ceremony',
-      title: eventType === 'wedding' ? 'Main Ceremony' : 'Grand Opening',
-      time: startTime,
-      durationMinutes: 60,
-      completed: false,
-    },
-    {
-      id: 'gen-t-4',
-      phase: 'reception',
-      title: 'Dinner Banquet & Speeches',
-      time: `${pad(h + 1)}:${pad(m)}`,
-      durationMinutes: 90,
-      completed: false,
-    },
-    {
-      id: 'gen-t-5',
-      phase: 'teardown',
-      title: 'Logistics Wrap-up',
-      time: `${pad(h + 3)}:${pad(m)}`,
-      durationMinutes: 60,
-      completed: false,
-    },
+    createTimelineItem('gen-t-1', 'preparation', 'Vendor Check-in & Floral Setup', fmt(-2), 90),
+    createTimelineItem('gen-t-2', 'preparation', 'Soundcheck & Lighting Calibration', fmt(-1), 30),
+    createTimelineItem(
+      'gen-t-3',
+      'ceremony',
+      eventType === 'wedding' ? 'Main Ceremony' : 'Grand Opening',
+      startTime,
+      60
+    ),
+    createTimelineItem('gen-t-4', 'reception', 'Dinner Banquet & Speeches', fmt(1), 90),
+    createTimelineItem('gen-t-5', 'teardown', 'Logistics Wrap-up', fmt(3), 60),
   ];
 }
 

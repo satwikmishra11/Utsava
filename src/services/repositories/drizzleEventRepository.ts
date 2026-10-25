@@ -517,16 +517,12 @@ export class DrizzleEventRepository implements EventRepository {
     return this.assembleBatchDetails(eventRows, budgetRows, timelineRows, vendorRows, ideaRows);
   }
 
-  private assembleBatchDetails(
-    eventRows: (typeof schema.events.$inferSelect)[],
-    budgetRows: (typeof schema.budgetItems.$inferSelect)[],
-    timelineRows: (typeof schema.timelineTasks.$inferSelect)[],
-    vendorRows: (typeof schema.vendors.$inferSelect)[],
-    ideaRows: (typeof schema.ideaSets.$inferSelect)[]
-  ): readonly EventDetails[] {
-    const bMap = new Map<string, BudgetItem[]>();
-    for (const r of budgetRows) {
-      const arr = bMap.get(r.eventId) ?? [];
+  private mapBudgetByEvent(
+    rows: (typeof schema.budgetItems.$inferSelect)[]
+  ): Map<string, BudgetItem[]> {
+    const map = new Map<string, BudgetItem[]>();
+    for (const r of rows) {
+      const arr = map.get(r.eventId) ?? [];
       arr.push({
         id: r.id,
         eventId: r.eventId,
@@ -536,11 +532,17 @@ export class DrizzleEventRepository implements EventRepository {
         vendorId: r.vendorId ?? undefined,
         notes: r.notes ?? undefined,
       });
-      bMap.set(r.eventId, arr);
+      map.set(r.eventId, arr);
     }
-    const tMap = new Map<string, TimelineTask[]>();
-    for (const r of timelineRows) {
-      const arr = tMap.get(r.eventId) ?? [];
+    return map;
+  }
+
+  private mapTimelineByEvent(
+    rows: (typeof schema.timelineTasks.$inferSelect)[]
+  ): Map<string, TimelineTask[]> {
+    const map = new Map<string, TimelineTask[]>();
+    for (const r of rows) {
+      const arr = map.get(r.eventId) ?? [];
       arr.push({
         id: r.id,
         eventId: r.eventId,
@@ -551,11 +553,15 @@ export class DrizzleEventRepository implements EventRepository {
         category: r.category,
         assignee: r.assignee ?? undefined,
       });
-      tMap.set(r.eventId, arr);
+      map.set(r.eventId, arr);
     }
-    const vMap = new Map<string, Vendor[]>();
-    for (const r of vendorRows) {
-      const arr = vMap.get(r.eventId) ?? [];
+    return map;
+  }
+
+  private mapVendorsByEvent(rows: (typeof schema.vendors.$inferSelect)[]): Map<string, Vendor[]> {
+    const map = new Map<string, Vendor[]>();
+    for (const r of rows) {
+      const arr = map.get(r.eventId) ?? [];
       arr.push({
         id: r.id,
         eventId: r.eventId,
@@ -565,11 +571,15 @@ export class DrizzleEventRepository implements EventRepository {
         quote: r.quote,
         status: r.status as VendorStatus,
       });
-      vMap.set(r.eventId, arr);
+      map.set(r.eventId, arr);
     }
-    const iMap = new Map<string, IdeaSet[]>();
-    for (const r of ideaRows) {
-      const arr = iMap.get(r.eventId) ?? [];
+    return map;
+  }
+
+  private mapIdeasByEvent(rows: (typeof schema.ideaSets.$inferSelect)[]): Map<string, IdeaSet[]> {
+    const map = new Map<string, IdeaSet[]>();
+    for (const r of rows) {
+      const arr = map.get(r.eventId) ?? [];
       arr.push({
         id: r.id,
         eventId: r.eventId,
@@ -579,8 +589,23 @@ export class DrizzleEventRepository implements EventRepository {
         activities: r.activities,
         generatedMetadata: r.generatedMetadata,
       });
-      iMap.set(r.eventId, arr);
+      map.set(r.eventId, arr);
     }
+    return map;
+  }
+
+  private assembleBatchDetails(
+    eventRows: (typeof schema.events.$inferSelect)[],
+    budgetRows: (typeof schema.budgetItems.$inferSelect)[],
+    timelineRows: (typeof schema.timelineTasks.$inferSelect)[],
+    vendorRows: (typeof schema.vendors.$inferSelect)[],
+    ideaRows: (typeof schema.ideaSets.$inferSelect)[]
+  ): readonly EventDetails[] {
+    const bMap = this.mapBudgetByEvent(budgetRows);
+    const tMap = this.mapTimelineByEvent(timelineRows);
+    const vMap = this.mapVendorsByEvent(vendorRows);
+    const iMap = this.mapIdeasByEvent(ideaRows);
+
     return eventRows.map((e) => ({
       event: {
         id: e.id,

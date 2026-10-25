@@ -1,8 +1,52 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { EventPlan, ChatMessage } from '@/domain/types';
+import { EventPlan, ChatMessage, ActionProposal } from '@/domain/types';
 import { Send, Check, Bot, User, ShieldCheck, Square } from 'lucide-react';
+
+function detectActionProposal(text: string, plan: EventPlan): ActionProposal | undefined {
+  const lower = text.toLowerCase();
+  if (lower.includes('budget') || lower.includes('cost') || lower.includes('reserve')) {
+    return {
+      id: `prop-${Date.now()}`,
+      actionType: 'add_budget_item',
+      description: 'Add AI recommended budget line item based on conversation.',
+      payload: {
+        name: 'AI Recommended Contingency',
+        category: 'miscellaneous',
+        estimatedCost: Math.round(plan.totalBudget * 0.05),
+      },
+      applied: false,
+    };
+  }
+  if (lower.includes('timeline') || lower.includes('schedule') || lower.includes('task')) {
+    return {
+      id: `prop-${Date.now()}`,
+      actionType: 'add_timeline_item',
+      description: 'Schedule follow-up review milestone.',
+      payload: {
+        title: 'Review event milestones & logistics',
+        timeframe: '1 month before',
+        assignedTo: 'Event Organizer',
+      },
+      applied: false,
+    };
+  }
+  if (lower.includes('vendor') || lower.includes('cater') || lower.includes('photo')) {
+    return {
+      id: `prop-${Date.now()}`,
+      actionType: 'add_vendor_item',
+      description: 'Add vendor requirement to checklist.',
+      payload: {
+        category: 'catering',
+        role: 'Premium Service Provider',
+        estimatedCost: 1500,
+      },
+      applied: false,
+    };
+  }
+  return undefined;
+}
 
 interface ChatAssistantProps {
   readonly plan: EventPlan;

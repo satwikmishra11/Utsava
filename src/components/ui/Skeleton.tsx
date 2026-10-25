@@ -37,7 +37,9 @@ export function CardSkeleton(): React.JSX.Element {
     <div
       className="card"
       style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+      role="status"
       aria-busy="true"
+      aria-label="Loading content"
     >
       <Skeleton width="40%" height="24px" />
       <Skeleton width="100%" height="16px" />
