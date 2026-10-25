@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { EventPlan, ChatMessage } from '@/domain/types';
-import { Send, Check, Bot, User, ShieldCheck } from 'lucide-react';
+import { Send, Check, Bot, User, ShieldCheck, Square } from 'lucide-react';
 
 interface ChatAssistantProps {
   readonly plan: EventPlan;
@@ -31,11 +31,39 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
   ]);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
+  const [liveAnnouncement, setLiveAnnouncement] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const handleStopGenerating = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setIsStreaming(false);
+    setLiveAnnouncement('Response generation stopped by user.');
+  };
+
+  const readStreamChunks = async (
+    reader: ReadableStreamDefaultReader<Uint8Array>,
+    assistantId: string
+  ): Promise<string> => {
+    const decoder = new TextDecoder();
+    let accumulated = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      accumulated += decoder.decode(value, { stream: true });
+      setMessages((prev) =>
+        prev.map((m) => (m.id === assistantId ? { ...m, content: accumulated } : m))
+      );
+    }
+    return accumulated;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,10 +81,14 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
     setInput('');
     setIsStreaming(true);
 
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           message: userText,
           eventPlan: plan,
@@ -78,18 +110,11 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
         { id: assistantId, role: 'assistant', content: '', timestamp: Date.now() },
       ]);
 
-      const decoder = new TextDecoder();
-      let accumulated = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        accumulated += decoder.decode(value, { stream: true });
-        setMessages((prev) =>
-          prev.map((m) => (m.id === assistantId ? { ...m, content: accumulated } : m))
-        );
-      }
+      const completeText = await readStreamChunks(reader, assistantId);
+      // WCAG 2.2: announce only on stream completion, not on each token
+      setLiveAnnouncement(`Response completed: ${completeText.slice(0, 160)}`);
     } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') return;
       const errorMsg =
         err instanceof Error ? err.message : 'An error occurred while connecting to AI.';
       setMessages((prev) => [
@@ -101,8 +126,10 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
           timestamp: Date.now(),
         },
       ]);
+      setLiveAnnouncement(`Error: ${errorMsg}`);
     } finally {
       setIsStreaming(false);
+      abortControllerRef.current = null;
     }
   };
 
@@ -115,6 +142,7 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
           : m
       )
     );
+    setLiveAnnouncement('Action recommendation applied to plan.');
   };
 
   return (
@@ -125,6 +153,11 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
       className="card"
       style={{ display: 'flex', flexDirection: 'column', height: '640px' }}
     >
+      {/* Polite live region for announcing completed responses without interrupting on each token */}
+      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+        {liveAnnouncement}
+      </div>
+
       <div
         style={{
           display: 'flex',
@@ -251,7 +284,7 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Form */}
+      {/* Input Form with Stop Generating Control */}
       <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
         <label htmlFor="chat-user-input" className="sr-only">
           Message the event assistant
@@ -265,15 +298,28 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
           disabled={isStreaming}
           style={{ flex: 1 }}
         />
-        <button
-          type="submit"
-          disabled={isStreaming || !input.trim()}
-          className="btn btn-primary"
-          id="btn-chat-send"
-          aria-label="Send message"
-        >
-          <Send size={18} aria-hidden="true" />
-        </button>
+        {isStreaming ? (
+          <button
+            type="button"
+            onClick={handleStopGenerating}
+            className="btn btn-secondary"
+            id="btn-chat-stop"
+            aria-label="Stop generating response"
+          >
+            <Square size={16} aria-hidden="true" />
+            <span>Stop generating</span>
+          </button>
+        ) : (
+          <button
+            type="submit"
+            disabled={!input.trim()}
+            className="btn btn-primary"
+            id="btn-chat-send"
+            aria-label="Send message"
+          >
+            <Send size={18} aria-hidden="true" />
+          </button>
+        )}
       </form>
     </section>
   );

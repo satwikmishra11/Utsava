@@ -11,6 +11,9 @@ export interface DialogProps {
   readonly maxWidth?: string;
 }
 
+const FOCUSABLE_SELECTOR =
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 export function Dialog({
   isOpen,
   onClose,
@@ -19,14 +22,63 @@ export function Dialog({
   maxWidth = '600px',
 }: DialogProps): React.JSX.Element | null {
   const dialogRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
+
+    // Save triggering element to restore focus on close
+    if (document.activeElement instanceof HTMLElement) {
+      triggerRef.current = document.activeElement;
+    }
+
+    // Auto-focus first interactive element inside dialog
+    const focusTimeout = window.setTimeout(() => {
+      if (!dialogRef.current) return;
+      const focusables = dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+      if (focusables.length > 0 && focusables[0]) {
+        focusables[0].focus();
+      }
+    }, 50);
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+
+      if (e.key === 'Tab') {
+        if (!dialogRef.current) return;
+        const focusables = Array.from(
+          dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+        );
+        if (focusables.length === 0) return;
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
+        if (
+          e.shiftKey &&
+          (document.activeElement === first || document.activeElement === dialogRef.current)
+        ) {
+          e.preventDefault();
+          last?.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }
     };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.clearTimeout(focusTimeout);
+      window.removeEventListener('keydown', handleKeyDown);
+      // Restore focus on close
+      triggerRef.current?.focus();
+    };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
@@ -36,9 +88,6 @@ export function Dialog({
       role="presentation"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
-      }}
-      onKeyDown={(e) => {
-        if (e.key === 'Escape') onClose();
       }}
       style={{
         position: 'fixed',
@@ -58,6 +107,7 @@ export function Dialog({
         aria-modal="true"
         aria-labelledby="dialog-title"
         className="card"
+        tabIndex={-1}
         style={{
           width: '100%',
           maxWidth,
@@ -83,6 +133,7 @@ export function Dialog({
             aria-label="Close dialog"
             className="btn btn-secondary"
             style={{ padding: '6px', borderRadius: '50%' }}
+            id="btn-close-dialog"
           >
             <X size={18} aria-hidden="true" />
           </button>

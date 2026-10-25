@@ -22,7 +22,7 @@ function PageFooter(): React.JSX.Element {
 export default function Home(): React.JSX.Element {
   return (
     <div className="container" style={{ paddingTop: '32px', paddingBottom: '48px' }}>
-      <main id="main-content">
+      <main id="main-content" tabIndex={-1} style={{ outline: 'none' }}>
         <EventPlannerDashboard />
       </main>
       <PageFooter />
