@@ -35,15 +35,15 @@ describe('ChatAssistant Component Tests', () => {
 
     expect(screen.getByText(/Welcome to Utsava!/i)).toBeInTheDocument();
     expect(screen.getByText(/Emerald Garden Wedding/i)).toBeInTheDocument();
-    expect(screen.getByText(/Suggested Plan Update/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /apply action/i })).toBeInTheDocument();
+    expect(screen.getByText(/Action Recommendation/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /apply proposal to plan/i })).toBeInTheDocument();
   });
 
   it('applies action proposal when user clicks Apply Action', () => {
     const onApplyPlanAction = vi.fn();
     render(<ChatAssistant plan={samplePlan} onApplyPlanAction={onApplyPlanAction} />);
 
-    const applyBtn = screen.getByRole('button', { name: /apply action/i });
+    const applyBtn = screen.getByRole('button', { name: /apply proposal to plan/i });
     fireEvent.click(applyBtn);
 
     expect(onApplyPlanAction).toHaveBeenCalledTimes(1);
@@ -76,7 +76,7 @@ describe('ChatAssistant Component Tests', () => {
 
     render(<ChatAssistant plan={samplePlan} onApplyPlanAction={vi.fn()} />);
 
-    const input = screen.getByLabelText(/message utsava ai assistant/i);
+    const input = screen.getByLabelText(/message the event assistant/i);
     fireEvent.change(input, { target: { value: 'What music works best?' } });
 
     const sendBtn = screen.getByRole('button', { name: /send message/i });
@@ -111,7 +111,7 @@ describe('ChatAssistant Component Tests', () => {
 
     render(<ChatAssistant plan={samplePlan} onApplyPlanAction={vi.fn()} />);
 
-    const input = screen.getByLabelText(/message utsava ai assistant/i);
+    const input = screen.getByLabelText(/message the event assistant/i);
     fireEvent.change(input, { target: { value: 'Long generation query' } });
     fireEvent.click(screen.getByRole('button', { name: /send message/i }));
 
@@ -126,7 +126,7 @@ describe('ChatAssistant Component Tests', () => {
     expect(liveRegion).toHaveTextContent(/Response generation stopped by user/i);
 
     // Input should be enabled again
-    expect(screen.getByLabelText(/message utsava ai assistant/i)).not.toBeDisabled();
+    expect(screen.getByLabelText(/message the event assistant/i)).not.toBeDisabled();
   });
 
   it('handles fetch error and displays friendly error message', async () => {
@@ -137,7 +137,7 @@ describe('ChatAssistant Component Tests', () => {
 
     render(<ChatAssistant plan={samplePlan} onApplyPlanAction={vi.fn()} />);
 
-    const input = screen.getByLabelText(/message utsava ai assistant/i);
+    const input = screen.getByLabelText(/message the event assistant/i);
     fireEvent.change(input, { target: { value: 'Trigger rate limit' } });
     fireEvent.click(screen.getByRole('button', { name: /send message/i }));
 

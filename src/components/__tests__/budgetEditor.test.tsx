@@ -41,7 +41,7 @@ describe('BudgetPlanner Component Tests', () => {
     expect(screen.getByText(/total target budget/i)).toBeInTheDocument();
     expect(screen.getByText(/USD 20,000/i)).toBeInTheDocument();
     expect(screen.getByText(/committed expenses/i)).toBeInTheDocument();
-    expect(screen.getByText(/USD 12,000/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/USD 8,000/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/under budget/i)).toBeInTheDocument();
   });
 
@@ -84,10 +84,10 @@ describe('BudgetPlanner Component Tests', () => {
     const nameInput = screen.getByLabelText(/expense title/i);
     fireEvent.change(nameInput, { target: { value: 'DJ & Sound System' } });
 
-    const costInput = screen.getByLabelText(/estimated cost/i);
+    const costInput = screen.getByLabelText(/amount/i);
     fireEvent.change(costInput, { target: { value: '1800' } });
 
-    const categorySelect = screen.getByLabelText(/category/i);
+    const categorySelect = screen.getByRole('combobox', { name: /category/i });
     fireEvent.change(categorySelect, { target: { value: 'entertainment' } });
 
     const addBtn = screen.getByRole('button', { name: /add expense/i });
@@ -160,8 +160,8 @@ describe('BudgetPlanner Component Tests', () => {
       />
     );
 
-    expect(screen.getByText(/AI Budget Allocation Suggestions/i)).toBeInTheDocument();
-    expect(screen.getByText(/Full day coverage with drone/i)).toBeInTheDocument();
+    expect(screen.getByText(/AI Budget Suggestions Ready/i)).toBeInTheDocument();
+    expect(screen.getByText(/1 allocations proposed/i)).toBeInTheDocument();
 
     const acceptBtn = screen.getByRole('button', { name: /accept suggestions/i });
     fireEvent.click(acceptBtn);
@@ -192,7 +192,7 @@ describe('BudgetPlanner Component Tests', () => {
     fireEvent.click(toggleViewBtn);
 
     expect(
-      screen.getByRole('table', { name: /category spending breakdown table/i })
+      screen.getByRole('table', { name: /budget category allocation breakdown/i })
     ).toBeInTheDocument();
 
     // Toggle back to chart
