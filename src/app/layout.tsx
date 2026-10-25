@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }): React.JSX.Element {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" data-theme="dark" className={inter.variable}>
       <body className={inter.className}>
         <a href="#main-content" className="skip-link">
           Skip to main content

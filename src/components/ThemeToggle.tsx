@@ -8,9 +8,7 @@ export function ThemeToggle(): React.JSX.Element {
 
   useEffect(() => {
     const saved = localStorage.getItem('utsava-theme') as 'dark' | 'light' | null;
-    const hasMedia = typeof window !== 'undefined' && typeof window.matchMedia === 'function';
-    const prefersLight = hasMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-    const initial = saved ?? (prefersLight ? 'light' : 'dark');
+    const initial = saved ?? 'dark';
     setTheme(initial);
     document.documentElement.setAttribute('data-theme', initial);
   }, []);

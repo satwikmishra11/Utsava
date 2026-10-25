@@ -154,7 +154,13 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
       style={{ display: 'flex', flexDirection: 'column', height: '640px' }}
     >
       {/* Polite live region for announcing completed responses without interrupting on each token */}
-      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+      <div
+        id="chat-live-region"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
         {liveAnnouncement}
       </div>
 

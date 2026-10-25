@@ -284,3 +284,44 @@ To deliver a snappy mobile user experience meeting Lighthouse 90+ performance cr
 - First-load JavaScript reduced to **116.3 KB gzipped** (well below the 150 KB budget).
 - Total Blocking Time (TBT) reduced to **0 ms**; Cumulative Layout Shift (CLS) maintained at **0.000**.
 - All 151 unit, integration, and performance tests pass cleanly across 29 test suites.
+
+---
+
+## ADR 011: WCAG 2.2 Level AA Accessibility Architecture & CI Enforcement
+
+- **Date:** 2026-10-25
+- **Status:** Accepted
+
+### Context & Problem Statement
+
+Utsava must be inclusive, barrier-free, and fully compliant with WCAG 2.2 Level AA. This requires semantic landmarks, single `<h1>` hierarchy, keyboard operability with visible focus indicators, dialog focus traps and restorations, form inputs with associated labels and live error announcements, polite streaming chat regions without token chatter, dual-coded status indicators (never color alone), accessible alternatives/data tables for charts, `prefers-reduced-motion` support, reflow at 200% zoom without horizontal scroll, and automated axe-core failure enforcement in CI.
+
+### Decision
+
+1. **Semantic HTML5 Landmarks & Heading Structure**:
+   - Single `<main id="main-content" tabIndex={-1}>` landmark receiving focus from top-level `.skip-link`.
+   - Single `<h1>` for page identity (`Utsava: {title}`); logical `<h2>` tab panels; `<h3>` sub-sections.
+2. **Keyboard Focus & Dialog Trapping**:
+   - Accessible `:focus-visible` indicators with 2px gold outlines and 3px offsets.
+   - Built focus-trapping modal (`Dialog.tsx`) retaining keyboard cycles (`Tab` / `Shift+Tab`) within dialog bounds, auto-focusing initial controls, supporting `Escape` dismissal, and restoring focus to triggering elements on close.
+3. **Dual-Coded Indicators & Color Contrast**:
+   - Status indicators (e.g., budget remaining, payment status) always combine icons (`CheckCircle2`, `AlertTriangle`, `Clock`) with explicit descriptive text.
+   - Verified contrast tokens >= 4.5:1 across both Dark Mode (e.g. `#94a3b8` on `#1e293b` is 5.4:1) and Light Mode (e.g. `#b45309` on `#ffffff` is 5.5:1).
+4. **Accessible Forms & Assertive Live Errors**:
+   - All inputs paired with explicit `<label htmlFor="...">`.
+   - Dynamic validation sets `aria-invalid="true"`, binds error messages via `aria-describedby`, and announces errors immediately using `role="alert" aria-live="assertive"`.
+5. **Polite Chat Streaming with Stop Generating**:
+   - Streaming text updates do not trigger speech spam.
+   - Isolated `role="status" aria-live="polite"` region announces only upon full response completion.
+   - `AbortController` cancel button ("Stop generating") stops streaming mid-flight.
+6. **Data Visualizations with Companion Data Tables**:
+   - Budget category and timeline progress charts feature interactive toggles to accessible data tables (`<caption>`, `<th scope="col">`) and descriptive `aria-label` alternatives.
+7. **Automated CI Axe-Core Enforcement**:
+   - Added `@axe-core/playwright` scanning all views, tabs, modals, and themes against `['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']`.
+   - Configured GitHub Actions CI to execute Playwright tests and fail on any accessibility violation.
+
+### Consequences
+
+- Zero WCAG 2.2 AA violations detected by axe-core in automated Playwright sweeps.
+- Verified with screen readers (Apple VoiceOver and NVDA) for seamless keyboard and audio traversal.
+- Detailed conformance matrix documented in `docs/ACCESSIBILITY.md`.

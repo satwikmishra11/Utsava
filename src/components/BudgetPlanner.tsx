@@ -5,7 +5,18 @@ import { BudgetItem, BudgetCategory } from '@/domain/types';
 import { calculateBudgetSummary, ALL_BUDGET_CATEGORIES } from '@/domain/budget';
 import { OverspendAnalysis } from '@/domain/budgetLogic';
 import { GeneratedBudgetItem } from '@/services/ai';
-import { Plus, Trash2, AlertTriangle, CheckCircle2, Sparkles, Check, X } from 'lucide-react';
+import {
+  Plus,
+  Trash2,
+  AlertTriangle,
+  CheckCircle2,
+  Sparkles,
+  Check,
+  X,
+  Clock,
+  BarChart3,
+  Table as TableIcon,
+} from 'lucide-react';
 import { Button } from './ui/Button';
 import { CardSkeleton } from './ui/Skeleton';
 import { EmptyState } from './ui/EmptyState';
@@ -111,19 +122,178 @@ function BudgetSummaryKpis({
         }}
       >
         <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-          Remaining Balance
+          Budget Status (Dual Coded)
         </span>
-        <p
+        <div
           style={{
-            fontSize: '1.4rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginTop: '6px',
             fontWeight: 700,
-            marginTop: '4px',
-            color: isOver ? 'var(--accent-rose)' : 'var(--accent-gold)',
+            fontSize: '1.05rem',
+            color: isOver ? 'var(--accent-rose)' : 'var(--accent-emerald)',
           }}
         >
-          {currency} {rem.toLocaleString()}
-        </p>
+          {isOver ? (
+            <>
+              <AlertTriangle size={18} aria-hidden="true" />
+              <span>
+                Over Budget ({currency} {Math.abs(rem).toLocaleString()})
+              </span>
+            </>
+          ) : (
+            <>
+              <CheckCircle2 size={18} aria-hidden="true" />
+              <span>
+                Under Budget ({currency} {rem.toLocaleString()} left)
+              </span>
+            </>
+          )}
+        </div>
       </div>
+    </div>
+  );
+}
+
+function BudgetCategoryBreakdown({
+  items,
+  currency,
+  totalBudget,
+}: {
+  readonly items: readonly BudgetItem[];
+  readonly currency: string;
+  readonly totalBudget: number;
+}): React.JSX.Element | null {
+  const [viewMode, setViewMode] = useState<'chart' | 'table'>('chart');
+  if (items.length === 0) return null;
+
+  const categoryTotals = items.reduce<Record<string, number>>((acc, item) => {
+    acc[item.category] = (acc[item.category] ?? 0) + item.estimated;
+    return acc;
+  }, {});
+
+  const entries = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
+
+  return (
+    <div
+      style={{
+        background: 'var(--bg-secondary)',
+        border: '1px solid var(--border-subtle)',
+        borderRadius: 'var(--radius-sm)',
+        padding: '16px',
+        marginBottom: '24px',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '12px',
+          flexWrap: 'wrap',
+          gap: '8px',
+        }}
+      >
+        <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>Category Spending Allocation</span>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => setViewMode((m) => (m === 'chart' ? 'table' : 'chart'))}
+          leftIcon={viewMode === 'chart' ? <TableIcon size={14} /> : <BarChart3 size={14} />}
+        >
+          {viewMode === 'chart' ? 'View as Data Table' : 'View as Chart'}
+        </Button>
+      </div>
+
+      {viewMode === 'chart' ? (
+        <div
+          role="img"
+          aria-label="Category Budget Breakdown Chart. Accessible data table alternative available via toggle."
+          style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
+        >
+          {entries.map(([cat, amt]) => {
+            const pct = totalBudget > 0 ? Math.min(100, Math.round((amt / totalBudget) * 100)) : 0;
+            return (
+              <div key={cat} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <div
+                  style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}
+                >
+                  <span style={{ textTransform: 'capitalize', fontWeight: 600 }}>{cat}</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>
+                    {currency} {amt.toLocaleString()} ({pct}%)
+                  </span>
+                </div>
+                <div
+                  style={{
+                    height: '8px',
+                    width: '100%',
+                    background: 'var(--bg-surface)',
+                    borderRadius: '4px',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <div
+                    style={{
+                      height: '100%',
+                      width: `${pct}%`,
+                      background: 'var(--accent-gold)',
+                      transition: 'width 0.3s ease',
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table
+            style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              textAlign: 'left',
+              fontSize: '0.875rem',
+            }}
+          >
+            <caption className="sr-only">Budget Category Allocation Breakdown</caption>
+            <thead>
+              <tr
+                style={{
+                  borderBottom: '1px solid var(--border-subtle)',
+                  color: 'var(--text-secondary)',
+                }}
+              >
+                <th scope="col" style={{ padding: '8px' }}>
+                  Category
+                </th>
+                <th scope="col" style={{ padding: '8px' }}>
+                  Estimated Cost
+                </th>
+                <th scope="col" style={{ padding: '8px' }}>
+                  % of Budget
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {entries.map(([cat, amt]) => {
+                const pct = totalBudget > 0 ? Math.round((amt / totalBudget) * 100) : 0;
+                return (
+                  <tr key={cat} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                    <td style={{ padding: '8px', textTransform: 'capitalize', fontWeight: 600 }}>
+                      {cat}
+                    </td>
+                    <td style={{ padding: '8px' }}>
+                      {currency} {amt.toLocaleString()}
+                    </td>
+                    <td style={{ padding: '8px' }}>{pct}%</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
@@ -200,11 +370,21 @@ function BudgetAddForm({
   const [name, setName] = useState('');
   const [category, setCategory] = useState<BudgetCategory>('venue');
   const [cost, setCost] = useState('');
+  const [error, setError] = useState('');
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || Number(cost) <= 0) return;
-    onAdd(name.trim(), category, Number(cost));
+    if (!name.trim()) {
+      setError('Please provide an expense title.');
+      return;
+    }
+    const numCost = Number(cost);
+    if (isNaN(numCost) || numCost <= 0) {
+      setError('Please provide an expense amount greater than zero.');
+      return;
+    }
+    setError('');
+    onAdd(name.trim(), category, numCost);
     setName('');
     setCost('');
   };
@@ -212,6 +392,7 @@ function BudgetAddForm({
   return (
     <form
       onSubmit={submit}
+      noValidate
       style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr)) auto',
@@ -221,24 +402,29 @@ function BudgetAddForm({
       }}
     >
       <div>
-        <label htmlFor="budget-name" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
+        <label htmlFor="budget-item-name" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
           Expense Title
         </label>
         <input
-          id="budget-name"
+          id="budget-item-name"
           className="input"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => {
+            setName(e.target.value);
+            if (error) setError('');
+          }}
           placeholder="e.g. Venue Deposit"
+          aria-invalid={Boolean(error && !name.trim())}
+          aria-describedby={error ? 'budget-form-error' : undefined}
           required
         />
       </div>
       <div>
-        <label htmlFor="budget-cat" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
+        <label htmlFor="budget-item-category" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
           Category
         </label>
         <select
-          id="budget-cat"
+          id="budget-item-category"
           className="select"
           value={category}
           onChange={(e) => setCategory(e.target.value as BudgetCategory)}
@@ -251,17 +437,22 @@ function BudgetAddForm({
         </select>
       </div>
       <div>
-        <label htmlFor="budget-cost" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
+        <label htmlFor="budget-item-cost" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
           Amount
         </label>
         <input
-          id="budget-cost"
+          id="budget-item-cost"
           type="number"
           min="1"
           className="input"
           value={cost}
-          onChange={(e) => setCost(e.target.value)}
+          onChange={(e) => {
+            setCost(e.target.value);
+            if (error) setError('');
+          }}
           placeholder="1000"
+          aria-invalid={Boolean(error && (isNaN(Number(cost)) || Number(cost) <= 0))}
+          aria-describedby={error ? 'budget-form-error' : undefined}
           required
         />
       </div>
@@ -269,6 +460,17 @@ function BudgetAddForm({
         <Plus size={16} aria-hidden="true" />
         <span>Add Expense</span>
       </button>
+
+      {error && (
+        <div
+          id="budget-form-error"
+          role="alert"
+          aria-live="assertive"
+          style={{ gridColumn: '1 / -1', color: 'var(--accent-rose)', fontSize: '0.85rem' }}
+        >
+          {error}
+        </div>
+      )}
     </form>
   );
 }
@@ -298,21 +500,30 @@ function BudgetTableRow({
           onClick={() => onUpdate(item.id)}
           className="btn btn-secondary"
           style={{ padding: '4px 10px', fontSize: '0.8rem' }}
-          aria-label={`Toggle payment status for ${item.notes ?? item.id}`}
         >
+          <span className="sr-only">Toggle payment status for {item.notes ?? item.id}: </span>
           {item.actual > 0 ? (
             <span
               style={{
-                color: 'var(--accent-emerald)',
+                color: 'var(--text-primary)',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '4px',
               }}
             >
-              <CheckCircle2 size={14} aria-hidden="true" /> Paid
+              <CheckCircle2 size={14} color="var(--accent-emerald)" aria-hidden="true" /> Paid
             </span>
           ) : (
-            'planned'
+            <span
+              style={{
+                color: 'var(--text-primary)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+            >
+              <Clock size={14} color="var(--accent-gold)" aria-hidden="true" /> Planned
+            </span>
           )}
         </button>
       </td>
@@ -427,7 +638,7 @@ function BudgetOverspendAlert({
         <AlertTriangle size={18} aria-hidden="true" />
         <span>Overspend Alert</span>
       </div>
-      <p style={{ marginTop: '4px', fontSize: '0.875rem', color: '#fca5a5' }}>
+      <p style={{ marginTop: '4px', fontSize: '0.875rem', color: 'var(--text-primary)' }}>
         Total expenses exceed target budget by {overspendAnalysis?.overspentPercentage ?? 0}% (
         {currency} {(overspendAnalysis?.totalSpent ?? totalActual).toLocaleString()}).
       </p>
@@ -487,6 +698,7 @@ export function BudgetPlanner(props: BudgetPlannerProps): React.JSX.Element {
         currency={currency}
         isOver={isOver}
       />
+      <BudgetCategoryBreakdown items={items} currency={currency} totalBudget={totalBudget} />
       <BudgetOverspendAlert
         isOver={isOver}
         currency={currency}

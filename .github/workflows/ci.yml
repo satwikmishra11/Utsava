@@ -43,3 +43,9 @@ jobs:
       - name: Next.js Production Build
         run: npm run build
 
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Playwright E2E & Axe Accessibility Tests (Fails on WCAG 2.2 Violations)
+        run: npm run test:e2e
+

@@ -14,6 +14,8 @@ import {
   Check,
   X,
   ListFilter,
+  BarChart3,
+  Table as TableIcon,
 } from 'lucide-react';
 import { Button } from './ui/Button';
 import { CardSkeleton } from './ui/Skeleton';
@@ -59,7 +61,7 @@ function UpcomingTasksPanel({
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-        <Clock size={16} color="var(--accent-gold)" />
+        <Clock size={16} color="var(--accent-gold)" aria-hidden="true" />
         <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>
           Upcoming Milestone Priorities ({pending.length} pending)
         </span>
@@ -92,13 +94,184 @@ function UpcomingTasksPanel({
               onClick={() => onToggle(item.id)}
               className="btn btn-secondary"
               style={{ padding: '4px' }}
-              aria-label={`Complete ${item.title}`}
+              aria-label={`Mark complete ${item.title}`}
             >
-              <Square size={16} />
+              <Square size={16} aria-hidden="true" />
             </button>
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function TimelineProgressSummary({
+  items,
+}: {
+  readonly items: readonly TimelineItem[];
+}): React.JSX.Element | null {
+  const [viewMode, setViewMode] = useState<'chart' | 'table'>('chart');
+  if (items.length === 0) return null;
+
+  const total = items.length;
+  const completed = items.filter((i) => i.completed).length;
+  const pct = Math.round((completed / total) * 100);
+
+  const phaseCounts = items.reduce<Record<TimelinePhase, { total: number; done: number }>>(
+    (acc, it) => {
+      acc[it.phase] = acc[it.phase] ?? { total: 0, done: 0 };
+      acc[it.phase]!.total += 1;
+      if (it.completed) acc[it.phase]!.done += 1;
+      return acc;
+    },
+    {
+      preparation: { total: 0, done: 0 },
+      ceremony: { total: 0, done: 0 },
+      reception: { total: 0, done: 0 },
+      teardown: { total: 0, done: 0 },
+    }
+  );
+
+  return (
+    <div
+      style={{
+        background: 'var(--bg-secondary)',
+        border: '1px solid var(--border-subtle)',
+        borderRadius: 'var(--radius-sm)',
+        padding: '16px',
+        marginBottom: '20px',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '10px',
+          flexWrap: 'wrap',
+          gap: '8px',
+        }}
+      >
+        <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>
+          Schedule Progress & Phase Completion ({completed}/{total} Milestones · {pct}%)
+        </span>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => setViewMode((m) => (m === 'chart' ? 'table' : 'chart'))}
+          leftIcon={viewMode === 'chart' ? <TableIcon size={14} /> : <BarChart3 size={14} />}
+        >
+          {viewMode === 'chart' ? 'View as Data Table' : 'View as Chart'}
+        </Button>
+      </div>
+
+      {viewMode === 'chart' ? (
+        <div
+          role="img"
+          aria-label={`Timeline Progress Bar: ${completed} of ${total} milestones completed (${pct}%). Data table available via toggle.`}
+        >
+          <div
+            style={{
+              height: '10px',
+              width: '100%',
+              background: 'var(--bg-surface)',
+              borderRadius: '5px',
+              overflow: 'hidden',
+              marginBottom: '12px',
+            }}
+          >
+            <div
+              style={{
+                height: '100%',
+                width: `${pct}%`,
+                background: 'var(--accent-emerald)',
+                transition: 'width 0.3s ease',
+              }}
+            />
+          </div>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+              gap: '8px',
+            }}
+          >
+            {(['preparation', 'ceremony', 'reception', 'teardown'] as const).map((ph) => {
+              const data = phaseCounts[ph] ?? { total: 0, done: 0 };
+              return (
+                <div
+                  key={ph}
+                  style={{
+                    padding: '8px 10px',
+                    background: 'var(--bg-surface)',
+                    borderRadius: 'var(--radius-sm)',
+                    fontSize: '0.8rem',
+                  }}
+                >
+                  <p style={{ textTransform: 'capitalize', fontWeight: 600 }}>{ph}</p>
+                  <p style={{ color: 'var(--text-secondary)', marginTop: '2px' }}>
+                    {data.done}/{data.total} completed
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table
+            style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              textAlign: 'left',
+              fontSize: '0.85rem',
+            }}
+          >
+            <caption className="sr-only">Milestone Phase Completion Breakdown</caption>
+            <thead>
+              <tr
+                style={{
+                  borderBottom: '1px solid var(--border-subtle)',
+                  color: 'var(--text-secondary)',
+                }}
+              >
+                <th scope="col" style={{ padding: '6px 8px' }}>
+                  Phase
+                </th>
+                <th scope="col" style={{ padding: '6px 8px' }}>
+                  Completed
+                </th>
+                <th scope="col" style={{ padding: '6px 8px' }}>
+                  Total
+                </th>
+                <th scope="col" style={{ padding: '6px 8px' }}>
+                  Status
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {(['preparation', 'ceremony', 'reception', 'teardown'] as const).map((ph) => {
+                const data = phaseCounts[ph] ?? { total: 0, done: 0 };
+                const isAllDone = data.total > 0 && data.done === data.total;
+                return (
+                  <tr key={ph} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                    <td
+                      style={{ padding: '6px 8px', textTransform: 'capitalize', fontWeight: 600 }}
+                    >
+                      {ph}
+                    </td>
+                    <td style={{ padding: '6px 8px' }}>{data.done}</td>
+                    <td style={{ padding: '6px 8px' }}>{data.total}</td>
+                    <td style={{ padding: '6px 8px' }}>
+                      {data.total === 0 ? 'No tasks' : isAllDone ? 'Completed' : 'In Progress'}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
@@ -186,10 +359,10 @@ function TimelineConflictBanner({ count }: { readonly count: number }): React.JS
           fontWeight: 600,
         }}
       >
-        <AlertCircle size={18} />
+        <AlertCircle size={18} aria-hidden="true" />
         <span>Timeline Scheduling Overlaps Detected</span>
       </div>
-      <p style={{ fontSize: '0.85rem', color: '#fca5a5', marginTop: '4px' }}>
+      <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', marginTop: '4px' }}>
         {count} overlapping items may cause setup delays.
       </p>
     </div>
@@ -203,39 +376,73 @@ function TimelineForm({
 }): React.JSX.Element {
   const [title, setTitle] = useState('');
   const [time, setTime] = useState('14:00');
+  const [error, setError] = useState('');
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    if (!title.trim()) {
+      setError('Please provide a milestone title.');
+      return;
+    }
+    setError('');
     onAdd(title.trim(), time);
     setTitle('');
   };
+
   return (
     <form
       onSubmit={handleSubmit}
+      noValidate
       style={{
         display: 'grid',
         gridTemplateColumns: '1fr auto auto',
         gap: '12px',
+        alignItems: 'flex-start',
         marginBottom: '20px',
       }}
     >
-      <input
-        className="input"
-        placeholder="Add custom milestone (e.g. Ring Exchange)"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        aria-label="Milestone title"
-        required
-      />
-      <input
-        type="time"
-        className="input"
-        value={time}
-        onChange={(e) => setTime(e.target.value)}
-        style={{ width: '130px' }}
-        aria-label="Milestone time"
-        required
-      />
+      <div>
+        <label htmlFor="timeline-item-title" className="sr-only">
+          Milestone title
+        </label>
+        <input
+          id="timeline-item-title"
+          className="input"
+          placeholder="Add custom milestone (e.g. Ring Exchange)"
+          value={title}
+          onChange={(e) => {
+            setTitle(e.target.value);
+            if (error) setError('');
+          }}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? 'timeline-form-error' : undefined}
+          required
+        />
+        {error && (
+          <p
+            id="timeline-form-error"
+            role="alert"
+            aria-live="assertive"
+            style={{ color: 'var(--accent-rose)', fontSize: '0.8rem', marginTop: '4px' }}
+          >
+            {error}
+          </p>
+        )}
+      </div>
+      <div>
+        <label htmlFor="timeline-item-time" className="sr-only">
+          Milestone time
+        </label>
+        <input
+          id="timeline-item-time"
+          type="time"
+          className="input"
+          value={time}
+          onChange={(e) => setTime(e.target.value)}
+          style={{ width: '130px' }}
+          required
+        />
+      </div>
       <Button
         type="submit"
         variant="primary"
@@ -276,9 +483,9 @@ function TimelineItemRow({
           aria-label={`Toggle completion for ${item.title}`}
         >
           {item.completed ? (
-            <CheckSquare size={18} color="var(--accent-emerald)" />
+            <CheckSquare size={18} color="var(--accent-emerald)" aria-hidden="true" />
           ) : (
-            <Square size={18} />
+            <Square size={18} aria-hidden="true" />
           )}
         </button>
         <div>
@@ -327,7 +534,7 @@ export function TimelineGenerator(props: TimelineGeneratorProps): React.JSX.Elem
         }}
       >
         <div>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>Event Timeline & Milestones</h2>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>Run of Show & Timeline Milestones</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
             Acyclic milestone scheduling with dependency resolution.
           </p>
@@ -355,6 +562,7 @@ export function TimelineGenerator(props: TimelineGeneratorProps): React.JSX.Elem
           )}
         </div>
       </div>
+
       <div
         style={{
           display: 'flex',
@@ -376,6 +584,8 @@ export function TimelineGenerator(props: TimelineGeneratorProps): React.JSX.Elem
           </button>
         ))}
       </div>
+
+      <TimelineProgressSummary items={items} />
       <UpcomingTasksPanel items={items} onToggle={onToggleComplete} />
       <TimelineConflictBanner count={conflicts.length} />
       {isLoadingAI && <CardSkeleton />}

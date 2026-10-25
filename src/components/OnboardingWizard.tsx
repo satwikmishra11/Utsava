@@ -34,6 +34,7 @@ const DIETARY_OPTIONS = [
   'Nut-Free',
   'Gluten-Free',
 ] as const;
+
 const ACCESSIBILITY_OPTIONS = [
   'Wheelchair Ramp',
   'ASL Interpreter',
@@ -51,13 +52,17 @@ function WizardStep1({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       <p style={{ fontWeight: 600 }}>What type of celebration are you planning?</p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+      <div
+        aria-label="Celebration event type"
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}
+      >
         {(['wedding', 'birthday', 'community'] as const).map((type) => {
           const isSel = value === type;
           return (
             <button
               key={type}
               type="button"
+              aria-pressed={isSel}
               id={`wizard-type-${type}`}
               onClick={() => onChange(type)}
               style={{
@@ -73,9 +78,15 @@ function WizardStep1({
                 cursor: 'pointer',
               }}
             >
-              {type === 'wedding' && <Heart size={24} color="var(--accent-gold)" />}
-              {type === 'birthday' && <Cake size={24} color="var(--accent-gold)" />}
-              {type === 'community' && <Users size={24} color="var(--accent-gold)" />}
+              {type === 'wedding' && (
+                <Heart size={24} color="var(--accent-gold)" aria-hidden="true" />
+              )}
+              {type === 'birthday' && (
+                <Cake size={24} color="var(--accent-gold)" aria-hidden="true" />
+              )}
+              {type === 'community' && (
+                <Users size={24} color="var(--accent-gold)" aria-hidden="true" />
+              )}
               <span style={{ textTransform: 'capitalize', fontWeight: 600 }}>{type}</span>
             </button>
           );
@@ -92,6 +103,8 @@ function WizardStep2({
   setDate,
   location,
   setLocation,
+  titleError,
+  dateError,
 }: {
   readonly title: string;
   readonly setTitle: (v: string) => void;
@@ -99,6 +112,8 @@ function WizardStep2({
   readonly setDate: (v: string) => void;
   readonly location: string;
   readonly setLocation: (v: string) => void;
+  readonly titleError?: string;
+  readonly dateError?: string;
 }): React.JSX.Element {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -107,6 +122,7 @@ function WizardStep2({
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         id="wizard-title"
+        error={titleError}
         required
       />
       <Input
@@ -115,6 +131,7 @@ function WizardStep2({
         value={date}
         onChange={(e) => setDate(e.target.value)}
         id="wizard-date"
+        error={dateError}
         required
       />
       <Input
@@ -130,9 +147,11 @@ function WizardStep2({
 function WizardStep3({
   guestCount,
   setGuestCount,
+  guestError,
 }: {
   readonly guestCount: string;
   readonly setGuestCount: (v: string) => void;
+  readonly guestError?: string;
 }): React.JSX.Element {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -143,6 +162,7 @@ function WizardStep3({
         value={guestCount}
         onChange={(e) => setGuestCount(e.target.value)}
         id="wizard-guests"
+        error={guestError}
         required
       />
     </div>
@@ -154,11 +174,13 @@ function WizardStep4({
   setTotalBudget,
   currency,
   setCurrency,
+  budgetError,
 }: {
   readonly totalBudget: string;
   readonly setTotalBudget: (v: string) => void;
   readonly currency: string;
   readonly setCurrency: (v: string) => void;
+  readonly budgetError?: string;
 }): React.JSX.Element {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -169,23 +191,26 @@ function WizardStep4({
         value={totalBudget}
         onChange={(e) => setTotalBudget(e.target.value)}
         id="wizard-budget"
+        error={budgetError}
         required
       />
-      <label htmlFor="wizard-currency" style={{ fontSize: '0.875rem', fontWeight: 600 }}>
-        Currency
-      </label>
-      <select
-        id="wizard-currency"
-        value={currency}
-        onChange={(e) => setCurrency(e.target.value)}
-        className="select"
-      >
-        <option value="USD">USD ($)</option>
-        <option value="EUR">EUR (€)</option>
-        <option value="GBP">GBP (£)</option>
-        <option value="INR">INR (₹)</option>
-        <option value="CAD">CAD ($)</option>
-      </select>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <label htmlFor="wizard-currency" style={{ fontSize: '0.875rem', fontWeight: 600 }}>
+          Currency
+        </label>
+        <select
+          id="wizard-currency"
+          value={currency}
+          onChange={(e) => setCurrency(e.target.value)}
+          className="select"
+        >
+          <option value="USD">USD ($)</option>
+          <option value="EUR">EUR (€)</option>
+          <option value="GBP">GBP (£)</option>
+          <option value="INR">INR (₹)</option>
+          <option value="CAD">CAD ($)</option>
+        </select>
+      </div>
     </div>
   );
 }
@@ -225,11 +250,17 @@ function WizardStep5({
         <p style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '6px' }}>
           Dietary Restrictions
         </p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+        <div
+          role="group"
+          aria-label="Dietary restrictions"
+          style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}
+        >
           {DIETARY_OPTIONS.map((d) => (
             <button
               key={d}
               type="button"
+              role="checkbox"
+              aria-checked={dietary.includes(d)}
               onClick={() => toggle(dietary, setDietary, d)}
               className={`btn ${dietary.includes(d) ? 'btn-primary' : 'btn-secondary'}`}
               style={{ padding: '6px 12px', fontSize: '0.8rem' }}
@@ -243,11 +274,17 @@ function WizardStep5({
         <p style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '6px' }}>
           Accessibility Needs
         </p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+        <div
+          role="group"
+          aria-label="Accessibility options"
+          style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}
+        >
           {ACCESSIBILITY_OPTIONS.map((a) => (
             <button
               key={a}
               type="button"
+              role="checkbox"
+              aria-checked={accessibility.includes(a)}
               onClick={() => toggle(accessibility, setAccessibility, a)}
               className={`btn ${accessibility.includes(a) ? 'btn-primary' : 'btn-secondary'}`}
               style={{ padding: '6px 12px', fontSize: '0.8rem' }}
@@ -259,27 +296,6 @@ function WizardStep5({
       </div>
     </div>
   );
-}
-
-function validateWizardStep(
-  step: number,
-  values: {
-    readonly title: string;
-    readonly date: string;
-    readonly guestCount: string;
-    readonly totalBudget: string;
-  }
-): string | null {
-  if (step === 2 && (!values.title.trim() || !values.date.trim())) {
-    return 'Please provide an event title and a valid date (YYYY-MM-DD).';
-  }
-  if (step === 3 && (Number(values.guestCount) <= 0 || isNaN(Number(values.guestCount)))) {
-    return 'Please provide a positive guest count.';
-  }
-  if (step === 4 && (Number(values.totalBudget) <= 0 || isNaN(Number(values.totalBudget)))) {
-    return 'Please provide a valid total budget amount.';
-  }
-  return null;
 }
 
 function WizardActions({
@@ -357,12 +373,26 @@ export function OnboardingWizard({
     onClose();
   };
 
-  const handleNext = () => {
-    const err = validateWizardStep(step, { title, date, guestCount, totalBudget });
-    if (err) {
-      setError(err);
-      return;
+  const validateCurrentStep = (): boolean => {
+    if (step === 2) {
+      if (!title.trim() || !date.trim()) {
+        setError('Please provide an event title and a valid date (YYYY-MM-DD).');
+        return false;
+      }
     }
+    if (step === 3 && (Number(guestCount) <= 0 || isNaN(Number(guestCount)))) {
+      setError('Please provide a positive guest count.');
+      return false;
+    }
+    if (step === 4 && (Number(totalBudget) <= 0 || isNaN(Number(totalBudget)))) {
+      setError('Please provide a valid total budget amount.');
+      return false;
+    }
+    return true;
+  };
+
+  const handleNext = () => {
+    if (!validateCurrentStep()) return;
     setError('');
     if (step < 5) setStep((s) => s + 1);
     else submitFinal();
@@ -424,15 +454,28 @@ export function OnboardingWizard({
             setDate={setDate}
             location={location}
             setLocation={setLocation}
+            titleError={error && !title.trim() ? error : undefined}
+            dateError={error && !date.trim() ? error : undefined}
           />
         )}
-        {step === 3 && <WizardStep3 guestCount={guestCount} setGuestCount={setGuestCount} />}
+        {step === 3 && (
+          <WizardStep3
+            guestCount={guestCount}
+            setGuestCount={setGuestCount}
+            guestError={
+              error && (Number(guestCount) <= 0 || isNaN(Number(guestCount))) ? error : undefined
+            }
+          />
+        )}
         {step === 4 && (
           <WizardStep4
             totalBudget={totalBudget}
             setTotalBudget={setTotalBudget}
             currency={currency}
             setCurrency={setCurrency}
+            budgetError={
+              error && (Number(totalBudget) <= 0 || isNaN(Number(totalBudget))) ? error : undefined
+            }
           />
         )}
         {step === 5 && (
@@ -446,9 +489,14 @@ export function OnboardingWizard({
           />
         )}
         {error && (
-          <p role="alert" style={{ color: 'var(--accent-rose)', fontSize: '0.85rem' }}>
+          <div
+            id="wizard-error-summary"
+            role="alert"
+            aria-live="assertive"
+            style={{ color: 'var(--accent-rose)', fontSize: '0.85rem' }}
+          >
             {error}
-          </p>
+          </div>
         )}
         <WizardActions step={step} onBack={() => setStep((s) => s - 1)} />
       </form>

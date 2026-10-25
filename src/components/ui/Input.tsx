@@ -36,7 +36,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
       {error && (
         <p
           id={errorId}
-          role="alert"
           aria-live="assertive"
           style={{ fontSize: '0.8rem', color: 'var(--accent-rose)' }}
         >

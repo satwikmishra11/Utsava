@@ -210,7 +210,14 @@ body {
 
 .btn-secondary:hover:not(:disabled) {
   background: #334155;
+  color: var(--text-primary);
   border-color: var(--text-secondary);
+}
+
+[data-theme='light'] .btn-secondary:hover:not(:disabled) {
+  background: #cbd5e1;
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.2);
 }
 
 .btn-outline {
