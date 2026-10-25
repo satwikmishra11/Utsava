@@ -59,4 +59,17 @@ describe('AI Service (Mocked LLM in tests)', () => {
     }
     expect(receivedChunks).toBeGreaterThan(0);
   });
+
+  it('creates a chunked mock byte stream from text', async () => {
+    const { createMockStream } = await import('../aiService');
+    const stream = createMockStream('Testing chunked output streaming');
+    const reader = stream.getReader();
+    let accumulated = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      accumulated += new TextDecoder().decode(value);
+    }
+    expect(accumulated).toBe('Testing chunked output streaming');
+  });
 });

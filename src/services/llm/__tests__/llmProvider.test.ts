@@ -46,4 +46,42 @@ describe('LLMProvider Architecture & Swappability', () => {
   it('ClaudeProvider throws helpful error if initialized without API key', () => {
     expect(() => new ClaudeProvider('')).toThrowError(/ANTHROPIC_API_KEY/);
   });
+
+  it('MockProvider generates structured vendor checklist', async () => {
+    const provider = new MockProvider();
+    const vendorSchema = z.object({
+      vendors: z.array(
+        z.object({
+          name: z.string(),
+          category: z.string(),
+        })
+      ),
+    });
+
+    const result = await provider.generateStructured('vendor checklist prompt', vendorSchema);
+    expect(result.vendors).toHaveLength(1);
+    expect(result.vendors[0]?.name).toBe('The Grand Pavilion');
+  });
+
+  it('MockProvider respects simulated failure count in generateText', async () => {
+    const provider = new MockProvider();
+    provider.setFailureCount(1);
+
+    await expect(provider.generateText('test')).rejects.toThrow('Simulated MockProvider failure');
+    const success = await provider.generateText('test 2');
+    expect(success).toContain('[Mock:mock]');
+  });
+
+  it('MockProvider supports custom structured handler and JSON system prompt in generateText', async () => {
+    const provider = new MockProvider();
+    provider.setCustomStructuredHandler((_prompt) => ({
+      custom: 'handled',
+    }));
+
+    const result = await provider.generateStructured('custom', z.object({ custom: z.string() }));
+    expect(result.custom).toBe('handled');
+
+    const jsonText = await provider.generateText('hello', { systemPrompt: 'Return JSON' });
+    expect(JSON.parse(jsonText)).toHaveProperty('message', 'mocked structured response');
+  });
 });
