@@ -5,27 +5,34 @@
 :root {
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  /* Color Tokens - WCAG 2.2 AA compliant contrast */
+  /* Color Tokens - Dark Mode (Default) - WCAG 2.2 AA compliant contrast (>= 4.5:1) */
   --bg-primary: #0b0f19;
   --bg-secondary: #111827;
   --bg-surface: #1e293b;
   --bg-surface-elevated: #273549;
-  --border-subtle: rgba(255, 255, 255, 0.12);
-  --border-accent: rgba(245, 158, 11, 0.4);
+  --border-subtle: rgba(255, 255, 255, 0.15);
+  --border-accent: rgba(245, 158, 11, 0.5);
 
   --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8; /* Luminance >= 5.4:1 on #1e293b */
   --text-inverse: #0b0f19;
 
   --accent-gold: #f59e0b;
   --accent-gold-hover: #d97706;
   --accent-gold-glow: rgba(245, 158, 11, 0.25);
 
-  --accent-indigo: #6366f1;
-  --accent-indigo-hover: #4f46e5;
-  --accent-emerald: #10b981;
-  --accent-rose: #f43f5e;
+  --accent-indigo: #818cf8;
+  --accent-indigo-hover: #6366f1;
+  --accent-emerald: #34d399;
+  --accent-rose: #f87171;
+
+  --badge-gold-bg: rgba(245, 158, 11, 0.18);
+  --badge-gold-text: #fde68a;
+  --badge-emerald-bg: rgba(16, 185, 129, 0.18);
+  --badge-emerald-text: #6ee7b7;
+  --badge-rose-bg: rgba(244, 63, 94, 0.18);
+  --badge-rose-text: #fca5a5;
 
   --radius-sm: 6px;
   --radius-md: 12px;
@@ -35,24 +42,38 @@
 }
 
 [data-theme='light'] {
+  /* Color Tokens - Light Mode - WCAG 2.2 AA compliant contrast (>= 4.5:1) */
   --bg-primary: #f8fafc;
   --bg-secondary: #f1f5f9;
   --bg-surface: #ffffff;
   --bg-surface-elevated: #e2e8f0;
-  --border-subtle: rgba(0, 0, 0, 0.12);
-  --border-accent: rgba(217, 119, 6, 0.4);
+  --border-subtle: rgba(0, 0, 0, 0.16);
+  --border-accent: rgba(180, 83, 9, 0.5);
 
   --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
+  --text-secondary: #334155;
+  --text-muted: #475569; /* Luminance >= 7:1 on #ffffff */
   --text-inverse: #ffffff;
 
-  --accent-gold: #d97706;
-  --accent-gold-hover: #b45309;
-  --accent-gold-glow: rgba(217, 119, 6, 0.2);
+  /* #b45309 has 5.5:1 contrast against #ffffff and white text has 5.5:1 contrast against it */
+  --accent-gold: #b45309;
+  --accent-gold-hover: #92400e;
+  --accent-gold-glow: rgba(180, 83, 9, 0.2);
+
+  --accent-indigo: #4338ca;
+  --accent-indigo-hover: #3730a3;
+  --accent-emerald: #065f46;
+  --accent-rose: #9f1239;
+
+  --badge-gold-bg: #fef3c7;
+  --badge-gold-text: #92400e;
+  --badge-emerald-bg: #d1fae5;
+  --badge-emerald-text: #065f46;
+  --badge-rose-bg: #ffe4e6;
+  --badge-rose-text: #9f1239;
 
   --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.08);
-  --shadow-glow: 0 0 25px rgba(217, 119, 6, 0.15);
+  --shadow-glow: 0 0 25px rgba(180, 83, 9, 0.15);
 }
 
 *,
@@ -63,7 +84,10 @@
   padding: 0;
 }
 
-html,
+html {
+  overflow-x: hidden;
+}
+
 body {
   min-height: 100%;
   font-family: var(--font-sans);
@@ -71,6 +95,9 @@ body {
   color: var(--text-primary);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* Accessibility: Skip to Content */
@@ -83,7 +110,7 @@ body {
   padding: 10px 16px;
   font-weight: 700;
   border-radius: var(--radius-sm);
-  z-index: 1000;
+  z-index: 10000;
   transition: top 0.2s ease;
   text-decoration: none;
 }
@@ -94,10 +121,22 @@ body {
   outline-offset: 2px;
 }
 
-/* Accessible Keyboard Focus Indicators */
+/* Accessible Keyboard Focus Indicators - WCAG 2.2 AA Focus Appearance */
 :focus-visible {
   outline: 2px solid var(--accent-gold);
   outline-offset: 3px;
+}
+
+/* Reduced Motion Preference - WCAG 2.2 AA 2.3.3 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Utility Layouts */
@@ -189,7 +228,7 @@ body {
   cursor: not-allowed;
 }
 
-/* Badges */
+/* Badges with WCAG compliant colors in both themes */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -201,24 +240,24 @@ body {
 }
 
 .badge-gold {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: var(--badge-gold-bg);
+  color: var(--badge-gold-text);
+  border: 1px solid var(--border-accent);
 }
 
 .badge-emerald {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: var(--badge-emerald-bg);
+  color: var(--badge-emerald-text);
+  border: 1px solid var(--accent-emerald);
 }
 
 .badge-rose {
-  background: rgba(244, 63, 94, 0.15);
-  color: #fb7185;
-  border: 1px solid rgba(244, 63, 94, 0.3);
+  background: var(--badge-rose-bg);
+  color: var(--badge-rose-text);
+  border: 1px solid var(--accent-rose);
 }
 
-/* Input Fields */
+/* Accessible Input Fields with clear focus outline */
 .input,
 .select {
   width: 100%;
@@ -234,7 +273,8 @@ body {
 .input:focus,
 .select:focus {
   border-color: var(--accent-gold);
-  outline: none;
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 1px;
 }
 
 /* Button Variants */
