@@ -10,7 +10,6 @@ import {
   IdeaRecommendation,
   VendorStatus,
 } from '@/domain/types';
-import { buildMockIdeas, buildMockTimeline } from '@/services/aiService';
 import {
   generateBudgetPlan,
   generateTimeline,
@@ -24,56 +23,9 @@ import {
 import { useDebouncedAutosave } from './useAutosave';
 import { detectOverspend } from '@/domain/budgetLogic';
 import { WizardData } from './OnboardingWizard';
+import { DEMO_INDIAN_WEDDING, getDemoEventByType } from '@/domain/demoEvents';
 
-export const INITIAL_PLAN: EventPlan = {
-  id: 'evt-utsava-main',
-  title: 'Ananya & Rohan Royal Wedding',
-  eventType: 'wedding',
-  date: '2026-11-20',
-  guestCount: 250,
-  totalBudget: 45000,
-  currency: 'USD',
-  culturalContext: 'South Asian Traditional & Fusion',
-  budgetItems: [
-    {
-      id: 'b-1',
-      eventId: 'evt-utsava-main',
-      category: 'venue',
-      notes: 'Grand Palace Hall',
-      estimated: 15000,
-      actual: 15000,
-    },
-    {
-      id: 'b-2',
-      eventId: 'evt-utsava-main',
-      category: 'catering',
-      notes: 'Multi-Cuisine Feast',
-      estimated: 12000,
-      actual: 11500,
-    },
-    {
-      id: 'b-3',
-      eventId: 'evt-utsava-main',
-      category: 'photography',
-      notes: 'Cinematography Package',
-      estimated: 4500,
-      actual: 4500,
-    },
-  ],
-  timelineItems: buildMockTimeline('wedding', '16:00'),
-  vendors: [
-    {
-      id: 'v-1',
-      category: 'venue',
-      name: 'Grand Heritage Estate',
-      contactEmail: 'events@heritage.test',
-      status: 'booked',
-      quotedAmount: 15000,
-      deliverables: ['Main Ballroom', 'Bridal Suite'],
-    },
-  ],
-  ideas: buildMockIdeas('wedding', 'South Asian Traditional & Fusion'),
-};
+export const INITIAL_PLAN: EventPlan = DEMO_INDIAN_WEDDING;
 
 export function usePlanExports(plan: EventPlan, showToast: (msg: string) => void) {
   const handleExportICS = async () => {
@@ -328,19 +280,7 @@ export function useEventPlan() {
 
   const switchEventType = (newType: EventType): void => {
     invalidateCapabilityCache('all');
-    setPlan((prev) => ({
-      ...prev,
-      eventType: newType,
-      title:
-        newType === 'wedding'
-          ? 'Ananya & Rohan Royal Wedding'
-          : newType === 'birthday'
-            ? 'Milestone 30th Celebration'
-            : 'Annual Community Festival',
-      totalBudget: newType === 'wedding' ? 45000 : newType === 'birthday' ? 8500 : 25000,
-      timelineItems: buildMockTimeline(newType, '16:00'),
-      ideas: buildMockIdeas(newType, prev.culturalContext),
-    }));
+    setPlan(getDemoEventByType(newType));
   };
 
   const completeWizard = async (data: WizardData) => {

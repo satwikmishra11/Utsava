@@ -75,7 +75,7 @@ export const DEMO_INDIAN_WEDDING: EventPlan = {
       time: '10:00',
       durationMinutes: 60,
       location: 'Palace North Gate',
-      completed: true,
+      completed: false,
       assignedTo: 'Groom Family Lead',
       notes: 'Live dhol players, rose petal shower on arrival',
     },

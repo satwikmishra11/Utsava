@@ -101,14 +101,14 @@ async function seedSingleEvent(
   await repo.saveIdeaSet({
     id: `set-${plan.id}`,
     eventId: plan.id,
-    theme: preferences.theme,
+    theme: preferences.theme ?? 'Celebration Theme',
     decor: plan.ideas.filter((i) => i.category === 'decor').map((i) => i.title),
     menu: plan.ideas.filter((i) => i.category === 'food_beverage').map((i) => i.title),
     activities: plan.ideas.filter((i) => i.category === 'entertainment').map((i) => i.title),
     generatedMetadata: {
-      seededAt: new Date().toISOString(),
-      ideaCount: plan.ideas.length,
-      culturalContext: plan.culturalContext,
+      generatedAt: new Date().toISOString(),
+      model: 'utsava-demo-seed',
+      tags: ['demo', plan.eventType],
     },
   });
 }

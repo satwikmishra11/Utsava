@@ -19,11 +19,30 @@ export interface HeaderProps {
 function HeaderBrand({ title }: { readonly title: string }): React.JSX.Element {
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
         <Sparkles size={24} color="#f59e0b" aria-hidden="true" />
         <h1 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.02em' }}>
           Utsava: {title}
         </h1>
+        <span
+          role="status"
+          aria-label="Demo mode active with MockProvider"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '3px 10px',
+            borderRadius: '9999px',
+            background: 'rgba(245, 158, 11, 0.15)',
+            border: '1px solid var(--accent-gold)',
+            color: 'var(--accent-gold)',
+            fontSize: '0.75rem',
+            fontWeight: 700,
+          }}
+        >
+          <Sparkles size={12} aria-hidden="true" />
+          <span>Demo Mode (MockProvider)</span>
+        </span>
       </div>
       <p style={{ color: 'var(--text-secondary)', marginTop: '4px', fontSize: '0.95rem' }}>
         GenAI-powered planning assistant for life&apos;s most cherished gatherings.
@@ -53,7 +72,7 @@ function HeaderControls({
       </Button>
       <ThemeToggle />
       <label htmlFor="event-type-select" className="sr-only">
-        Event Type
+        Demo Event Selector
       </label>
       <select
         id="event-type-select"
@@ -61,10 +80,11 @@ function HeaderControls({
         value={eventType}
         onChange={(e) => onEventTypeChange(e.target.value as EventType)}
         style={{ width: 'auto', fontWeight: 600 }}
+        aria-label="Switch between realistic demo events"
       >
-        <option value="wedding">Wedding Celebration</option>
-        <option value="birthday">Milestone Birthday</option>
-        <option value="community">Community Festival</option>
+        <option value="wedding">Indian Royal Wedding</option>
+        <option value="birthday">Child&apos;s Safari Birthday</option>
+        <option value="community">Neighborhood Fundraiser</option>
       </select>
     </div>
   );
