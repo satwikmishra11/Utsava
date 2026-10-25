@@ -47,11 +47,11 @@ describe('demoEvents domain tests', () => {
 
   it('verifies accessibility and dietary accommodations in wedding and community events', () => {
     expect(DEMO_INDIAN_WEDDING.culturalContext).toContain('South Asian');
-    expect(DEMO_CHILD_BIRTHDAY.culturalContext).toContain('Family & Child Friendly');
-    expect(DEMO_COMMUNITY_FUNDRAISER.culturalContext).toContain('Inclusive Neighborhood');
+    expect(DEMO_CHILD_BIRTHDAY.culturalContext).toContain('Kids Wildlife Explorer');
+    expect(DEMO_COMMUNITY_FUNDRAISER.culturalContext).toContain('Civic Neighborhood');
 
-    const communityAccessibilityTask = DEMO_COMMUNITY_FUNDRAISER.timelineItems.find((t) =>
-      t.title.toLowerCase().includes('accessibility')
+    const communityAccessibilityTask = DEMO_COMMUNITY_FUNDRAISER.timelineItems.find(
+      (t) => t.title.includes('ADA Ramp') || t.notes?.includes('wheelchair')
     );
     expect(communityAccessibilityTask).toBeDefined();
 

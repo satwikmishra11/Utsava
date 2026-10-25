@@ -48,7 +48,7 @@ export async function POST(req: NextRequest): Promise<Response> {
 
   const eventToCreate: Event = {
     ...parsed.data,
-    id: crypto.randomUUID(),
+    id: parsed.data.id || crypto.randomUUID(),
     userId: auth.user.id,
     createdAt: new Date().toISOString(),
   };

@@ -150,6 +150,113 @@ describe('Complete API Routes Integration Suite', () => {
       expect(json.error).toBe('Validation failed');
       expect(json.details).toBeDefined();
     });
+
+    it('rejects unexpected query parameters on /api/events/[id]', async () => {
+      const aliceHeaders = await makeHeaders(USER_ALICE);
+      const req = new NextRequest('http://localhost:3000/api/events/evt-123?unexpected=param', {
+        method: 'GET',
+        headers: aliceHeaders,
+      });
+      const res = await getEvent(req, { params: Promise.resolve({ id: 'evt-123' }) });
+      expect(res.status).toBe(400);
+      const json = await res.json();
+      expect(json.error).toBe('Validation failed');
+    });
+
+    it('creates an event with server-generated cryptographic UUID when client omits id', async () => {
+      const aliceHeaders = await makeHeaders(USER_ALICE);
+      const req = new NextRequest('http://localhost:3000/api/events', {
+        method: 'POST',
+        headers: aliceHeaders,
+        body: JSON.stringify({
+          type: 'wedding',
+          title: 'Secure UUID Wedding',
+          date: '2026-11-20',
+          location: 'San Francisco, CA',
+          guestCount: 120,
+          totalBudget: 35000,
+        }),
+      });
+      const res = await createEvent(req);
+      expect(res.status).toBe(201);
+      const json = await res.json();
+      expect(json.event.id).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      );
+    });
+  });
+
+  describe('Event Mutation & Lifecycle (PUT & DELETE)', () => {
+    it('successfully updates an event via PUT for the verified owner', async () => {
+      const aliceHeaders = await makeHeaders(USER_ALICE);
+      const createReq = new NextRequest('http://localhost:3000/api/events', {
+        method: 'POST',
+        headers: aliceHeaders,
+        body: JSON.stringify({
+          type: 'birthday',
+          title: 'Alice Birthday Party',
+          date: '2026-10-10',
+          location: 'Austin, TX',
+          guestCount: 25,
+          totalBudget: 2500,
+        }),
+      });
+      const createRes = await createEvent(createReq);
+      expect(createRes.status).toBe(201);
+      const created = await createRes.json();
+      const eventId = created.event.id;
+
+      const putReq = new NextRequest(`http://localhost:3000/api/events/${eventId}`, {
+        method: 'PUT',
+        headers: aliceHeaders,
+        body: JSON.stringify({
+          title: 'Alice 30th Gala Birthday',
+          totalBudget: 3500,
+        }),
+      });
+      const putRes = await updateEvent(putReq, { params: Promise.resolve({ id: eventId }) });
+      expect(putRes.status).toBe(200);
+      const updated = await putRes.json();
+      expect(updated.event.title).toBe('Alice 30th Gala Birthday');
+      expect(updated.event.totalBudget).toBe(3500);
+    });
+
+    it('successfully deletes an event via DELETE for the verified owner', async () => {
+      const aliceHeaders = await makeHeaders(USER_ALICE);
+      const createReq = new NextRequest('http://localhost:3000/api/events', {
+        method: 'POST',
+        headers: aliceHeaders,
+        body: JSON.stringify({
+          type: 'community',
+          title: 'Neighborhood Clean-up',
+          date: '2026-11-01',
+          location: 'Seattle, WA',
+          guestCount: 60,
+          totalBudget: 1200,
+        }),
+      });
+      const createRes = await createEvent(createReq);
+      expect(createRes.status).toBe(201);
+      const created = await createRes.json();
+      const eventId = created.event.id;
+
+      const delReq = new NextRequest(`http://localhost:3000/api/events/${eventId}`, {
+        method: 'DELETE',
+        headers: aliceHeaders,
+      });
+      const delRes = await deleteEvent(delReq, { params: Promise.resolve({ id: eventId }) });
+      expect(delRes.status).toBe(200);
+      const delJson = await delRes.json();
+      expect(delJson.success).toBe(true);
+
+      // Verify subsequent GET returns 404
+      const getReq = new NextRequest(`http://localhost:3000/api/events/${eventId}`, {
+        method: 'GET',
+        headers: aliceHeaders,
+      });
+      const getRes = await getEvent(getReq, { params: Promise.resolve({ id: eventId }) });
+      expect(getRes.status).toBe(404);
+    });
   });
 
   describe('Rate Limiting & CSRF Security', () => {
