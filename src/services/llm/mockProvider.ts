@@ -1,66 +1,63 @@
 import { z } from 'zod';
 import { LLMProvider, LLMOptions } from './types';
 
-function buildMockPayload(prompt: string): unknown {
-  const p = prompt.toLowerCase();
-  if (p.includes('toolcalls') || p.includes('user_message') || p.includes('shortlist_vendor')) {
-    return {
-      reply: 'I can assist you with that! I will adjust the catering budget accordingly.',
-      toolCalls: [
-        {
-          tool: 'update_budget_item',
-          parameters: { category: 'catering', estimated: 3200, notes: 'Adjusted per chat' },
-        },
-      ],
-    };
-  }
-  if (p.includes('budget') || p.includes('allocated')) {
-    return {
-      items: [
-        { category: 'venue', estimated: 4000, notes: 'Grand hall reservation' },
-        { category: 'catering', estimated: 3000, notes: 'Chef-curated menu' },
-        { category: 'photography', estimated: 1500, notes: 'Full-day coverage' },
-      ],
-      totalAllocated: 8500,
-      currency: 'USD',
-    };
-  }
-  if (p.includes('timeline') || p.includes('daysbeforeevent')) {
-    return {
-      tasks: [
-        {
-          id: 't-1',
-          title: 'Reserve Venue',
-          category: 'venue',
-          daysBeforeEvent: 120,
-          dependsOn: [],
-        },
-        {
-          id: 't-2',
-          title: 'Book Caterer',
-          category: 'catering',
-          daysBeforeEvent: 60,
-          dependsOn: ['t-1'],
-        },
-      ],
-    };
-  }
-  if (p.includes('vendor') || p.includes('checklist')) {
-    return {
-      vendors: [
-        {
-          category: 'venue',
-          name: 'The Grand Pavilion',
-          role: 'Banquet Venue',
-          deliverables: ['Hall access', 'Valet'],
-          estimatedQuote: 4500,
-          recommendedLeadWeeks: 20,
-          priority: 'critical',
-          status: 'shortlisted',
-        },
-      ],
-    };
-  }
+function buildChatMockPayload(): unknown {
+  return {
+    reply: 'I can assist you with that! I will adjust the catering budget accordingly.',
+    toolCalls: [
+      {
+        tool: 'update_budget_item',
+        parameters: { category: 'catering', estimated: 3200, notes: 'Adjusted per chat' },
+      },
+    ],
+  };
+}
+
+function buildBudgetMockPayload(): unknown {
+  return {
+    items: [
+      { category: 'venue', estimated: 4000, notes: 'Grand hall reservation' },
+      { category: 'catering', estimated: 3000, notes: 'Chef-curated menu' },
+      { category: 'photography', estimated: 1500, notes: 'Full-day coverage' },
+    ],
+    totalAllocated: 8500,
+    currency: 'USD',
+  };
+}
+
+function buildTimelineMockPayload(): unknown {
+  return {
+    tasks: [
+      { id: 't-1', title: 'Reserve Venue', category: 'venue', daysBeforeEvent: 120, dependsOn: [] },
+      {
+        id: 't-2',
+        title: 'Book Caterer',
+        category: 'catering',
+        daysBeforeEvent: 60,
+        dependsOn: ['t-1'],
+      },
+    ],
+  };
+}
+
+function buildVendorMockPayload(): unknown {
+  return {
+    vendors: [
+      {
+        category: 'venue',
+        name: 'The Grand Pavilion',
+        role: 'Banquet Venue',
+        deliverables: ['Hall access', 'Valet'],
+        estimatedQuote: 4500,
+        recommendedLeadWeeks: 20,
+        priority: 'critical',
+        status: 'shortlisted',
+      },
+    ],
+  };
+}
+
+function buildIdeasMockPayload(): unknown {
   return {
     ideas: [
       {
@@ -74,6 +71,23 @@ function buildMockPayload(prompt: string): unknown {
       },
     ],
   };
+}
+
+function buildMockPayload(prompt: string): unknown {
+  const p = prompt.toLowerCase();
+  if (p.includes('toolcalls') || p.includes('user_message') || p.includes('shortlist_vendor')) {
+    return buildChatMockPayload();
+  }
+  if (p.includes('budget') || p.includes('allocated')) {
+    return buildBudgetMockPayload();
+  }
+  if (p.includes('timeline') || p.includes('daysbeforeevent')) {
+    return buildTimelineMockPayload();
+  }
+  if (p.includes('vendor') || p.includes('checklist')) {
+    return buildVendorMockPayload();
+  }
+  return buildIdeasMockPayload();
 }
 
 export class MockProvider implements LLMProvider {

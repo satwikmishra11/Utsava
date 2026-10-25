@@ -65,25 +65,42 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
     return accumulated;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const processAssistantStream = async (
+    reader: ReadableStreamDefaultReader<Uint8Array>,
+    assistantId: string
+  ): Promise<void> => {
+    const completeText = await readStreamChunks(reader, assistantId);
+    setLiveAnnouncement(`Response completed: ${completeText.slice(0, 160)}`);
+    const proposal = detectActionProposal(completeText, plan);
+    if (proposal) {
+      setMessages((prev) =>
+        prev.map((m) => (m.id === assistantId ? { ...m, actionProposal: proposal } : m))
+      );
+    }
+  };
+
+  const handleStreamError = (err: unknown): void => {
+    if (err instanceof Error && err.name === 'AbortError') return;
+    const msg = err instanceof Error ? err.message : 'An error occurred while connecting to AI.';
+    setMessages((prev) => [
+      ...prev,
+      { id: `err-${Date.now()}`, role: 'assistant', content: `⚠️ ${msg}`, timestamp: Date.now() },
+    ]);
+    setLiveAnnouncement(`Error: ${msg}`);
+  };
+
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     if (!input.trim() || isStreaming) return;
-
     const userText = input.trim();
-    const userMsg: ChatMessage = {
-      id: `user-${Date.now()}`,
-      role: 'user',
-      content: userText,
-      timestamp: Date.now(),
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
+    setMessages((prev) => [
+      ...prev,
+      { id: `user-${Date.now()}`, role: 'user', content: userText, timestamp: Date.now() },
+    ]);
     setInput('');
     setIsStreaming(true);
-
     const controller = new AbortController();
     abortControllerRef.current = controller;
-
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
@@ -95,38 +112,17 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
           chatHistory: messages.slice(-5).map((m) => ({ role: m.role, content: m.content })),
         }),
       });
-
-      if (!res.ok) {
-        const errorJson = await res.json();
-        throw new Error(errorJson.error || 'Server error');
-      }
-
+      if (!res.ok) throw new Error((await res.json()).error || 'Server error');
       const reader = res.body?.getReader();
       if (!reader) return;
-
       const assistantId = `assistant-${Date.now()}`;
       setMessages((prev) => [
         ...prev,
         { id: assistantId, role: 'assistant', content: '', timestamp: Date.now() },
       ]);
-
-      const completeText = await readStreamChunks(reader, assistantId);
-      // WCAG 2.2: announce only on stream completion, not on each token
-      setLiveAnnouncement(`Response completed: ${completeText.slice(0, 160)}`);
+      await processAssistantStream(reader, assistantId);
     } catch (err: unknown) {
-      if (err instanceof Error && err.name === 'AbortError') return;
-      const errorMsg =
-        err instanceof Error ? err.message : 'An error occurred while connecting to AI.';
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `err-${Date.now()}`,
-          role: 'assistant',
-          content: `⚠️ ${errorMsg}`,
-          timestamp: Date.now(),
-        },
-      ]);
-      setLiveAnnouncement(`Error: ${errorMsg}`);
+      handleStreamError(err);
     } finally {
       setIsStreaming(false);
       abortControllerRef.current = null;

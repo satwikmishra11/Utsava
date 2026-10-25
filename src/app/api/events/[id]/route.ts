@@ -11,6 +11,7 @@ import {
 import { getEventRepository } from '@/services/repositories';
 
 const ParamSchema = z.object({ id: z.string().min(1).max(100) });
+const QuerySchema = z.object({}).strict();
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -19,6 +20,9 @@ interface RouteContext {
 export async function GET(req: NextRequest, context: RouteContext): Promise<Response> {
   const auth = await requireAuth(req);
   if (auth instanceof NextResponse) return auth;
+
+  const queryParsed = QuerySchema.safeParse(Object.fromEntries(req.nextUrl.searchParams));
+  if (!queryParsed.success) return jsonValidationError(queryParsed.error.flatten());
 
   const rawParams = await context.params;
   const parsedParams = ParamSchema.safeParse(rawParams);
@@ -40,6 +44,9 @@ export async function GET(req: NextRequest, context: RouteContext): Promise<Resp
 export async function PUT(req: NextRequest, context: RouteContext): Promise<Response> {
   const auth = await requireAuth(req);
   if (auth instanceof NextResponse) return auth;
+
+  const queryParsed = QuerySchema.safeParse(Object.fromEntries(req.nextUrl.searchParams));
+  if (!queryParsed.success) return jsonValidationError(queryParsed.error.flatten());
 
   const csrfErr = enforceCsrf(req);
   if (csrfErr) return csrfErr;
@@ -72,6 +79,9 @@ export async function PUT(req: NextRequest, context: RouteContext): Promise<Resp
 export async function DELETE(req: NextRequest, context: RouteContext): Promise<Response> {
   const auth = await requireAuth(req);
   if (auth instanceof NextResponse) return auth;
+
+  const queryParsed = QuerySchema.safeParse(Object.fromEntries(req.nextUrl.searchParams));
+  if (!queryParsed.success) return jsonValidationError(queryParsed.error.flatten());
 
   const csrfErr = enforceCsrf(req);
   if (csrfErr) return csrfErr;

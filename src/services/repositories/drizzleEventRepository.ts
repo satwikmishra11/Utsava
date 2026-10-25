@@ -27,6 +27,11 @@ export class DrizzleEventRepository implements EventRepository {
   }
 
   private initTables(): void {
+    this.createCoreTables();
+    this.createSecondaryTables();
+  }
+
+  private createCoreTables(): void {
     this.sqlite.exec(`
       CREATE TABLE IF NOT EXISTS events (
         id TEXT PRIMARY KEY,
@@ -54,6 +59,11 @@ export class DrizzleEventRepository implements EventRepository {
         notes TEXT
       );
       CREATE INDEX IF NOT EXISTS idx_budget_items_event_id ON budget_items(event_id);
+    `);
+  }
+
+  private createSecondaryTables(): void {
+    this.sqlite.exec(`
       CREATE TABLE IF NOT EXISTS timeline_tasks (
         id TEXT PRIMARY KEY,
         event_id TEXT NOT NULL REFERENCES events(id) ON DELETE CASCADE,

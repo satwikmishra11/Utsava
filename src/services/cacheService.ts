@@ -15,12 +15,14 @@ export interface CacheStats {
 
 export class GenerationCache {
   private readonly defaultTtlMs: number;
+  private readonly maxCapacity: number;
   private readonly cache = new Map<string, CacheEntry<unknown>>();
   private hitsCount = 0;
   private missesCount = 0;
 
-  constructor(defaultTtlMs: number = 600000) {
+  constructor(defaultTtlMs: number = 600000, maxCapacity: number = 500) {
     this.defaultTtlMs = defaultTtlMs;
+    this.maxCapacity = maxCapacity;
   }
 
   public get<T>(key: string, now: number = Date.now()): T | null {
@@ -39,8 +41,22 @@ export class GenerationCache {
   }
 
   public set<T>(key: string, value: T, ttlMs?: number, now: number = Date.now()): void {
+    if (this.cache.size >= this.maxCapacity && !this.cache.has(key)) {
+      this.evictExpiredOrOldest(now);
+    }
     const expiresAt = now + (ttlMs ?? this.defaultTtlMs);
     this.cache.set(key, { value, expiresAt });
+  }
+
+  private evictExpiredOrOldest(now: number): void {
+    for (const [k, v] of this.cache.entries()) {
+      if (now > v.expiresAt) {
+        this.cache.delete(k);
+        return;
+      }
+    }
+    const oldestKey = this.cache.keys().next().value;
+    if (oldestKey) this.cache.delete(oldestKey);
   }
 
   public has(key: string, now: number = Date.now()): boolean {
