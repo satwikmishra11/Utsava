@@ -29,7 +29,7 @@ describe('BudgetPlanner Component Tests', () => {
     render(
       <BudgetPlanner
         totalBudget={20000}
-        currency="USD"
+        currency="INR"
         items={sampleItems}
         onAddItem={vi.fn()}
         onRemoveItem={vi.fn()}
@@ -38,9 +38,9 @@ describe('BudgetPlanner Component Tests', () => {
     );
 
     expect(screen.getByText(/total target budget/i)).toBeInTheDocument();
-    expect(screen.getByText(/USD 20,000/i)).toBeInTheDocument();
+    expect(screen.getByText(/INR 20,000/i)).toBeInTheDocument();
     expect(screen.getByText(/committed expenses/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/USD 8,000/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/INR 8,000/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/under budget/i)).toBeInTheDocument();
   });
 
@@ -48,7 +48,7 @@ describe('BudgetPlanner Component Tests', () => {
     render(
       <BudgetPlanner
         totalBudget={10000}
-        currency="USD"
+        currency="INR"
         items={sampleItems} // Total estimated: 12000 > 10000
         onAddItem={vi.fn()}
         onRemoveItem={vi.fn()}
@@ -58,7 +58,7 @@ describe('BudgetPlanner Component Tests', () => {
     );
 
     expect(screen.getByText(/over budget/i)).toBeInTheDocument();
-    expect(screen.getByText(/USD 2,000/i)).toBeInTheDocument();
+    expect(screen.getByText(/INR 2,000/i)).toBeInTheDocument();
   });
 
   it('submits a new custom expense via the add form', () => {
@@ -66,7 +66,7 @@ describe('BudgetPlanner Component Tests', () => {
     render(
       <BudgetPlanner
         totalBudget={25000}
-        currency="USD"
+        currency="INR"
         items={sampleItems}
         onAddItem={onAddItem}
         onRemoveItem={vi.fn()}
@@ -99,7 +99,7 @@ describe('BudgetPlanner Component Tests', () => {
     render(
       <BudgetPlanner
         totalBudget={25000}
-        currency="USD"
+        currency="INR"
         items={sampleItems}
         onAddItem={vi.fn()}
         onRemoveItem={onRemoveItem}
@@ -119,7 +119,7 @@ describe('BudgetPlanner Component Tests', () => {
     render(
       <BudgetPlanner
         totalBudget={25000}
-        currency="USD"
+        currency="INR"
         items={sampleItems}
         onAddItem={vi.fn()}
         onRemoveItem={vi.fn()}
@@ -141,7 +141,7 @@ describe('BudgetPlanner Component Tests', () => {
     render(
       <BudgetPlanner
         totalBudget={25000}
-        currency="USD"
+        currency="INR"
         items={sampleItems}
         onAddItem={vi.fn()}
         onRemoveItem={vi.fn()}
@@ -170,7 +170,7 @@ describe('BudgetPlanner Component Tests', () => {
     render(
       <BudgetPlanner
         totalBudget={25000}
-        currency="USD"
+        currency="INR"
         items={sampleItems}
         onAddItem={vi.fn()}
         onRemoveItem={vi.fn()}
@@ -201,7 +201,7 @@ describe('BudgetPlanner Component Tests', () => {
     render(
       <BudgetPlanner
         totalBudget={25000}
-        currency="USD"
+        currency="INR"
         items={[]}
         onAddItem={vi.fn()}
         onRemoveItem={vi.fn()}

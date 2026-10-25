@@ -7,7 +7,7 @@ export const DEMO_INDIAN_WEDDING: EventPlan = {
   date: '2026-12-18',
   guestCount: 350,
   totalBudget: 65000,
-  currency: 'USD',
+  currency: 'INR',
   culturalContext: 'South Asian Traditional & Fusion (Punjabi-Gujarati)',
   budgetItems: [
     {
@@ -232,7 +232,7 @@ export const DEMO_CHILD_BIRTHDAY: EventPlan = {
   date: '2026-11-14',
   guestCount: 45,
   totalBudget: 3500,
-  currency: 'USD',
+  currency: 'INR',
   culturalContext: 'Kids Wildlife Explorer Theme',
   budgetItems: [
     {
@@ -449,7 +449,7 @@ export const DEMO_COMMUNITY_FUNDRAISER: EventPlan = {
   date: '2026-10-30',
   guestCount: 500,
   totalBudget: 20000,
-  currency: 'USD',
+  currency: 'INR',
   culturalContext: 'Civic Neighborhood Harvest Fair',
   budgetItems: [
     {

@@ -12,7 +12,7 @@ describe('ChatAssistant Component Tests', () => {
     date: '2026-11-20',
     guestCount: 150,
     totalBudget: 45000,
-    currency: 'USD',
+    currency: 'INR',
     budgetItems: [],
     timelineItems: [],
     vendors: [],

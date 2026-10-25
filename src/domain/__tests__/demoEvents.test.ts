@@ -11,9 +11,9 @@ import {
 describe('demoEvents domain tests', () => {
   it('contains exactly 3 preconfigured demo events', () => {
     expect(DEMO_EVENTS).toHaveLength(3);
-    expect(DEMO_EVENTS[0].id).toBe('evt-demo-wedding');
-    expect(DEMO_EVENTS[1].id).toBe('evt-demo-birthday');
-    expect(DEMO_EVENTS[2].id).toBe('evt-demo-community');
+    expect(DEMO_EVENTS[0]?.id).toBe('evt-demo-wedding');
+    expect(DEMO_EVENTS[1]?.id).toBe('evt-demo-birthday');
+    expect(DEMO_EVENTS[2]?.id).toBe('evt-demo-community');
   });
 
   it('retrieves demo events by type correctly', () => {

@@ -88,7 +88,7 @@ describe('Session Authentication & IDOR Authorization Suite', () => {
         guestCount: 150,
         location: 'Napa Valley, CA',
         totalBudget: 40000,
-        currency: 'USD',
+        currency: 'INR',
       }),
     });
     const createRes = await createEvent(createReq);
@@ -118,7 +118,7 @@ describe('Session Authentication & IDOR Authorization Suite', () => {
           guestCount: 100,
           location: 'San Francisco, CA',
           totalBudget: 35000,
-          currency: 'USD',
+          currency: 'INR',
         }),
       })
     );
@@ -150,7 +150,7 @@ describe('Session Authentication & IDOR Authorization Suite', () => {
           guestCount: 50,
           location: 'Austin, TX',
           totalBudget: 10000,
-          currency: 'USD',
+          currency: 'INR',
         }),
       })
     );
@@ -192,7 +192,7 @@ describe('Session Authentication & IDOR Authorization Suite', () => {
           guestCount: 100,
           location: 'Chicago, IL',
           totalBudget: 25000,
-          currency: 'USD',
+          currency: 'INR',
         }),
       })
     );
@@ -209,7 +209,7 @@ describe('Session Authentication & IDOR Authorization Suite', () => {
           guestCount: 500,
           location: 'Seattle, WA',
           totalBudget: 15000,
-          currency: 'USD',
+          currency: 'INR',
         }),
       })
     );
@@ -246,7 +246,7 @@ describe('Session Authentication & IDOR Authorization Suite', () => {
         guestCount: 100,
         location: 'Nowhere',
         totalBudget: 1000,
-        currency: 'USD',
+        currency: 'INR',
       }),
     });
 

@@ -75,7 +75,7 @@ const BASE_PLAN: EventPlan = {
   date: '2026-12-01',
   guestCount: 100,
   totalBudget: 20000,
-  currency: 'USD',
+  currency: 'INR',
   budgetItems: [],
   timelineItems: [],
   vendors: [],

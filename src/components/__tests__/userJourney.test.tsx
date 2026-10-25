@@ -23,7 +23,7 @@ const MOCK_PLAN: EventPlan = {
   date: '2026-12-15',
   guestCount: 200,
   totalBudget: 50000,
-  currency: 'USD',
+  currency: 'INR',
   culturalContext: 'South Asian Traditional',
   budgetItems: [
     {
@@ -158,7 +158,7 @@ describe('Full User Journey — End-to-End Acceptance Tests', () => {
     render(
       <BudgetPlanner
         totalBudget={15000}
-        currency="USD"
+        currency="INR"
         items={MOCK_PLAN.budgetItems}
         onAddItem={() => {}}
         onRemoveItem={() => {}}
@@ -239,7 +239,7 @@ describe('Full User Journey — End-to-End Acceptance Tests', () => {
     render(
       <VendorChecklist
         vendors={MOCK_PLAN.vendors}
-        currency="USD"
+        currency="INR"
         onAddVendor={() => {}}
         onUpdateStatus={(_id, status) => {
           updatedStatus = status;

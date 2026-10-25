@@ -24,7 +24,7 @@ describe('Versioned & Parameterized Prompt Templates', () => {
     culture: 'South Asian',
     budgetBand: 'moderate',
     totalBudget: 35000,
-    currency: 'USD',
+    currency: 'INR',
     guestCount: 200,
     dietary: ['Vegetarian', 'Nut-Free'],
     accessibilityNeeds: ['Wheelchair Ramp', 'Sign Language'],

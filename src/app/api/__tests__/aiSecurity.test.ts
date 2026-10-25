@@ -29,7 +29,7 @@ describe('AI Endpoints Security, Rate Limiting & Input Capping Suite', () => {
           date: '2026-11-20',
           guestCount: 100,
           totalBudget: 20000,
-          currency: 'USD',
+          currency: 'INR',
           budgetItems: [],
           timelineItems: [],
           vendors: [],

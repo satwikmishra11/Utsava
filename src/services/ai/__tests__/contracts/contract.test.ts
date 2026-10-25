@@ -22,7 +22,7 @@ describe('LLM Schema Contract Tests (Recorded Golden Fixtures)', () => {
       const parsed = GeneratedBudgetPlanSchema.parse(fixture);
 
       expect(parsed.totalAllocated).toBe(45000);
-      expect(parsed.currency).toBe('USD');
+      expect(parsed.currency).toBe('INR');
       expect(parsed.items.length).toBeGreaterThanOrEqual(5);
 
       const venueItem = parsed.items.find((i) => i.category === 'venue');

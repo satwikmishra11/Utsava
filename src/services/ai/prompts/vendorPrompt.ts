@@ -10,7 +10,7 @@ export function buildVendorPrompt(context: PersonalizationContext): string {
     guestCount: context.guestCount,
     dietary: context.dietary,
     accessibilityNeeds: context.accessibilityNeeds,
-    currency: context.currency ?? 'USD',
+    currency: context.currency ?? 'INR',
   };
 
   return [

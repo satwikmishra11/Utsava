@@ -17,7 +17,7 @@ describe('API Route Handlers (Integration)', () => {
     date: '2026-08-20',
     guestCount: 300,
     totalBudget: 15000,
-    currency: 'USD',
+    currency: 'INR',
     budgetItems: [],
     timelineItems: [],
     vendors: [],

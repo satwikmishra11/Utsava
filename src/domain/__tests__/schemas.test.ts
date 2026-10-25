@@ -17,7 +17,7 @@ describe('Domain Zod Schemas & Inferred Types', () => {
       guestCount: 200,
       location: 'Udaipur Palace',
       totalBudget: 50000,
-      currency: 'USD',
+      currency: 'INR',
       preferences: {
         culture: 'North Indian',
         theme: 'Royal Heritage',

@@ -11,7 +11,7 @@ describe('Streaming Chat Assistant', () => {
     date: '2026-07-04',
     guestCount: 500,
     totalBudget: 15000,
-    currency: 'USD',
+    currency: 'INR',
   };
 
   it('streams response chunks as a ReadableStream to the client', async () => {

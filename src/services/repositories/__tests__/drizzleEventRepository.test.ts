@@ -13,7 +13,7 @@ describe('DrizzleEventRepository (SQLite in-memory)', () => {
     guestCount: 250,
     location: 'Grand Ballroom, Chicago',
     totalBudget: 45000,
-    currency: 'USD',
+    currency: 'INR',
     preferences: {
       culture: 'South Asian',
       theme: 'Mughal Elegance',

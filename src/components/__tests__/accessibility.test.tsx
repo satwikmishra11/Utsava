@@ -32,7 +32,7 @@ describe('UI Accessibility & Interaction (WCAG 2.2 AA)', () => {
     const { container } = render(
       <BudgetPlanner
         totalBudget={20000}
-        currency="USD"
+        currency="INR"
         items={[
           {
             id: 'b-1',
@@ -90,7 +90,7 @@ describe('UI Accessibility & Interaction (WCAG 2.2 AA)', () => {
             deliverables: ['Dinner', 'Drinks'],
           },
         ]}
-        currency="USD"
+        currency="INR"
         onAddVendor={() => {}}
         onUpdateStatus={() => {}}
       />

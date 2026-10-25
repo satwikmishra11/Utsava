@@ -1,7 +1,7 @@
 'use client';
 
 import React, { KeyboardEvent } from 'react';
-import { DollarSign, Clock, Users, Sparkles, MessageSquare } from 'lucide-react';
+import { IndianRupee, Clock, Users, Sparkles, MessageSquare } from 'lucide-react';
 
 export type TabId = 'budget' | 'timeline' | 'vendors' | 'ideas' | 'chat';
 
@@ -16,7 +16,7 @@ interface TabItem {
 }
 
 const TABS: readonly TabItem[] = [
-  { id: 'budget', label: 'Budget Planner', icon: DollarSign },
+  { id: 'budget', label: 'Budget Planner', icon: IndianRupee },
   { id: 'timeline', label: 'Timeline & Schedule', icon: Clock },
   { id: 'vendors', label: 'Vendor Directory', icon: Users },
   { id: 'ideas', label: 'AI Idea Studio', icon: Sparkles },

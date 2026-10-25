@@ -60,7 +60,7 @@ export function buildFallbackBudgetPlan(context: PersonalizationContext): Genera
   return {
     items,
     totalAllocated: total,
-    currency: context.currency ?? 'USD',
+    currency: context.currency ?? 'INR',
   };
 }
 

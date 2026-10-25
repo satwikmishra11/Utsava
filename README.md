@@ -154,9 +154,9 @@ Utsava includes a built-in **Demo Mode** enabled by default:
 
 - **No external API key needed**: Runs entirely on the deterministic `MockProvider`.
 - **Pre-Seeded Celebrations**: Instantly switch between:
-  1. 💍 **Aarav & Meera's Grand Royal Wedding** ($65,000 | 350 guests)
-  2. 🎂 **Anya's 7th Magical Rainforest Safari** ($3,500 | 45 guests)
-  3. 🎪 **Oakridge Harmony Park Revitalization Gala** ($20,000 | 500 guests)
+  1. 💍 **Aarav & Meera's Grand Royal Wedding** (₹65,000 | 350 guests)
+  2. 🎂 **Anya's 7th Magical Rainforest Safari** (₹3,500 | 45 guests)
+  3. 🎪 **Oakridge Harmony Park Revitalization Gala** (₹20,000 | 500 guests)
 - **Full Interactivity**: You can regenerate AI budgets, back-schedule timelines, explore vendor checklists, and chat with the AI assistant with real-time tool proposals.
 
 ---

@@ -51,7 +51,7 @@ describe('OnboardingWizard Component Tests', () => {
     fireEvent.change(budgetInput, { target: { value: '8500' } });
 
     const currencySelect = screen.getByLabelText(/currency/i);
-    fireEvent.change(currencySelect, { target: { value: 'USD' } });
+    fireEvent.change(currencySelect, { target: { value: 'INR' } });
 
     // Click Next to Step 5
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
@@ -83,7 +83,7 @@ describe('OnboardingWizard Component Tests', () => {
     expect(completedData?.date).toBe('2026-10-15');
     expect(completedData?.guestCount).toBe(75);
     expect(completedData?.totalBudget).toBe(8500);
-    expect(completedData?.currency).toBe('USD');
+    expect(completedData?.currency).toBe('INR');
     expect(completedData?.culture).toBe('Casual Bollywood');
     expect(completedData?.dietary).toContain('Vegan');
     expect(completedData?.accessibilityNeeds).toContain('Accessible Parking');

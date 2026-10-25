@@ -12,7 +12,7 @@ export const events = sqliteTable(
     guestCount: integer('guest_count').notNull(),
     location: text('location').notNull(),
     totalBudget: real('total_budget').notNull(),
-    currency: text('currency').notNull().default('USD'),
+    currency: text('currency').notNull().default('INR'),
     preferences: text('preferences', { mode: 'json' }).$type<EventPreferences>().notNull(),
     createdAt: text('created_at').notNull(),
   },

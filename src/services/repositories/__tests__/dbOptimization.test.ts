@@ -16,7 +16,7 @@ describe('Database Optimizations, Indexing & Batch Querying Suite', () => {
     guestCount: 150,
     location: 'Grand Ballroom',
     totalBudget: 35000,
-    currency: 'USD',
+    currency: 'INR',
     preferences: { culture: 'Contemporary', dietary: [], accessibilityNeeds: [] },
     createdAt: new Date().toISOString(),
   });

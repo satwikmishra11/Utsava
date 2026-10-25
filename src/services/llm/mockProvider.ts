@@ -21,7 +21,7 @@ function buildBudgetMockPayload(): unknown {
       { category: 'photography', estimated: 1500, notes: 'Full-day coverage' },
     ],
     totalAllocated: 8500,
-    currency: 'USD',
+    currency: 'INR',
   };
 }
 

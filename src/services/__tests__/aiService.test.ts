@@ -10,7 +10,7 @@ describe('AI Service (Mocked LLM in tests)', () => {
     date: '2026-12-15',
     guestCount: 250,
     totalBudget: 45000,
-    currency: 'USD',
+    currency: 'INR',
     budgetItems: [],
     timelineItems: [],
     vendors: [],

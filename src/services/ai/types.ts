@@ -11,7 +11,7 @@ export const PersonalizationContextSchema = z.object({
   culture: z.string().max(100).optional(),
   budgetBand: z.enum(['budget', 'moderate', 'luxury']).default('moderate'),
   totalBudget: z.number().nonnegative().optional(),
-  currency: z.string().min(1).max(5).default('USD'),
+  currency: z.string().min(1).max(5).default('INR'),
   guestCount: z.number().int().positive(),
   dietary: z.array(z.string().max(60)).default([]),
   accessibilityNeeds: z.array(z.string().max(100)).default([]),
@@ -40,7 +40,7 @@ export const GeneratedBudgetItemSchema = z.object({
 export const GeneratedBudgetPlanSchema = z.object({
   items: z.array(GeneratedBudgetItemSchema).min(1),
   totalAllocated: z.number().nonnegative(),
-  currency: z.string().min(1).max(5).default('USD'),
+  currency: z.string().min(1).max(5).default('INR'),
 });
 export type GeneratedBudgetItem = z.infer<typeof GeneratedBudgetItemSchema>;
 export type GeneratedBudgetPlan = z.infer<typeof GeneratedBudgetPlanSchema>;

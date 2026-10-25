@@ -9,7 +9,7 @@ const INITIAL_PLAN: EventPlan = {
   date: '2026-11-20',
   guestCount: 150,
   totalBudget: 35000,
-  currency: 'USD',
+  currency: 'INR',
   budgetItems: [
     {
       id: 'b-1',

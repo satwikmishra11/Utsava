@@ -40,7 +40,7 @@ test.describe('E2E Scenarios Suite', () => {
 
     // Verify Budget Panel reflects target budget
     const budgetPanel = page.locator('#panel-budget');
-    await expect(budgetPanel).toContainText('USD 50,000');
+    await expect(budgetPanel).toContainText('INR 50,000');
 
     // Switch to Timeline Tab
     await page.click('#tab-timeline');
@@ -98,7 +98,7 @@ test.describe('E2E Scenarios Suite', () => {
     // Verify item appears in table
     const table = page.locator('table');
     await expect(table).toContainText('Live Acoustic Musician');
-    await expect(table).toContainText('USD 850');
+    await expect(table).toContainText('INR 850');
   });
 
   test('Community Event Happy Path: creates festival plan and interacts with timeline and chat', async ({

@@ -31,7 +31,7 @@ export const EventSchema = z.object({
   guestCount: z.number().int().positive(),
   location: z.string().min(1).max(200),
   totalBudget: z.number().positive(),
-  currency: z.string().min(1).max(5).default('USD'),
+  currency: z.string().min(1).max(5).default('INR'),
   preferences: EventPreferencesSchema.default({ dietary: [], accessibilityNeeds: [] }),
   userId: z.string().min(1).default('usr_default'),
   createdAt: z

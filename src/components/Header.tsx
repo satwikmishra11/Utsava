@@ -2,7 +2,15 @@
 
 import React from 'react';
 import { EventPlan, EventType } from '@/domain/types';
-import { Sparkles, Calendar, Users, DollarSign, Share2, Printer, CalendarPlus } from 'lucide-react';
+import {
+  Sparkles,
+  Calendar,
+  Users,
+  IndianRupee,
+  Share2,
+  Printer,
+  CalendarPlus,
+} from 'lucide-react';
 import { Button } from './ui/Button';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -147,7 +155,7 @@ function HeaderMeta({
             color: 'var(--text-secondary)',
           }}
         >
-          <DollarSign size={16} aria-hidden="true" />
+          <IndianRupee size={16} aria-hidden="true" />
           <span>
             {plan.currency} {plan.totalBudget.toLocaleString()}
           </span>

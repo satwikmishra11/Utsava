@@ -8,7 +8,7 @@ export function buildBudgetPrompt(context: PersonalizationContext): string {
     culture: context.culture ?? 'general',
     budgetBand: context.budgetBand,
     totalBudget: context.totalBudget ?? 10000,
-    currency: context.currency ?? 'USD',
+    currency: context.currency ?? 'INR',
     guestCount: context.guestCount,
     dietary: context.dietary,
     accessibilityNeeds: context.accessibilityNeeds,

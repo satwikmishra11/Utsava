@@ -204,10 +204,10 @@ function WizardStep4({
           onChange={(e) => setCurrency(e.target.value)}
           className="select"
         >
+          <option value="INR">INR (₹)</option>
           <option value="USD">USD ($)</option>
           <option value="EUR">EUR (€)</option>
           <option value="GBP">GBP (£)</option>
-          <option value="INR">INR (₹)</option>
           <option value="CAD">CAD ($)</option>
         </select>
       </div>
@@ -351,7 +351,7 @@ export function OnboardingWizard({
   const [location, setLocation] = useState('San Francisco, CA');
   const [guestCount, setGuestCount] = useState<string>('150');
   const [totalBudget, setTotalBudget] = useState<string>('30000');
-  const [currency, setCurrency] = useState('USD');
+  const [currency, setCurrency] = useState('INR');
   const [culture, setCulture] = useState('South Asian');
   const [dietary, setDietary] = useState<string[]>(['Vegetarian']);
   const [accessibility, setAccessibility] = useState<string[]>(['Wheelchair Ramp']);

@@ -63,7 +63,7 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
       actionProposal: {
         id: 'prop-init',
         actionType: 'add_budget_item',
-        description: 'Add a 10% contingency reserve of $4,500 for emergency event expenses.',
+        description: `Add a 10% contingency reserve of ${plan.currency} ${Math.round(plan.totalBudget * 0.1).toLocaleString()} for emergency event expenses.`,
         payload: {
           name: 'Contingency Fund (10%)',
           category: 'miscellaneous',

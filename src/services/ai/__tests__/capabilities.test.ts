@@ -17,7 +17,7 @@ describe('AI Layer Capabilities with MockProvider', () => {
     culture: 'South Asian',
     budgetBand: 'moderate',
     totalBudget: 25000,
-    currency: 'USD',
+    currency: 'INR',
     guestCount: 150,
     dietary: ['Vegetarian'],
     accessibilityNeeds: ['Wheelchair Ramp'],
@@ -32,7 +32,7 @@ describe('AI Layer Capabilities with MockProvider', () => {
     date: '2026-10-15',
     guestCount: 150,
     totalBudget: 25000,
-    currency: 'USD',
+    currency: 'INR',
     culturalContext: 'South Asian',
     budgetItems: [],
     timelineItems: [],
@@ -49,7 +49,7 @@ describe('AI Layer Capabilities with MockProvider', () => {
     const res1 = await generateBudgetPlan(context, { provider });
     expect(res1.source).toBe('llm');
     expect(res1.data.items.length).toBeGreaterThan(0);
-    expect(res1.data.currency).toBe('USD');
+    expect(res1.data.currency).toBe('INR');
 
     // Second call should return cached data
     const res2 = await generateBudgetPlan(context, { provider });
