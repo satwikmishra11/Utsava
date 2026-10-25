@@ -69,7 +69,8 @@ describe('Prompt Builders Deep Unit Tests', () => {
       const prompt = buildBudgetPrompt(minimalContext);
       expect(prompt).toContain('birthday');
       expect(prompt).toContain('25');
-      expect(prompt).toContain('moderate'); // default budget band
+      expect(prompt).toContain('"culture": "general"');
+      expect(prompt).toContain('"totalBudget": 10000');
     });
 
     it('generates error-specific retry prompts', () => {
@@ -79,7 +80,7 @@ describe('Prompt Builders Deep Unit Tests', () => {
       );
       expect(retry).toContain('ORIGINAL_PROMPT');
       expect(retry).toContain('Total allocated exceeds budget limit');
-      expect(retry).toContain('CRITICAL');
+      expect(retry).toContain('[RETRY_INSTRUCTION]');
     });
   });
 

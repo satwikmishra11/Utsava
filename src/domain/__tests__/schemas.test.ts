@@ -100,4 +100,62 @@ describe('Domain Zod Schemas & Inferred Types', () => {
     expect(parsed.theme).toBe('Enchanted Forest');
     expect(parsed.generatedMetadata).toEqual({});
   });
+
+  it('rejects events with invalid types or non-positive guest counts', () => {
+    expect(() =>
+      EventSchema.parse({
+        id: 'evt-fail',
+        type: 'invalid_event_type' as any,
+        title: 'Valid Title',
+        date: '2026-12-01',
+        guestCount: 0,
+        totalBudget: 5000,
+      })
+    ).toThrow();
+  });
+
+  it('validates tool call schemas and rejects invalid parameters', async () => {
+    const { AddTaskToolCallSchema, UpdateBudgetItemToolCallSchema, ShortlistVendorToolCallSchema } =
+      await import('@/services/ai/types');
+
+    const validTask = AddTaskToolCallSchema.parse({
+      tool: 'add_task',
+      parameters: {
+        title: 'Review Seating Plan',
+        category: 'venue',
+        dueDate: '2026-10-15',
+        dependsOn: [],
+      },
+    });
+    expect(validTask.parameters.title).toBe('Review Seating Plan');
+
+    expect(() =>
+      AddTaskToolCallSchema.parse({
+        tool: 'add_task',
+        parameters: {
+          title: '', // empty title rejected
+          category: 'venue',
+        },
+      })
+    ).toThrow();
+
+    const validBudgetUpdate = UpdateBudgetItemToolCallSchema.parse({
+      tool: 'update_budget_item',
+      parameters: {
+        category: 'catering',
+        estimated: 8500,
+      },
+    });
+    expect(validBudgetUpdate.parameters.estimated).toBe(8500);
+
+    const validVendor = ShortlistVendorToolCallSchema.parse({
+      tool: 'shortlist_vendor',
+      parameters: {
+        name: 'Apex DJ Services',
+        category: 'entertainment',
+        quote: 1200,
+      },
+    });
+    expect(validVendor.parameters.name).toBe('Apex DJ Services');
+  });
 });
