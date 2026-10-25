@@ -33,3 +33,10 @@ next-env.d.ts
 # playwright
 /test-results/
 /playwright-report/
+
+# SQLite databases
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+

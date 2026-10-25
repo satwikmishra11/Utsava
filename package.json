@@ -14,6 +14,7 @@
     "test:e2e": "playwright test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "seed": "tsx scripts/seed.ts",
     "prepare": "husky"
   },
   "dependencies": {
