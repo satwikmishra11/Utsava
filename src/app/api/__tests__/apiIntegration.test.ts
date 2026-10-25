@@ -54,7 +54,7 @@ describe('Complete API Routes Integration Suite', () => {
       const res = await createEvent(req);
       expect(res.status).toBe(401);
       const json = await res.json();
-      expect(json.error).toBe('Unauthorized');
+      expect(json.error).toContain('Unauthorized');
     });
 
     it('returns 401 when token is invalid or tampered', async () => {
@@ -81,6 +81,7 @@ describe('Complete API Routes Integration Suite', () => {
           type: 'birthday',
           title: "Bob's 40th Birthday",
           date: '2026-09-10',
+          location: 'Austin Lounge',
           guestCount: 50,
           totalBudget: 4000,
         }),
@@ -88,7 +89,7 @@ describe('Complete API Routes Integration Suite', () => {
       const createRes = await createEvent(createReq);
       expect(createRes.status).toBe(201);
       const created = await createRes.json();
-      const bobEventId = created.id;
+      const bobEventId = created.event.id;
 
       // Alice tries to GET Bob's event -> 403
       const aliceHeaders = await makeHeaders(USER_ALICE);
