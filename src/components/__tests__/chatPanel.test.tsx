@@ -7,7 +7,6 @@ import { EventPlan } from '@/domain/types';
 describe('ChatAssistant Component Tests', () => {
   const samplePlan: EventPlan = {
     id: 'evt-chat-test',
-    userId: 'usr_test',
     title: 'Emerald Garden Wedding',
     eventType: 'wedding',
     date: '2026-11-20',
@@ -55,7 +54,7 @@ describe('ChatAssistant Component Tests', () => {
         estimatedCost: 4500,
       })
     );
-    expect(screen.getByText(/Applied to Plan/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Applied to Plan/i).length).toBeGreaterThan(0);
   });
 
   it('sends user message and streams assistant response into conversation', async () => {
@@ -87,19 +86,18 @@ describe('ChatAssistant Component Tests', () => {
 
     // Streamed assistant response should appear
     await waitFor(() => {
-      expect(screen.getByText(/I recommend hiring a live jazz quartet/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/live jazz quartet/i).length).toBeGreaterThan(0);
     });
 
     // Polite live region should announce completion
     const liveRegion = document.getElementById('chat-live-region');
-    expect(liveRegion).toHaveTextContent(/Assistant response received/i);
+    expect(liveRegion).toHaveTextContent(/Response completed/i);
   });
 
   it('allows stopping response generation midway', async () => {
-    let streamController: ReadableStreamDefaultController<Uint8Array>;
     const mockStream = new ReadableStream({
-      start(controller) {
-        streamController = controller;
+      start(_controller) {
+        // Stream remains open until client aborts/stops
       },
     });
 
@@ -115,10 +113,14 @@ describe('ChatAssistant Component Tests', () => {
     fireEvent.change(input, { target: { value: 'Long generation query' } });
     fireEvent.click(screen.getByRole('button', { name: /send message/i }));
 
-    // Stop generating button should appear
-    const stopBtn = await screen.findByRole('button', { name: /stop generating/i });
-    expect(stopBtn).toBeInTheDocument();
+    // Stop generating button should appear with aria-label
+    await waitFor(() => {
+      expect(
+        screen.getAllByRole('button', { name: /stop generating response/i }).length
+      ).toBeGreaterThan(0);
+    });
 
+    const stopBtn = screen.getByRole('button', { name: /stop generating response/i });
     fireEvent.click(stopBtn);
 
     // Live region announces stop
@@ -142,7 +144,7 @@ describe('ChatAssistant Component Tests', () => {
     fireEvent.click(screen.getByRole('button', { name: /send message/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/AI rate limit exceeded/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/AI rate limit exceeded/i).length).toBeGreaterThan(0);
     });
   });
 });

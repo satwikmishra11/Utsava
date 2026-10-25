@@ -4,8 +4,6 @@ import { signSession } from '@/services/auth/session';
 import { POST as createEvent, GET as listEvents } from '../events/route';
 import { GET as getEvent, PUT as updateEvent, DELETE as deleteEvent } from '../events/[id]/route';
 import { POST as ideasHandler } from '../ideas/route';
-import { POST as timelineHandler } from '../timeline/route';
-import { POST as chatHandler } from '../chat/route';
 import { setEventRepository, DrizzleEventRepository } from '@/services/repositories';
 import { aiRateLimiter } from '@/services/rateLimiter';
 import { generationCache } from '@/services/cacheService';

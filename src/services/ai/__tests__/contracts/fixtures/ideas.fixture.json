@@ -1,0 +1,31 @@
+{
+  "ideas": [
+    {
+      "id": "rec-1",
+      "category": "theme",
+      "title": "Royal Marigold & Twilight Heritage",
+      "description": "An opulent aesthetic blending deep indigo drapes with warm amber marigold cascades, acoustic sitar melodies, and copper lantern ambient lighting.",
+      "estimatedCostTier": "medium",
+      "culturalContext": "Traditional South Asian",
+      "tags": ["decor", "heritage", "marigold", "ambient-lighting"]
+    },
+    {
+      "id": "rec-2",
+      "category": "food_beverage",
+      "title": "Interactive Live Chaat & Street Food Bazaar",
+      "description": "Engaging live culinary stations presenting custom pani puri with flavored waters and freshly griddled spiced bites accommodating vegan and nut-free diets.",
+      "estimatedCostTier": "medium",
+      "culturalContext": "Indian Street Fare",
+      "tags": ["catering", "interactive", "vegan-friendly", "street-food"]
+    },
+    {
+      "id": "rec-3",
+      "category": "entertainment",
+      "title": "Acoustic Sitar & Western Cello Fusion Duo",
+      "description": "Sophisticated live background score performing contemporary celebratory songs arranged for classical string fusion during the cocktail hour.",
+      "estimatedCostTier": "low",
+      "culturalContext": "East-Meets-West Fusion",
+      "tags": ["music", "live-performance", "cocktail-hour"]
+    }
+  ]
+}

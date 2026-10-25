@@ -1,0 +1,31 @@
+{
+  "toolCalls": [
+    {
+      "tool": "add_task",
+      "parameters": {
+        "title": "Taste Test Wedding Cake Flavors",
+        "category": "catering",
+        "dueDate": "14:00",
+        "daysBeforeEvent": 45,
+        "dependsOn": ["task_venue_deposit"]
+      }
+    },
+    {
+      "tool": "update_budget_item",
+      "parameters": {
+        "category": "catering",
+        "estimated": 14500,
+        "notes": "Added late-night dessert snack cart"
+      }
+    },
+    {
+      "tool": "shortlist_vendor",
+      "parameters": {
+        "name": "Artisan Sweet Works",
+        "category": "catering",
+        "quote": 850,
+        "contact": "orders@artisansweet.test"
+      }
+    }
+  ]
+}

@@ -3,6 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BudgetPlanner } from '../BudgetPlanner';
 import { BudgetItem } from '@/domain/types';
+import { detectOverspend } from '@/domain/budgetLogic';
 
 describe('BudgetPlanner Component Tests', () => {
   const sampleItems: BudgetItem[] = [
@@ -13,7 +14,6 @@ describe('BudgetPlanner Component Tests', () => {
       notes: 'Heritage Banquet Hall Deposit',
       estimated: 8000,
       actual: 8000,
-      paid: true,
     },
     {
       id: 'b-2',
@@ -22,7 +22,6 @@ describe('BudgetPlanner Component Tests', () => {
       notes: 'Buffet Catering Initial Quote',
       estimated: 4000,
       actual: 0,
-      paid: false,
     },
   ];
 
@@ -54,13 +53,7 @@ describe('BudgetPlanner Component Tests', () => {
         onAddItem={vi.fn()}
         onRemoveItem={vi.fn()}
         onUpdateStatus={vi.fn()}
-        overspendAnalysis={{
-          totalAllocated: 12000,
-          totalBudget: 10000,
-          isOverspent: true,
-          overspentAmount: 2000,
-          overspentCategories: ['venue'],
-        }}
+        overspendAnalysis={detectOverspend(10000, sampleItems)}
       />
     );
 
@@ -94,10 +87,11 @@ describe('BudgetPlanner Component Tests', () => {
     fireEvent.click(addBtn);
 
     expect(onAddItem).toHaveBeenCalledTimes(1);
-    const addedItem = onAddItem.mock.calls[0][0];
-    expect(addedItem.category).toBe('entertainment');
-    expect(addedItem.notes).toBe('DJ & Sound System');
-    expect(addedItem.estimated).toBe(1800);
+    const addedItem = onAddItem.mock.calls[0]?.[0];
+    expect(addedItem).toBeDefined();
+    expect(addedItem?.category).toBe('entertainment');
+    expect(addedItem?.notes).toBe('DJ & Sound System');
+    expect(addedItem?.estimated).toBe(1800);
   });
 
   it('calls onRemoveItem when delete button is clicked', () => {

@@ -1,0 +1,41 @@
+{
+  "totalAllocated": 45000,
+  "currency": "USD",
+  "items": [
+    {
+      "category": "venue",
+      "estimated": 15000,
+      "notes": "Ballroom rental with historic courtyard and security staffing"
+    },
+    {
+      "category": "catering",
+      "estimated": 14000,
+      "notes": "Multi-course dinner for 200 guests with Jain vegetarian options"
+    },
+    {
+      "category": "photography",
+      "estimated": 4500,
+      "notes": "Full day photo and video coverage with 2 lead shooters"
+    },
+    {
+      "category": "decor",
+      "estimated": 5000,
+      "notes": "Custom floral mandap, ambient up-lighting, and table runners"
+    },
+    {
+      "category": "entertainment",
+      "estimated": 3500,
+      "notes": "Live fusion acoustic quartet and evening DJ with sound engineering"
+    },
+    {
+      "category": "logistics",
+      "estimated": 2000,
+      "notes": "Guest shuttle transportation and valet parking coordination"
+    },
+    {
+      "category": "miscellaneous",
+      "estimated": 1000,
+      "notes": "Contingency reserve for last-minute permits and gratuities"
+    }
+  ]
+}

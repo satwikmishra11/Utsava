@@ -4,7 +4,6 @@ import { EventPlan } from '@/domain/types';
 
 const INITIAL_PLAN: EventPlan = {
   id: 'evt_plan_test',
-  userId: 'usr_test',
   title: 'Test Wedding Gala',
   eventType: 'wedding',
   date: '2026-11-20',
@@ -41,6 +40,7 @@ const INITIAL_PLAN: EventPlan = {
       deliverables: ['Full coverage'],
     },
   ],
+  ideas: [],
 };
 
 describe('planEditor — applyToolCallToPlan', () => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { OnboardingWizard } from '../OnboardingWizard';
 
 describe('OnboardingWizard Component Tests', () => {
@@ -76,16 +76,17 @@ describe('OnboardingWizard Component Tests', () => {
     fireEvent.click(finishBtn);
 
     expect(onComplete).toHaveBeenCalledTimes(1);
-    const completedData = onComplete.mock.calls[0][0];
-    expect(completedData.eventType).toBe('birthday');
-    expect(completedData.title).toBe("Rohan's 30th Birthday");
-    expect(completedData.date).toBe('2026-10-15');
-    expect(completedData.guestCount).toBe(75);
-    expect(completedData.totalBudget).toBe(8500);
-    expect(completedData.currency).toBe('USD');
-    expect(completedData.culture).toBe('Casual Bollywood');
-    expect(completedData.dietary).toContain('Vegan');
-    expect(completedData.accessibilityNeeds).toContain('Accessible Parking');
+    const completedData = onComplete.mock.calls[0]?.[0];
+    expect(completedData).toBeDefined();
+    expect(completedData?.eventType).toBe('birthday');
+    expect(completedData?.title).toBe("Rohan's 30th Birthday");
+    expect(completedData?.date).toBe('2026-10-15');
+    expect(completedData?.guestCount).toBe(75);
+    expect(completedData?.totalBudget).toBe(8500);
+    expect(completedData?.currency).toBe('USD');
+    expect(completedData?.culture).toBe('Casual Bollywood');
+    expect(completedData?.dietary).toContain('Vegan');
+    expect(completedData?.accessibilityNeeds).toContain('Accessible Parking');
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 

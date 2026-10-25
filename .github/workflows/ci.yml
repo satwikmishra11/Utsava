@@ -30,8 +30,8 @@ jobs:
       - name: Strict Typecheck
         run: npm run typecheck
 
-      - name: Unit & Integration Tests (Mocked LLM)
-        run: npm test
+      - name: Unit & Integration Tests with Coverage Gate (85% overall, 90% domain & services)
+        run: npm run test:coverage
 
       - name: CI Secret Scan
         run: bash scripts/secret-scan.sh

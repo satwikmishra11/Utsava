@@ -1,0 +1,49 @@
+{
+  "tasks": [
+    {
+      "id": "t-1",
+      "title": "Book Event Venue and Secure Date",
+      "category": "venue",
+      "daysBeforeEvent": 180,
+      "dependsOn": [],
+      "assignee": "Lead Organizer",
+      "status": "completed"
+    },
+    {
+      "id": "t-2",
+      "title": "Contract Catering and Finalize Menu Tasting",
+      "category": "catering",
+      "daysBeforeEvent": 90,
+      "dependsOn": ["t-1"],
+      "assignee": "Catering Lead",
+      "status": "pending"
+    },
+    {
+      "id": "t-3",
+      "title": "Send Formal Digital Invitations & Collect RSVPs",
+      "category": "logistics",
+      "daysBeforeEvent": 60,
+      "dependsOn": ["t-1"],
+      "assignee": "Communications Lead",
+      "status": "pending"
+    },
+    {
+      "id": "t-4",
+      "title": "Finalize Decor & Floral Floorplans",
+      "category": "decor",
+      "daysBeforeEvent": 30,
+      "dependsOn": ["t-1"],
+      "assignee": "Styling Lead",
+      "status": "pending"
+    },
+    {
+      "id": "t-5",
+      "title": "Conduct Audio-Visual & Sound Check Walkthrough",
+      "category": "entertainment",
+      "daysBeforeEvent": 7,
+      "dependsOn": ["t-4"],
+      "assignee": "Tech Coordinator",
+      "status": "pending"
+    }
+  ]
+}

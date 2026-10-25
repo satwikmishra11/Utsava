@@ -1,0 +1,46 @@
+{
+  "vendors": [
+    {
+      "category": "venue",
+      "name": "The Grand Atrium & Gardens",
+      "role": "Primary Event Host Venue",
+      "deliverables": [
+        "Exclusive access to hall and courtyard",
+        "Setup and teardown tables and chairs",
+        "Onsite security and facility manager"
+      ],
+      "estimatedQuote": 12500,
+      "recommendedLeadWeeks": 24,
+      "priority": "critical",
+      "status": "shortlisted"
+    },
+    {
+      "category": "catering",
+      "name": "Saffron & Sage Culinary Artisans",
+      "role": "Full Service Event Catering",
+      "deliverables": [
+        "Welcome drink reception and appetizers",
+        "3-course plated dinner service",
+        "Dietary accommodation stations"
+      ],
+      "estimatedQuote": 9800,
+      "recommendedLeadWeeks": 16,
+      "priority": "critical",
+      "status": "shortlisted"
+    },
+    {
+      "category": "photography",
+      "name": "Lumina Visuals Studio",
+      "role": "Lead Documentary Photographer",
+      "deliverables": [
+        "10 hours continuous coverage",
+        "Curated online gallery of 600+ high-res images",
+        "Pre-event portrait session"
+      ],
+      "estimatedQuote": 3800,
+      "recommendedLeadWeeks": 12,
+      "priority": "high",
+      "status": "shortlisted"
+    }
+  ]
+}
