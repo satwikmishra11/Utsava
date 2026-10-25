@@ -72,7 +72,7 @@ describe('OnboardingWizard Component Tests', () => {
     expect(parkingOption).toHaveAttribute('aria-checked', 'true');
 
     // Finish wizard
-    const finishBtn = screen.getByRole('button', { name: /generate plan/i });
+    const finishBtn = screen.getByRole('button', { name: /create event plan/i });
     fireEvent.click(finishBtn);
 
     expect(onComplete).toHaveBeenCalledTimes(1);
