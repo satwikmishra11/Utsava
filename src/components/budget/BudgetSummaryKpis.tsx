@@ -10,6 +10,13 @@ export interface BudgetSummaryKpisProps {
   readonly isOver: boolean;
 }
 
+const KPI_GRID_STYLE: React.CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+  gap: '16px',
+  marginBottom: '24px',
+};
+
 function KpiCard({
   label,
   children,
@@ -29,6 +36,16 @@ function KpiCard({
       {children}
     </div>
   );
+}
+
+function KpiValueDisplay({
+  value,
+  color,
+}: {
+  readonly value: string;
+  readonly color?: string;
+}): React.JSX.Element {
+  return <p style={{ fontSize: '1.4rem', fontWeight: 700, marginTop: '4px', color }}>{value}</p>;
 }
 
 function BudgetStatusDisplay({
@@ -80,44 +97,27 @@ export function BudgetSummaryKpis({
   currency,
   isOver,
 }: BudgetSummaryKpisProps): React.JSX.Element {
+  const cards = [
+    { label: 'Total Target Budget', value: `${currency} ${total.toLocaleString()}` },
+    {
+      label: 'Committed Expenses',
+      value: `${currency} ${actual.toLocaleString()}`,
+      color: isOver ? 'var(--accent-rose)' : 'var(--text-primary)',
+    },
+    {
+      label: 'Paid to Date',
+      value: `${currency} ${paid.toLocaleString()}`,
+      color: 'var(--accent-emerald)',
+    },
+  ];
+
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '16px',
-        marginBottom: '24px',
-      }}
-    >
-      <KpiCard label="Total Target Budget">
-        <p style={{ fontSize: '1.4rem', fontWeight: 700, marginTop: '4px' }}>
-          {currency} {total.toLocaleString()}
-        </p>
-      </KpiCard>
-      <KpiCard label="Committed Expenses">
-        <p
-          style={{
-            fontSize: '1.4rem',
-            fontWeight: 700,
-            marginTop: '4px',
-            color: isOver ? 'var(--accent-rose)' : 'var(--text-primary)',
-          }}
-        >
-          {currency} {actual.toLocaleString()}
-        </p>
-      </KpiCard>
-      <KpiCard label="Paid to Date">
-        <p
-          style={{
-            fontSize: '1.4rem',
-            fontWeight: 700,
-            marginTop: '4px',
-            color: 'var(--accent-emerald)',
-          }}
-        >
-          {currency} {paid.toLocaleString()}
-        </p>
-      </KpiCard>
+    <div style={KPI_GRID_STYLE}>
+      {cards.map(({ label, value, color }) => (
+        <KpiCard key={label} label={label}>
+          <KpiValueDisplay value={value} color={color} />
+        </KpiCard>
+      ))}
       <KpiCard label="Budget Status (Dual Coded)">
         <BudgetStatusDisplay isOver={isOver} rem={rem} currency={currency} />
       </KpiCard>

@@ -13,6 +13,45 @@ export interface AiSuggestionsBannerProps {
   readonly onDismiss: () => void;
 }
 
+function AiBannerActions({
+  acceptLabel,
+  dismissLabel,
+  acceptId,
+  dismissId,
+  onAccept,
+  onDismiss,
+}: {
+  readonly acceptLabel: string;
+  readonly dismissLabel: string;
+  readonly acceptId: string;
+  readonly dismissId: string;
+  readonly onAccept: () => void;
+  readonly onDismiss: () => void;
+}): React.JSX.Element {
+  return (
+    <div className="ai-banner-actions">
+      <Button
+        onClick={onAccept}
+        size="sm"
+        variant="primary"
+        leftIcon={<Check size={14} />}
+        id={acceptId}
+      >
+        {acceptLabel}
+      </Button>
+      <Button
+        onClick={onDismiss}
+        size="sm"
+        variant="ghost"
+        leftIcon={<X size={14} />}
+        id={dismissId}
+      >
+        {dismissLabel}
+      </Button>
+    </div>
+  );
+}
+
 export function AiSuggestionsBanner({
   title,
   description,
@@ -30,26 +69,14 @@ export function AiSuggestionsBanner({
           <span className="ai-banner-title">{title}</span>
           <p className="ai-banner-description">{description}</p>
         </div>
-        <div className="ai-banner-actions">
-          <Button
-            onClick={onAccept}
-            size="sm"
-            variant="primary"
-            leftIcon={<Check size={14} />}
-            id={acceptId}
-          >
-            {acceptLabel}
-          </Button>
-          <Button
-            onClick={onDismiss}
-            size="sm"
-            variant="ghost"
-            leftIcon={<X size={14} />}
-            id={dismissId}
-          >
-            {dismissLabel}
-          </Button>
-        </div>
+        <AiBannerActions
+          acceptLabel={acceptLabel}
+          dismissLabel={dismissLabel}
+          acceptId={acceptId}
+          dismissId={dismissId}
+          onAccept={onAccept}
+          onDismiss={onDismiss}
+        />
       </div>
     </div>
   );

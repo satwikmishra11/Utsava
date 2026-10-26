@@ -9,6 +9,24 @@ export interface BudgetTableProps {
   readonly onRemove: (id: string) => void;
 }
 
+const TABLE_HEADERS = ['Expense', 'Category', 'Estimated', 'Status', 'Actions'];
+
+function BudgetTableHead(): React.JSX.Element {
+  return (
+    <thead>
+      <tr
+        style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
+      >
+        {TABLE_HEADERS.map((h) => (
+          <th key={h} style={{ padding: '12px 8px' }} scope="col">
+            {h}
+          </th>
+        ))}
+      </tr>
+    </thead>
+  );
+}
+
 export function BudgetTable({
   items,
   currency,
@@ -26,30 +44,7 @@ export function BudgetTable({
         }}
       >
         <caption className="sr-only">Budget Expenses List</caption>
-        <thead>
-          <tr
-            style={{
-              borderBottom: '1px solid var(--border-subtle)',
-              color: 'var(--text-secondary)',
-            }}
-          >
-            <th style={{ padding: '12px 8px' }} scope="col">
-              Expense
-            </th>
-            <th style={{ padding: '12px 8px' }} scope="col">
-              Category
-            </th>
-            <th style={{ padding: '12px 8px' }} scope="col">
-              Estimated
-            </th>
-            <th style={{ padding: '12px 8px' }} scope="col">
-              Status
-            </th>
-            <th style={{ padding: '12px 8px' }} scope="col">
-              Actions
-            </th>
-          </tr>
-        </thead>
+        <BudgetTableHead />
         <tbody>
           {items.map((item) => (
             <BudgetTableRow

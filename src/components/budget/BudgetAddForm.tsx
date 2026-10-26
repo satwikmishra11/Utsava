@@ -35,82 +35,124 @@ export function useBudgetAddForm(
   return { name, setName, category, setCategory, cost, setCost, error, setError, submit };
 }
 
+function BudgetTitleInput({
+  name,
+  setName,
+  error,
+  clearError,
+}: {
+  readonly name: string;
+  readonly setName: (val: string) => void;
+  readonly error: string;
+  readonly clearError: () => void;
+}): React.JSX.Element {
+  return (
+    <div>
+      <label htmlFor="budget-item-name" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
+        Expense Title
+      </label>
+      <input
+        id="budget-item-name"
+        className="input"
+        value={name}
+        onChange={(e) => {
+          setName(e.target.value);
+          if (error) clearError();
+        }}
+        placeholder="e.g. Venue Deposit"
+        aria-invalid={Boolean(error && !name.trim())}
+        aria-describedby={error ? 'budget-form-error' : undefined}
+        required
+      />
+    </div>
+  );
+}
+
+function BudgetCategorySelect({
+  category,
+  setCategory,
+}: {
+  readonly category: BudgetCategory;
+  readonly setCategory: (c: BudgetCategory) => void;
+}): React.JSX.Element {
+  return (
+    <div>
+      <label htmlFor="budget-item-category" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
+        Category
+      </label>
+      <select
+        id="budget-item-category"
+        className="select"
+        value={category}
+        onChange={(e) => setCategory(e.target.value as BudgetCategory)}
+      >
+        {ALL_BUDGET_CATEGORIES.map((c) => (
+          <option key={c} value={c}>
+            {c}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+function BudgetAmountInput({
+  cost,
+  setCost,
+  error,
+  clearError,
+}: {
+  readonly cost: string;
+  readonly setCost: (val: string) => void;
+  readonly error: string;
+  readonly clearError: () => void;
+}): React.JSX.Element {
+  return (
+    <div>
+      <label htmlFor="budget-item-cost" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
+        Amount
+      </label>
+      <input
+        id="budget-item-cost"
+        type="number"
+        min="1"
+        className="input"
+        value={cost}
+        onChange={(e) => {
+          setCost(e.target.value);
+          if (error) clearError();
+        }}
+        placeholder="1000"
+        aria-invalid={Boolean(error && (isNaN(Number(cost)) || Number(cost) <= 0))}
+        aria-describedby={error ? 'budget-form-error' : undefined}
+        required
+      />
+    </div>
+  );
+}
+
+const FORM_STYLE: React.CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr)) auto',
+  gap: '12px',
+  alignItems: 'flex-end',
+  marginBottom: '24px',
+};
+
 export function BudgetAddForm({ onAdd }: BudgetAddFormProps): React.JSX.Element {
   const { name, setName, category, setCategory, cost, setCost, error, setError, submit } =
     useBudgetAddForm(onAdd);
+  const clearError = () => setError('');
 
   return (
-    <form
-      onSubmit={submit}
-      noValidate
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr)) auto',
-        gap: '12px',
-        alignItems: 'flex-end',
-        marginBottom: '24px',
-      }}
-    >
-      <div>
-        <label htmlFor="budget-item-name" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
-          Expense Title
-        </label>
-        <input
-          id="budget-item-name"
-          className="input"
-          value={name}
-          onChange={(e) => {
-            setName(e.target.value);
-            if (error) setError('');
-          }}
-          placeholder="e.g. Venue Deposit"
-          aria-invalid={Boolean(error && !name.trim())}
-          aria-describedby={error ? 'budget-form-error' : undefined}
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="budget-item-category" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
-          Category
-        </label>
-        <select
-          id="budget-item-category"
-          className="select"
-          value={category}
-          onChange={(e) => setCategory(e.target.value as BudgetCategory)}
-        >
-          {ALL_BUDGET_CATEGORIES.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label htmlFor="budget-item-cost" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
-          Amount
-        </label>
-        <input
-          id="budget-item-cost"
-          type="number"
-          min="1"
-          className="input"
-          value={cost}
-          onChange={(e) => {
-            setCost(e.target.value);
-            if (error) setError('');
-          }}
-          placeholder="1000"
-          aria-invalid={Boolean(error && (isNaN(Number(cost)) || Number(cost) <= 0))}
-          aria-describedby={error ? 'budget-form-error' : undefined}
-          required
-        />
-      </div>
+    <form onSubmit={submit} noValidate style={FORM_STYLE}>
+      <BudgetTitleInput name={name} setName={setName} error={error} clearError={clearError} />
+      <BudgetCategorySelect category={category} setCategory={setCategory} />
+      <BudgetAmountInput cost={cost} setCost={setCost} error={error} clearError={clearError} />
       <button type="submit" className="btn btn-primary" id="btn-add-budget-item">
         <Plus size={16} aria-hidden="true" />
         <span>Add Expense</span>
       </button>
-
       {error && (
         <div
           id="budget-form-error"
