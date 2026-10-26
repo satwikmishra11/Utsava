@@ -25,6 +25,14 @@ const BACKDROP_STYLE: React.CSSProperties = {
   padding: '16px',
 };
 
+const DIALOG_CARD_STYLE: React.CSSProperties = {
+  width: '100%',
+  maxHeight: '90vh',
+  overflowY: 'auto',
+  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.8)',
+  border: '1px solid var(--border-accent)',
+};
+
 function DialogHeader({
   title,
   onClose,
@@ -83,14 +91,7 @@ export function Dialog({
         aria-labelledby="dialog-title"
         className="card"
         tabIndex={-1}
-        style={{
-          width: '100%',
-          maxWidth,
-          maxHeight: '90vh',
-          overflowY: 'auto',
-          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.8)',
-          border: '1px solid var(--border-accent)',
-        }}
+        style={{ ...DIALOG_CARD_STYLE, maxWidth }}
       >
         <DialogHeader title={title} onClose={onClose} />
         {children}
