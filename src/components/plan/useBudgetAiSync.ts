@@ -18,6 +18,9 @@ export function useBudgetAiSync(
       totalBudget: target.totalBudget,
       currency: target.currency,
       culture: target.culturalContext,
+      dietary: target.dietary,
+      accessibilityNeeds: target.accessibilityNeeds,
+      eventDate: target.date,
     });
     setPending(res.data.items);
     setLoading(false);

@@ -10,6 +10,8 @@ export interface WizardPlanInput {
   readonly currency: string;
   readonly culture?: string;
   readonly location?: string;
+  readonly dietary?: readonly string[];
+  readonly accessibilityNeeds?: readonly string[];
 }
 
 export function createPlanWithTimeline(
@@ -41,6 +43,9 @@ export function createPlanWithTimeline(
     totalBudget: data.totalBudget,
     currency: data.currency,
     culturalContext: data.culture,
+    dietary: data.dietary,
+    accessibilityNeeds: data.accessibilityNeeds,
+    timelineReasons: result.reasons,
     budgetItems: [],
     timelineItems,
     vendors: [],
@@ -66,6 +71,8 @@ export function createPlanFromWizard(
     totalBudget: data.totalBudget,
     currency: data.currency,
     culturalContext: data.culture,
+    dietary: data.dietary,
+    accessibilityNeeds: data.accessibilityNeeds,
     budgetItems: [],
     timelineItems: [],
     vendors: [],

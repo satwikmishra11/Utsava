@@ -24,6 +24,8 @@ const ChatAssistant = dynamic(() => import('./ChatAssistant').then((m) => m.Chat
   loading: () => <CardSkeleton />,
 });
 
+import { getPlanReasons } from '@/domain/planReasons';
+
 interface ActiveTabPanelProps {
   readonly activeTab: TabId;
   readonly planState: ReturnType<typeof useEventPlan>;
@@ -35,11 +37,14 @@ function BudgetTab({
   readonly planState: ReturnType<typeof useEventPlan>;
 }): React.JSX.Element {
   const { plan } = planState;
+  const reasons = getPlanReasons(plan);
   return (
     <BudgetPlanner
       totalBudget={plan.totalBudget}
       currency={plan.currency}
       items={plan.budgetItems}
+      budgetReasons={reasons.budgetReasons}
+      timelineReasons={reasons.timelineReasons}
       onAddItem={planState.addBudgetItem}
       onRemoveItem={planState.removeBudgetItem}
       onUpdateStatus={planState.updateBudgetStatus}
@@ -59,10 +64,13 @@ function TimelineTab({
   readonly planState: ReturnType<typeof useEventPlan>;
 }): React.JSX.Element {
   const { plan } = planState;
+  const reasons = getPlanReasons(plan);
   return (
     <TimelineGenerator
       items={plan.timelineItems}
       eventType={plan.eventType}
+      budgetReasons={reasons.budgetReasons}
+      timelineReasons={reasons.timelineReasons}
       onAddItem={planState.addTimelineItem}
       onToggleComplete={planState.toggleTimeline}
       onBulkReplaceTimeline={planState.replaceTimeline}

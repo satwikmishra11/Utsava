@@ -158,6 +158,8 @@ export interface EventPlanSummary {
   readonly totalBudget: number;
   readonly currency: string;
   readonly culturalContext?: string;
+  readonly dietary?: readonly string[];
+  readonly accessibilityNeeds?: readonly string[];
 }
 
 export interface EventPlan extends EventPlanSummary {
@@ -165,4 +167,6 @@ export interface EventPlan extends EventPlanSummary {
   readonly timelineItems: readonly TimelineItem[];
   readonly vendors: readonly VendorItem[];
   readonly ideas: readonly IdeaRecommendation[];
+  readonly budgetReasons?: readonly string[];
+  readonly timelineReasons?: readonly string[];
 }

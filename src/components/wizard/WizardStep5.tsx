@@ -24,6 +24,8 @@ export interface WizardStep5Props {
   readonly setDietary: React.Dispatch<React.SetStateAction<string[]>>;
   readonly accessibility: readonly string[];
   readonly setAccessibility: React.Dispatch<React.SetStateAction<string[]>>;
+  readonly customAccessibility: string;
+  readonly setCustomAccessibility: (v: string) => void;
 }
 
 function toggleListItem(
@@ -68,14 +70,39 @@ function ToggleButtonGroup({
   );
 }
 
-export function WizardStep5({
-  culture,
-  setCulture,
-  dietary,
-  setDietary,
+function AccessibilitySection({
   accessibility,
   setAccessibility,
-}: WizardStep5Props): React.JSX.Element {
+  customAccessibility,
+  setCustomAccessibility,
+}: {
+  readonly accessibility: readonly string[];
+  readonly setAccessibility: React.Dispatch<React.SetStateAction<string[]>>;
+  readonly customAccessibility: string;
+  readonly setCustomAccessibility: (v: string) => void;
+}): React.JSX.Element {
+  return (
+    <>
+      <ToggleButtonGroup
+        title="Accessibility Needs"
+        ariaLabel="Accessibility options"
+        options={ACCESSIBILITY_OPTIONS}
+        selected={accessibility}
+        onToggle={(a) => toggleListItem(accessibility, setAccessibility, a)}
+      />
+      <Input
+        label="Additional Accessibility Needs (Optional)"
+        id="wizard-accessibility-input"
+        value={customAccessibility}
+        onChange={(e) => setCustomAccessibility(e.target.value)}
+        placeholder="e.g., Braille signage, service animal relief area"
+      />
+    </>
+  );
+}
+
+export function WizardStep5(props: WizardStep5Props): React.JSX.Element {
+  const { culture, setCulture, dietary, setDietary } = props;
   return (
     <div className="wizard-form-grid">
       <Input
@@ -92,12 +119,11 @@ export function WizardStep5({
         selected={dietary}
         onToggle={(d) => toggleListItem(dietary, setDietary, d)}
       />
-      <ToggleButtonGroup
-        title="Accessibility Needs"
-        ariaLabel="Accessibility options"
-        options={ACCESSIBILITY_OPTIONS}
-        selected={accessibility}
-        onToggle={(a) => toggleListItem(accessibility, setAccessibility, a)}
+      <AccessibilitySection
+        accessibility={props.accessibility}
+        setAccessibility={props.setAccessibility}
+        customAccessibility={props.customAccessibility}
+        setCustomAccessibility={props.setCustomAccessibility}
       />
     </div>
   );

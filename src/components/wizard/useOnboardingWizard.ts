@@ -50,6 +50,7 @@ function useWizardFormState() {
   const [culture, setCulture] = useState('South Asian');
   const [dietary, setDietary] = useState<string[]>(['Vegetarian']);
   const [accessibility, setAccessibility] = useState<string[]>(['Wheelchair Ramp']);
+  const [customAccessibility, setCustomAccessibility] = useState<string>('');
   const [error, setError] = useState<string>('');
   const details = useWizardDetailsState();
   return {
@@ -63,6 +64,8 @@ function useWizardFormState() {
     setDietary,
     accessibility,
     setAccessibility,
+    customAccessibility,
+    setCustomAccessibility,
     error,
     setError,
     ...details,
@@ -70,6 +73,14 @@ function useWizardFormState() {
 }
 
 function buildWizardData(state: ReturnType<typeof useWizardFormState>): WizardData {
+  const custom = state.customAccessibility.trim();
+  const customList = custom
+    ? custom
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
+  const mergedAccessibility = Array.from(new Set([...state.accessibility, ...customList]));
   return {
     eventType: state.eventType,
     title: state.title.trim(),
@@ -80,7 +91,7 @@ function buildWizardData(state: ReturnType<typeof useWizardFormState>): WizardDa
     currency: state.currency,
     culture: state.culture.trim(),
     dietary: state.dietary,
-    accessibilityNeeds: state.accessibility,
+    accessibilityNeeds: mergedAccessibility,
   };
 }
 

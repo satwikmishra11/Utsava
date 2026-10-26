@@ -68,6 +68,8 @@ export function WizardStepContent({ wizard }: WizardStepContentProps): React.JSX
       setDietary={wizard.setDietary}
       accessibility={wizard.accessibility}
       setAccessibility={wizard.setAccessibility}
+      customAccessibility={wizard.customAccessibility}
+      setCustomAccessibility={wizard.setCustomAccessibility}
     />
   );
 }

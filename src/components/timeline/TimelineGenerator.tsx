@@ -14,6 +14,7 @@ import { TimelineConflictBanner } from './TimelineConflictBanner';
 import { TimelineSuggestionsAlert } from './TimelineSuggestionsAlert';
 import { TimelineForm } from './TimelineForm';
 import { TimelineItemRow } from './TimelineItemRow';
+import { WhyThisPlanDisclosure } from '../plan';
 
 export interface TimelineGeneratorProps {
   readonly items: readonly TimelineItem[];
@@ -26,6 +27,8 @@ export interface TimelineGeneratorProps {
   readonly pendingSuggestions?: readonly GeneratedTimelineTask[] | null;
   readonly onAcceptSuggestions?: () => void;
   readonly onDismissSuggestions?: () => void;
+  readonly budgetReasons?: readonly string[];
+  readonly timelineReasons?: readonly string[];
 }
 
 function createTimelineItem(title: string, time: string): TimelineItem {
@@ -96,29 +99,71 @@ function TimelineItemsList({
   );
 }
 
-export function TimelineGenerator(props: TimelineGeneratorProps): React.JSX.Element {
-  const { items, onAddItem, onToggleComplete, onRegenerateAI, isLoadingAI = false } = props;
+function useTimelineViewState(items: readonly TimelineItem[]) {
   const [phaseFilter, setPhaseFilter] = useState<TimelinePhase | 'all'>('all');
   const [viewMode, setViewMode] = useState<'all' | 'upcoming'>('all');
   const conflicts = findTimelineConflicts(items);
   const displayed = phaseFilter === 'all' ? items : filterTimelineByPhase(items, phaseFilter);
   const itemsToRender = viewMode === 'upcoming' ? items.filter((i) => !i.completed) : displayed;
+  return { phaseFilter, setPhaseFilter, viewMode, setViewMode, conflicts, itemsToRender };
+}
+
+function TimelineTopSection(props: {
+  readonly viewMode: 'all' | 'upcoming';
+  readonly onViewModeToggle: () => void;
+  readonly onRegenerateAI?: () => void;
+  readonly isLoadingAI: boolean;
+  readonly budgetReasons?: readonly string[];
+  readonly timelineReasons?: readonly string[];
+  readonly currentPhase: TimelinePhase | 'all';
+  readonly onSelectPhase: (phase: TimelinePhase | 'all') => void;
+  readonly items: readonly TimelineItem[];
+  readonly onToggle: (id: string) => void;
+  readonly conflictCount: number;
+}): React.JSX.Element {
+  return (
+    <>
+      <TimelineGeneratorHeader
+        viewMode={props.viewMode}
+        onViewModeToggle={props.onViewModeToggle}
+        onRegenerateAI={props.onRegenerateAI}
+        isLoadingAI={props.isLoadingAI}
+      />
+      <WhyThisPlanDisclosure
+        id="why-this-plan-timeline"
+        budgetReasons={props.budgetReasons}
+        timelineReasons={props.timelineReasons}
+      />
+      <TimelinePhaseFilter currentPhase={props.currentPhase} onSelectPhase={props.onSelectPhase} />
+      <TimelineProgressSummary items={props.items} />
+      <UpcomingTasksPanel items={props.items} onToggle={props.onToggle} />
+      <TimelineConflictBanner count={props.conflictCount} />
+    </>
+  );
+}
+
+export function TimelineGenerator(props: TimelineGeneratorProps): React.JSX.Element {
+  const { items, onAddItem, onToggleComplete, onRegenerateAI, isLoadingAI = false } = props;
+  const viewState = useTimelineViewState(items);
   const hasSuggestions = Boolean(
     props.pendingSuggestions?.length && props.onAcceptSuggestions && props.onDismissSuggestions
   );
 
   return (
     <section id="panel-timeline" role="tabpanel" aria-labelledby="tab-timeline" className="card">
-      <TimelineGeneratorHeader
-        viewMode={viewMode}
-        onViewModeToggle={() => setViewMode((v) => (v === 'all' ? 'upcoming' : 'all'))}
+      <TimelineTopSection
+        viewMode={viewState.viewMode}
+        onViewModeToggle={() => viewState.setViewMode((v) => (v === 'all' ? 'upcoming' : 'all'))}
         onRegenerateAI={onRegenerateAI}
         isLoadingAI={isLoadingAI}
+        budgetReasons={props.budgetReasons}
+        timelineReasons={props.timelineReasons}
+        currentPhase={viewState.phaseFilter}
+        onSelectPhase={viewState.setPhaseFilter}
+        items={items}
+        onToggle={onToggleComplete}
+        conflictCount={viewState.conflicts.length}
       />
-      <TimelinePhaseFilter currentPhase={phaseFilter} onSelectPhase={setPhaseFilter} />
-      <TimelineProgressSummary items={items} />
-      <UpcomingTasksPanel items={items} onToggle={onToggleComplete} />
-      <TimelineConflictBanner count={conflicts.length} />
       <TimelineAlertSection
         isLoadingAI={isLoadingAI}
         hasSuggestions={hasSuggestions}
@@ -129,7 +174,7 @@ export function TimelineGenerator(props: TimelineGeneratorProps): React.JSX.Elem
       <TimelineForm onAdd={(title, time) => onAddItem(createTimelineItem(title, time))} />
       <TimelineItemsList
         items={items}
-        itemsToRender={itemsToRender}
+        itemsToRender={viewState.itemsToRender}
         onToggle={onToggleComplete}
         onRegenerateAI={onRegenerateAI}
       />

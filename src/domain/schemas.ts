@@ -153,8 +153,21 @@ export type GenerateIdeasRequest = z.infer<typeof GenerateIdeasRequestSchema>;
 
 export const GenerateTimelineRequestSchema = z.object({
   eventType: EventTypeSchema,
-  eventStartTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/),
-  durationHours: z.number().positive().max(48),
+  eventStartTime: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
+    .default('09:00'),
+  durationHours: z.number().positive().max(48).default(6),
   keyTraditions: z.array(z.string().max(80)).default([]),
+  guestCount: z.number().int().positive().optional(),
+  culture: z.string().max(100).optional(),
+  culturalContext: z.string().max(500).optional(),
+  eventDate: z.string().optional(),
+  location: z.string().max(200).optional(),
+  budgetBand: z.enum(['budget', 'moderate', 'luxury']).optional(),
+  totalBudget: z.number().nonnegative().optional(),
+  currency: z.string().min(1).max(5).optional(),
+  dietary: z.array(z.string().max(60)).default([]),
+  accessibilityNeeds: z.array(z.string().max(100)).default([]),
 });
 export type GenerateTimelineRequest = z.infer<typeof GenerateTimelineRequestSchema>;

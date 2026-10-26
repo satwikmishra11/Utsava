@@ -1184,3 +1184,115 @@ body {
   padding: 6px 12px;
   font-size: 0.8rem;
 }
+
+/* "Why this plan?" Disclosure Styles */
+.why-this-plan-disclosure {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  margin: 1rem 0;
+  overflow: hidden;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.why-this-plan-disclosure[open] {
+  border-color: var(--border-accent);
+}
+
+.why-this-plan-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-primary);
+  user-select: none;
+  background: transparent;
+  outline: none;
+  transition: background-color 0.15s ease;
+}
+
+.why-this-plan-summary:focus-visible {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: -2px;
+}
+
+.why-this-plan-summary:hover {
+  background: var(--bg-surface-elevated);
+}
+
+.why-this-plan-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.why-this-plan-count {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  border: 1px solid var(--border-subtle);
+}
+
+.why-this-plan-content {
+  padding: 0.75rem 1rem 1rem 1rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.why-this-plan-empty {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 0;
+}
+
+.why-this-plan-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.why-this-plan-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.why-this-plan-text {
+  flex: 1;
+}
+
+.why-this-plan-badge {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.why-this-plan-badge-budget {
+  background: var(--badge-gold-bg);
+  color: var(--badge-gold-text);
+  border: 1px solid var(--border-accent);
+}
+
+.why-this-plan-badge-timeline {
+  background: rgba(129, 140, 248, 0.18);
+  color: var(--accent-indigo);
+  border: 1px solid var(--accent-indigo);
+}
