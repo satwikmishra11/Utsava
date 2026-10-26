@@ -24,6 +24,19 @@ export interface HeaderProps {
   readonly saveStatus?: 'saved' | 'saving' | 'unsaved' | 'error';
 }
 
+const META_ITEM_STYLE: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '6px',
+  color: 'var(--text-secondary)',
+};
+
+const META_ACTIONS = [
+  { id: 'btn-export-ics', label: 'Export ICS', icon: CalendarPlus, actionKey: 'ics' as const },
+  { id: 'btn-export-pdf', label: 'Print / PDF', icon: Printer, actionKey: 'pdf' as const },
+  { id: 'btn-share-link', label: 'Share Link', icon: Share2, actionKey: 'share' as const },
+];
+
 function HeaderBrand({ title }: { readonly title: string }): React.JSX.Element {
   return (
     <div>
@@ -98,6 +111,30 @@ function HeaderControls({
   );
 }
 
+function HeaderSaveStatusIndicator({
+  status,
+}: {
+  readonly status: 'saved' | 'saving' | 'unsaved' | 'error';
+}): React.JSX.Element {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        fontSize: '0.8rem',
+        color: status === 'saving' ? 'var(--accent-gold)' : 'var(--accent-emerald)',
+        fontWeight: 500,
+      }}
+    >
+      <span>{status === 'saving' ? '⏳' : '✓'}</span>
+      <span>{status === 'saving' ? 'Saving...' : 'Saved'}</span>
+    </div>
+  );
+}
+
 function HeaderMetaDetails({
   plan,
   saveStatus,
@@ -107,58 +144,21 @@ function HeaderMetaDetails({
 }): React.JSX.Element {
   return (
     <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          color: 'var(--text-secondary)',
-        }}
-      >
+      <div style={META_ITEM_STYLE}>
         <Calendar size={16} aria-hidden="true" />
         <span>{plan.date}</span>
       </div>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          color: 'var(--text-secondary)',
-        }}
-      >
+      <div style={META_ITEM_STYLE}>
         <Users size={16} aria-hidden="true" />
         <span>{plan.guestCount} Guests</span>
       </div>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          color: 'var(--text-secondary)',
-        }}
-      >
+      <div style={META_ITEM_STYLE}>
         <IndianRupee size={16} aria-hidden="true" />
         <span>
           {plan.currency} {plan.totalBudget.toLocaleString()}
         </span>
       </div>
-      {saveStatus && (
-        <div
-          role="status"
-          aria-live="polite"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            fontSize: '0.8rem',
-            color: saveStatus === 'saving' ? 'var(--accent-gold)' : 'var(--accent-emerald)',
-            fontWeight: 500,
-          }}
-        >
-          <span>{saveStatus === 'saving' ? '⏳' : '✓'}</span>
-          <span>{saveStatus === 'saving' ? 'Saving...' : 'Saved'}</span>
-        </div>
-      )}
+      {saveStatus && <HeaderSaveStatusIndicator status={saveStatus} />}
     </div>
   );
 }
@@ -172,35 +172,21 @@ function HeaderMetaActions({
   readonly onExportPDF: () => void;
   readonly onShareLink: () => void;
 }): React.JSX.Element {
+  const handlers = { ics: onExportICS, pdf: onExportPDF, share: onShareLink };
   return (
     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onExportICS}
-        leftIcon={<CalendarPlus size={14} />}
-        id="btn-export-ics"
-      >
-        Export ICS
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onExportPDF}
-        leftIcon={<Printer size={14} />}
-        id="btn-export-pdf"
-      >
-        Print / PDF
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onShareLink}
-        leftIcon={<Share2 size={14} />}
-        id="btn-share-link"
-      >
-        Share Link
-      </Button>
+      {META_ACTIONS.map(({ id, label, icon: Icon, actionKey }) => (
+        <Button
+          key={id}
+          variant="outline"
+          size="sm"
+          onClick={handlers[actionKey]}
+          leftIcon={<Icon size={14} />}
+          id={id}
+        >
+          {label}
+        </Button>
+      ))}
     </div>
   );
 }

@@ -4,6 +4,58 @@ import React, { useEffect, useState } from 'react';
 import { tokenTracker, TokenUsageRecord, TokenUsageSummary } from '@/services/ai/tokenTracker';
 import { Z_INDEX_MODAL } from '@/lib/constants';
 
+const TRIGGER_BTN_STYLE: React.CSSProperties = {
+  background: 'var(--bg-surface-elevated, #1e293b)',
+  border: '1px solid var(--accent-gold, #f59e0b)',
+  color: 'var(--text-primary, #f8fafc)',
+  padding: '8px 14px',
+  borderRadius: '9999px',
+  cursor: 'pointer',
+  boxShadow: 'var(--shadow-card, 0 4px 12px rgba(0,0,0,0.4))',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+};
+
+const REQ_BADGE_STYLE: React.CSSProperties = {
+  fontSize: '0.7rem',
+  background: 'rgba(255,255,255,0.1)',
+  padding: '2px 6px',
+  borderRadius: '6px',
+};
+
+const HEADER_BAR_STYLE: React.CSSProperties = {
+  padding: '10px 14px',
+  background: 'var(--bg-surface-elevated, #1e293b)',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  borderBottom: '1px solid var(--border-subtle, rgba(255,255,255,0.1))',
+};
+
+const RECORD_ITEM_STYLE: React.CSSProperties = {
+  padding: '8px 10px',
+  borderRadius: '6px',
+  marginBottom: '6px',
+  background: 'var(--bg-surface-elevated, #1e293b)',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+};
+
+const PANEL_STYLE: React.CSSProperties = {
+  background: 'var(--bg-surface, #0f172a)',
+  border: '1px solid var(--accent-gold, #f59e0b)',
+  borderRadius: 'var(--radius-md, 10px)',
+  width: '380px',
+  maxHeight: '440px',
+  display: 'flex',
+  flexDirection: 'column',
+  boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
+  color: 'var(--text-primary, #f8fafc)',
+  overflow: 'hidden',
+};
+
 function useDevTokenPanel() {
   const [records, setRecords] = useState<readonly TokenUsageRecord[]>([]);
   const [summary, setSummary] = useState<TokenUsageSummary>({
@@ -39,49 +91,20 @@ function DevTokenButton({
       type="button"
       onClick={onOpen}
       title="Open AI Token Tracker (Dev Panel)"
-      style={{
-        background: 'var(--bg-surface-elevated, #1e293b)',
-        border: '1px solid var(--accent-gold, #f59e0b)',
-        color: 'var(--text-primary, #f8fafc)',
-        padding: '8px 14px',
-        borderRadius: '9999px',
-        cursor: 'pointer',
-        boxShadow: 'var(--shadow-card, 0 4px 12px rgba(0,0,0,0.4))',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-      }}
+      style={TRIGGER_BTN_STYLE}
     >
       <span style={{ color: 'var(--accent-gold, #f59e0b)' }}>⚡</span>
       <span>
         {summary.totalTokens.toLocaleString()} tok (~${summary.estimatedCostUsd})
       </span>
-      <span
-        style={{
-          fontSize: '0.7rem',
-          background: 'rgba(255,255,255,0.1)',
-          padding: '2px 6px',
-          borderRadius: '6px',
-        }}
-      >
-        {summary.requestCount} reqs
-      </span>
+      <span style={REQ_BADGE_STYLE}>{summary.requestCount} reqs</span>
     </button>
   );
 }
 
 function DevTokenHeader({ onClose }: { readonly onClose: () => void }): React.JSX.Element {
   return (
-    <div
-      style={{
-        padding: '10px 14px',
-        background: 'var(--bg-surface-elevated, #1e293b)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        borderBottom: '1px solid var(--border-subtle, rgba(255,255,255,0.1))',
-      }}
-    >
+    <div style={HEADER_BAR_STYLE}>
       <strong style={{ color: 'var(--accent-gold, #f59e0b)', display: 'flex', gap: '6px' }}>
         <span>⚡</span> AI Token Monitor
       </strong>
@@ -156,18 +179,15 @@ function DevTokenSummaryGrid({
 }
 
 function DevTokenRecordItem({ record }: { readonly record: TokenUsageRecord }): React.JSX.Element {
+  const badgeStyle = {
+    fontSize: '0.7rem',
+    padding: '2px 6px',
+    borderRadius: '4px',
+    background: record.cached ? 'rgba(16, 185, 129, 0.2)' : 'rgba(99, 102, 241, 0.2)',
+    color: record.cached ? '#10b981' : '#818cf8',
+  };
   return (
-    <div
-      style={{
-        padding: '8px 10px',
-        borderRadius: '6px',
-        marginBottom: '6px',
-        background: 'var(--bg-surface-elevated, #1e293b)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      }}
-    >
+    <div style={RECORD_ITEM_STYLE}>
       <div>
         <span
           style={{
@@ -187,17 +207,7 @@ function DevTokenRecordItem({ record }: { readonly record: TokenUsageRecord }): 
           in: {record.promptTokens} | out: {record.completionTokens} | {record.durationMs}ms
         </div>
       </div>
-      <span
-        style={{
-          fontSize: '0.7rem',
-          padding: '2px 6px',
-          borderRadius: '4px',
-          background: record.cached ? 'rgba(16, 185, 129, 0.2)' : 'rgba(99, 102, 241, 0.2)',
-          color: record.cached ? '#10b981' : '#818cf8',
-        }}
-      >
-        {record.cached ? 'CACHED' : `${record.totalTokens} tok`}
-      </span>
+      <span style={badgeStyle}>{record.cached ? 'CACHED' : `${record.totalTokens} tok`}</span>
     </div>
   );
 }
@@ -223,19 +233,6 @@ function DevTokenRecordsList({
     </>
   );
 }
-
-const PANEL_STYLE: React.CSSProperties = {
-  background: 'var(--bg-surface, #0f172a)',
-  border: '1px solid var(--accent-gold, #f59e0b)',
-  borderRadius: 'var(--radius-md, 10px)',
-  width: '380px',
-  maxHeight: '440px',
-  display: 'flex',
-  flexDirection: 'column',
-  boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
-  color: 'var(--text-primary, #f8fafc)',
-  overflow: 'hidden',
-};
 
 export function DevTokenPanel(): React.JSX.Element | null {
   const [isOpen, setIsOpen] = useState(false);

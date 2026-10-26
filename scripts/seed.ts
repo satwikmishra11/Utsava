@@ -40,39 +40,13 @@ function extractPreferences(plan: EventPlan): EventPreferences {
   };
 }
 
-async function seedSingleEvent(
-  repo: DrizzleEventRepository,
-  plan: EventPlan,
-  userId: string
-): Promise<void> {
-  // Clear any existing demo event with this ID to make seed idempotent
-  await repo.deleteEvent(plan.id, userId).catch(() => false);
+function resolveEventLocation(type: string): string {
+  if (type === 'wedding') return 'Royal Heritage Palace & Gardens';
+  if (type === 'birthday') return 'Forest Greens Botanical Pavilion';
+  return 'Oakridge Civic Plaza';
+}
 
-  const preferences = extractPreferences(plan);
-
-  await repo.createEvent({
-    id: plan.id,
-    userId,
-    type: plan.eventType,
-    title: plan.title,
-    date: plan.date,
-    guestCount: plan.guestCount,
-    location:
-      plan.eventType === 'wedding'
-        ? 'Royal Heritage Palace & Gardens'
-        : plan.eventType === 'birthday'
-          ? 'Forest Greens Botanical Pavilion'
-          : 'Oakridge Civic Plaza',
-    totalBudget: plan.totalBudget,
-    currency: plan.currency,
-    preferences,
-    createdAt: new Date().toISOString(),
-  });
-
-  for (const item of plan.budgetItems) {
-    await repo.addBudgetItem(item);
-  }
-
+async function seedTimelineTasks(repo: DrizzleEventRepository, plan: EventPlan): Promise<void> {
   for (const item of plan.timelineItems) {
     await repo.addTimelineTask({
       id: item.id,
@@ -85,7 +59,9 @@ async function seedSingleEvent(
       assignee: item.assignedTo,
     });
   }
+}
 
+async function seedVendors(repo: DrizzleEventRepository, plan: EventPlan): Promise<void> {
   for (const vendor of plan.vendors) {
     await repo.addVendor({
       id: vendor.id,
@@ -97,7 +73,13 @@ async function seedSingleEvent(
       status: vendor.status,
     });
   }
+}
 
+async function seedIdeaSet(
+  repo: DrizzleEventRepository,
+  plan: EventPlan,
+  preferences: EventPreferences
+): Promise<void> {
   await repo.saveIdeaSet({
     id: `set-${plan.id}`,
     eventId: plan.id,
@@ -111,6 +93,36 @@ async function seedSingleEvent(
       tags: ['demo', plan.eventType],
     },
   });
+}
+
+async function seedSingleEvent(
+  repo: DrizzleEventRepository,
+  plan: EventPlan,
+  userId: string
+): Promise<void> {
+  await repo.deleteEvent(plan.id, userId).catch(() => false);
+  const preferences = extractPreferences(plan);
+
+  await repo.createEvent({
+    id: plan.id,
+    userId,
+    type: plan.eventType,
+    title: plan.title,
+    date: plan.date,
+    guestCount: plan.guestCount,
+    location: resolveEventLocation(plan.eventType),
+    totalBudget: plan.totalBudget,
+    currency: plan.currency,
+    preferences,
+    createdAt: new Date().toISOString(),
+  });
+
+  for (const item of plan.budgetItems) {
+    await repo.addBudgetItem(item);
+  }
+  await seedTimelineTasks(repo, plan);
+  await seedVendors(repo, plan);
+  await seedIdeaSet(repo, plan, preferences);
 }
 
 export async function seedDatabase(targetDbPath?: string): Promise<void> {
