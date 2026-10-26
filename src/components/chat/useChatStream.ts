@@ -7,6 +7,13 @@ import {
 } from '@/lib/constants';
 import { detectActionProposal } from './actionProposals';
 
+interface ChatContext {
+  readonly plan: EventPlan;
+  readonly messages: readonly ChatMessage[];
+  readonly setMessages: React.Dispatch<React.SetStateAction<readonly ChatMessage[]>>;
+  readonly setLiveAnnouncement: (msg: string) => void;
+}
+
 function createInitialMessages(plan: EventPlan): readonly ChatMessage[] {
   return [
     {
@@ -109,6 +116,21 @@ async function postChatMessage(
   await processAssistantStream(reader, assistantId, plan, setMessages, setLiveAnnouncement);
 }
 
+async function dispatchChatMessage(
+  userText: string,
+  controller: AbortController,
+  plan: EventPlan,
+  messages: readonly ChatMessage[],
+  setMessages: React.Dispatch<React.SetStateAction<readonly ChatMessage[]>>,
+  setLiveAnnouncement: (msg: string) => void
+): Promise<void> {
+  try {
+    await postChatMessage(userText, controller, plan, messages, setMessages, setLiveAnnouncement);
+  } catch (err: unknown) {
+    handleStreamError(err, setMessages, setLiveAnnouncement);
+  }
+}
+
 function markProposalApplied(
   setMessages: React.Dispatch<React.SetStateAction<readonly ChatMessage[]>>,
   messageId: string
@@ -122,6 +144,16 @@ function markProposalApplied(
   );
 }
 
+function appendUserMessage(
+  setMessages: React.Dispatch<React.SetStateAction<readonly ChatMessage[]>>,
+  text: string
+): void {
+  setMessages((prev) => [
+    ...prev,
+    { id: `user-${Date.now()}`, role: 'user', content: text, timestamp: Date.now() },
+  ]);
+}
+
 function useChatMessages(plan: EventPlan) {
   const [messages, setMessages] = useState<readonly ChatMessage[]>(() =>
     createInitialMessages(plan)
@@ -130,12 +162,7 @@ function useChatMessages(plan: EventPlan) {
   return { messages, setMessages, liveAnnouncement, setLiveAnnouncement };
 }
 
-function useChatSubmit(
-  plan: EventPlan,
-  messages: readonly ChatMessage[],
-  setMessages: React.Dispatch<React.SetStateAction<readonly ChatMessage[]>>,
-  setLiveAnnouncement: (msg: string) => void
-) {
+function useChatSubmit(ctx: ChatContext) {
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -144,29 +171,28 @@ function useChatSubmit(
     abortControllerRef.current?.abort();
     abortControllerRef.current = null;
     setIsStreaming(false);
-    setLiveAnnouncement('Response generation stopped by user.');
+    ctx.setLiveAnnouncement('Response generation stopped by user.');
   };
 
   const submit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     if (!input.trim() || isStreaming) return;
     const userText = input.trim();
-    setMessages((prev) => [
-      ...prev,
-      { id: `user-${Date.now()}`, role: 'user', content: userText, timestamp: Date.now() },
-    ]);
+    appendUserMessage(ctx.setMessages, userText);
     setInput('');
     setIsStreaming(true);
     const controller = new AbortController();
     abortControllerRef.current = controller;
-    try {
-      await postChatMessage(userText, controller, plan, messages, setMessages, setLiveAnnouncement);
-    } catch (err: unknown) {
-      handleStreamError(err, setMessages, setLiveAnnouncement);
-    } finally {
-      setIsStreaming(false);
-      abortControllerRef.current = null;
-    }
+    await dispatchChatMessage(
+      userText,
+      controller,
+      ctx.plan,
+      ctx.messages,
+      ctx.setMessages,
+      ctx.setLiveAnnouncement
+    );
+    setIsStreaming(false);
+    abortControllerRef.current = null;
   };
 
   return { input, setInput, isStreaming, stopGenerating, submit };
@@ -179,12 +205,12 @@ export type PlanActionCallback = (
 
 export function useChatStream(plan: EventPlan, onApplyPlanAction: PlanActionCallback) {
   const { messages, setMessages, liveAnnouncement, setLiveAnnouncement } = useChatMessages(plan);
-  const { input, setInput, isStreaming, stopGenerating, submit } = useChatSubmit(
+  const { input, setInput, isStreaming, stopGenerating, submit } = useChatSubmit({
     plan,
     messages,
     setMessages,
-    setLiveAnnouncement
-  );
+    setLiveAnnouncement,
+  });
 
   const handleApplyProposal = (messageId: string, proposal: ActionProposal) => {
     onApplyPlanAction(proposal.actionType, proposal.payload);
