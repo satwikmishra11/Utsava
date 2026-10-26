@@ -98,6 +98,113 @@ function HeaderControls({
   );
 }
 
+function HeaderMetaDetails({
+  plan,
+  saveStatus,
+}: {
+  readonly plan: EventPlan;
+  readonly saveStatus?: 'saved' | 'saving' | 'unsaved' | 'error';
+}): React.JSX.Element {
+  return (
+    <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          color: 'var(--text-secondary)',
+        }}
+      >
+        <Calendar size={16} aria-hidden="true" />
+        <span>{plan.date}</span>
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          color: 'var(--text-secondary)',
+        }}
+      >
+        <Users size={16} aria-hidden="true" />
+        <span>{plan.guestCount} Guests</span>
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          color: 'var(--text-secondary)',
+        }}
+      >
+        <IndianRupee size={16} aria-hidden="true" />
+        <span>
+          {plan.currency} {plan.totalBudget.toLocaleString()}
+        </span>
+      </div>
+      {saveStatus && (
+        <div
+          role="status"
+          aria-live="polite"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '0.8rem',
+            color: saveStatus === 'saving' ? 'var(--accent-gold)' : 'var(--accent-emerald)',
+            fontWeight: 500,
+          }}
+        >
+          <span>{saveStatus === 'saving' ? '⏳' : '✓'}</span>
+          <span>{saveStatus === 'saving' ? 'Saving...' : 'Saved'}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function HeaderMetaActions({
+  onExportICS,
+  onExportPDF,
+  onShareLink,
+}: {
+  readonly onExportICS: () => void;
+  readonly onExportPDF: () => void;
+  readonly onShareLink: () => void;
+}): React.JSX.Element {
+  return (
+    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onExportICS}
+        leftIcon={<CalendarPlus size={14} />}
+        id="btn-export-ics"
+      >
+        Export ICS
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onExportPDF}
+        leftIcon={<Printer size={14} />}
+        id="btn-export-pdf"
+      >
+        Print / PDF
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onShareLink}
+        leftIcon={<Share2 size={14} />}
+        id="btn-share-link"
+      >
+        Share Link
+      </Button>
+    </div>
+  );
+}
+
 function HeaderMeta({
   plan,
   onExportICS,
@@ -124,89 +231,12 @@ function HeaderMeta({
         paddingTop: '16px',
       }}
     >
-      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            color: 'var(--text-secondary)',
-          }}
-        >
-          <Calendar size={16} aria-hidden="true" />
-          <span>{plan.date}</span>
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            color: 'var(--text-secondary)',
-          }}
-        >
-          <Users size={16} aria-hidden="true" />
-          <span>{plan.guestCount} Guests</span>
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            color: 'var(--text-secondary)',
-          }}
-        >
-          <IndianRupee size={16} aria-hidden="true" />
-          <span>
-            {plan.currency} {plan.totalBudget.toLocaleString()}
-          </span>
-        </div>
-        {saveStatus && (
-          <div
-            role="status"
-            aria-live="polite"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '0.8rem',
-              color: saveStatus === 'saving' ? 'var(--accent-gold)' : 'var(--accent-emerald)',
-              fontWeight: 500,
-            }}
-          >
-            <span>{saveStatus === 'saving' ? '⏳' : '✓'}</span>
-            <span>{saveStatus === 'saving' ? 'Saving...' : 'Saved'}</span>
-          </div>
-        )}
-      </div>
-      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onExportICS}
-          leftIcon={<CalendarPlus size={14} />}
-          id="btn-export-ics"
-        >
-          Export ICS
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onExportPDF}
-          leftIcon={<Printer size={14} />}
-          id="btn-export-pdf"
-        >
-          Print / PDF
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onShareLink}
-          leftIcon={<Share2 size={14} />}
-          id="btn-share-link"
-        >
-          Share Link
-        </Button>
-      </div>
+      <HeaderMetaDetails plan={plan} saveStatus={saveStatus} />
+      <HeaderMetaActions
+        onExportICS={onExportICS}
+        onExportPDF={onExportPDF}
+        onShareLink={onShareLink}
+      />
     </div>
   );
 }
