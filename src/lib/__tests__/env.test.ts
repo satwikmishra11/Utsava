@@ -17,7 +17,7 @@ describe('Environment Variable Handling (src/lib/env.ts)', () => {
   it('fails fast with detailed error when invalid NODE_ENV is provided', () => {
     expect(() => {
       parseEnv({
-        NODE_ENV: 'staging' as any,
+        NODE_ENV: 'staging' as unknown as 'development',
       });
     }).toThrowError(/Environment validation failed/);
   });

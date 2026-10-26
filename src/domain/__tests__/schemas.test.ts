@@ -105,7 +105,7 @@ describe('Domain Zod Schemas & Inferred Types', () => {
     expect(() =>
       EventSchema.parse({
         id: 'evt-fail',
-        type: 'invalid_event_type' as any,
+        type: 'invalid_event_type' as unknown as 'wedding',
         title: 'Valid Title',
         date: '2026-12-01',
         guestCount: 0,
