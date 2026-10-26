@@ -241,7 +241,7 @@ function applyActionToPlan(
       id: `vendor-auto-${Date.now()}`,
       category: (payload.category as BudgetCategory) || 'catering',
       name: String(payload.role ?? 'Premium Service Provider'),
-      status: 'contacted',
+      status: 'shortlisted',
       quotedAmount: Number(payload.estimatedCost) || FALLBACK_EXPENSE_ESTIMATE_VENDOR,
       deliverables: ['Custom consultation & planning'],
       notes: 'Added from AI chat suggestion',
