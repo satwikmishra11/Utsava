@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { TimelineItem, TimelinePhase, EventType } from '@/domain/types';
 import { findTimelineConflicts, filterTimelineByPhase } from '@/domain/timeline';
+import { percentOf } from '@/domain/math';
 import { GeneratedTimelineTask } from '@/services/ai';
 import {
   Clock,
@@ -11,8 +12,6 @@ import {
   Sparkles,
   CheckSquare,
   Square,
-  Check,
-  X,
   ListFilter,
   BarChart3,
   Table as TableIcon,
@@ -20,6 +19,7 @@ import {
 import { Button } from './ui/Button';
 import { CardSkeleton } from './ui/Skeleton';
 import { EmptyState } from './ui/EmptyState';
+import { AiSuggestionsBanner } from './ui/AiSuggestionsBanner';
 
 export interface TimelineGeneratorProps {
   readonly items: readonly TimelineItem[];
@@ -115,7 +115,7 @@ function TimelineProgressSummary({
 
   const total = items.length;
   const completed = items.filter((i) => i.completed).length;
-  const pct = Math.round((completed / total) * 100);
+  const pct = percentOf(completed, total);
 
   type PhaseStats = { total: number; done: number };
   const phaseCounts = items.reduce<Record<TimelinePhase, PhaseStats>>(
@@ -288,54 +288,16 @@ function TimelineSuggestionsAlert({
   readonly onDismiss: () => void;
 }): React.JSX.Element {
   return (
-    <div
-      style={{
-        background: 'var(--bg-surface-elevated)',
-        border: '1px solid var(--accent-gold)',
-        borderRadius: 'var(--radius-sm)',
-        padding: '16px',
-        marginBottom: '20px',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '12px',
-        }}
-      >
-        <div>
-          <span style={{ fontWeight: 700, color: 'var(--accent-gold)' }}>
-            ✨ AI Timeline Schedule Ready
-          </span>
-          <p style={{ fontSize: '0.875rem', marginTop: '2px' }}>
-            {suggestions.length} back-scheduled milestones generated.
-          </p>
-        </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <Button
-            onClick={onAccept}
-            size="sm"
-            variant="primary"
-            leftIcon={<Check size={14} />}
-            id="btn-accept-timeline-ai"
-          >
-            Accept Schedule
-          </Button>
-          <Button
-            onClick={onDismiss}
-            size="sm"
-            variant="ghost"
-            leftIcon={<X size={14} />}
-            id="btn-dismiss-timeline-ai"
-          >
-            Dismiss
-          </Button>
-        </div>
-      </div>
-    </div>
+    <AiSuggestionsBanner
+      title="✨ AI Timeline Schedule Ready"
+      description={`${suggestions.length} back-scheduled milestones generated.`}
+      acceptLabel="Accept Schedule"
+      dismissLabel="Dismiss"
+      acceptId="btn-accept-timeline-ai"
+      dismissId="btn-dismiss-timeline-ai"
+      onAccept={onAccept}
+      onDismiss={onDismiss}
+    />
   );
 }
 

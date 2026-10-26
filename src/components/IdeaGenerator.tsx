@@ -2,10 +2,11 @@
 
 import React, { useState } from 'react';
 import { IdeaRecommendation, IdeaCategory, EventType } from '@/domain/types';
-import { Sparkles, Plus, Check, X } from 'lucide-react';
+import { Sparkles, Plus, Check } from 'lucide-react';
 import { Button } from './ui/Button';
 import { CardSkeleton } from './ui/Skeleton';
 import { EmptyState } from './ui/EmptyState';
+import { AiSuggestionsBanner } from './ui/AiSuggestionsBanner';
 
 export interface IdeaGeneratorProps {
   readonly eventType: EventType;
@@ -40,54 +41,16 @@ function IdeaSuggestionsAlert({
   readonly onDismiss: () => void;
 }): React.JSX.Element {
   return (
-    <div
-      style={{
-        background: 'var(--bg-surface-elevated)',
-        border: '1px solid var(--accent-gold)',
-        borderRadius: 'var(--radius-sm)',
-        padding: '16px',
-        marginBottom: '24px',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '12px',
-        }}
-      >
-        <div>
-          <span style={{ fontWeight: 700, color: 'var(--accent-gold)' }}>
-            ✨ AI Creative Concepts Ready
-          </span>
-          <p style={{ fontSize: '0.875rem', marginTop: '2px' }}>
-            {suggestions.length} personalized theme and experience ideas available.
-          </p>
-        </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <Button
-            onClick={onAccept}
-            size="sm"
-            variant="primary"
-            leftIcon={<Check size={14} />}
-            id="btn-accept-ideas-ai"
-          >
-            Accept All Ideas
-          </Button>
-          <Button
-            onClick={onDismiss}
-            size="sm"
-            variant="ghost"
-            leftIcon={<X size={14} />}
-            id="btn-dismiss-ideas-ai"
-          >
-            Dismiss
-          </Button>
-        </div>
-      </div>
-    </div>
+    <AiSuggestionsBanner
+      title="✨ AI Creative Concepts Ready"
+      description={`${suggestions.length} personalized theme and experience ideas available.`}
+      acceptLabel="Accept All Ideas"
+      dismissLabel="Dismiss"
+      acceptId="btn-accept-ideas-ai"
+      dismissId="btn-dismiss-ideas-ai"
+      onAccept={onAccept}
+      onDismiss={onDismiss}
+    />
   );
 }
 

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { BudgetItem, BudgetCategory } from '@/domain/types';
 import { calculateBudgetSummary, ALL_BUDGET_CATEGORIES } from '@/domain/budget';
 import { OverspendAnalysis } from '@/domain/budgetLogic';
+import { percentOf } from '@/domain/math';
 import { GeneratedBudgetItem } from '@/services/ai';
 import {
   Plus,
@@ -11,8 +12,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   Sparkles,
-  Check,
-  X,
   Clock,
   BarChart3,
   Table as TableIcon,
@@ -20,6 +19,7 @@ import {
 import { Button } from './ui/Button';
 import { CardSkeleton } from './ui/Skeleton';
 import { EmptyState } from './ui/EmptyState';
+import { AiSuggestionsBanner } from './ui/AiSuggestionsBanner';
 
 interface BudgetPlannerProps {
   readonly totalBudget: number;
@@ -213,7 +213,7 @@ function BudgetCategoryBreakdown({
           style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
         >
           {entries.map(([cat, amt]) => {
-            const pct = totalBudget > 0 ? Math.min(100, Math.round((amt / totalBudget) * 100)) : 0;
+            const pct = percentOf(amt, totalBudget, { max: 100 });
             return (
               <div key={cat} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <div
@@ -277,7 +277,7 @@ function BudgetCategoryBreakdown({
             </thead>
             <tbody>
               {entries.map(([cat, amt]) => {
-                const pct = totalBudget > 0 ? Math.round((amt / totalBudget) * 100) : 0;
+                const pct = percentOf(amt, totalBudget);
                 return (
                   <tr key={cat} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                     <td style={{ padding: '8px', textTransform: 'capitalize', fontWeight: 600 }}>
@@ -311,54 +311,16 @@ function BudgetSuggestionsAlert({
 }): React.JSX.Element {
   const sum = suggestions.reduce((acc, s) => acc + s.estimated, 0);
   return (
-    <div
-      style={{
-        background: 'var(--bg-surface-elevated)',
-        border: '1px solid var(--accent-gold)',
-        borderRadius: 'var(--radius-sm)',
-        padding: '16px',
-        marginBottom: '24px',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '12px',
-        }}
-      >
-        <div>
-          <span style={{ fontWeight: 700, color: 'var(--accent-gold)' }}>
-            ✨ AI Budget Suggestions Ready
-          </span>
-          <p style={{ fontSize: '0.875rem', marginTop: '2px' }}>
-            {suggestions.length} allocations proposed totaling {currency} {sum.toLocaleString()}.
-          </p>
-        </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <Button
-            onClick={onAccept}
-            size="sm"
-            variant="primary"
-            leftIcon={<Check size={14} />}
-            id="btn-accept-budget-ai"
-          >
-            Accept Suggestions
-          </Button>
-          <Button
-            onClick={onDismiss}
-            size="sm"
-            variant="ghost"
-            leftIcon={<X size={14} />}
-            id="btn-dismiss-budget-ai"
-          >
-            Dismiss
-          </Button>
-        </div>
-      </div>
-    </div>
+    <AiSuggestionsBanner
+      title="✨ AI Budget Suggestions Ready"
+      description={`${suggestions.length} allocations proposed totaling ${currency} ${sum.toLocaleString()}.`}
+      acceptLabel="Accept Suggestions"
+      dismissLabel="Dismiss"
+      acceptId="btn-accept-budget-ai"
+      dismissId="btn-dismiss-budget-ai"
+      onAccept={onAccept}
+      onDismiss={onDismiss}
+    />
   );
 }
 
