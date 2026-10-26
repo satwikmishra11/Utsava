@@ -49,12 +49,8 @@ function ToggleButtonGroup({
 }): React.JSX.Element {
   return (
     <div>
-      <p style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '6px' }}>{title}</p>
-      <div
-        role="group"
-        aria-label={ariaLabel}
-        style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}
-      >
+      <p className="wizard-group-title">{title}</p>
+      <div role="group" aria-label={ariaLabel} className="wizard-options-group">
         {options.map((opt) => (
           <button
             key={opt}
@@ -62,8 +58,7 @@ function ToggleButtonGroup({
             role="checkbox"
             aria-checked={selected.includes(opt)}
             onClick={() => onToggle(opt)}
-            className={`btn ${selected.includes(opt) ? 'btn-primary' : 'btn-secondary'}`}
-            style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+            className={`btn ${selected.includes(opt) ? 'btn-primary' : 'btn-secondary'} wizard-option-btn`}
           >
             {opt}
           </button>
@@ -82,7 +77,7 @@ export function WizardStep5({
   setAccessibility,
 }: WizardStep5Props): React.JSX.Element {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+    <div className="wizard-form-grid">
       <Input
         label="Cultural Context / Theme Tradition"
         value={culture}

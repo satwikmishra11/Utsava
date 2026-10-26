@@ -15,14 +15,12 @@ const EVENT_TYPES = [
 
 export function WizardStep1({ value, onChange }: WizardStep1Props): React.JSX.Element {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      <p style={{ fontWeight: 600 }}>What type of celebration are you planning?</p>
-      <div
-        aria-label="Celebration event type"
-        style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}
-      >
+    <div className="wizard-step-container">
+      <p className="wizard-question">What type of celebration are you planning?</p>
+      <div aria-label="Celebration event type" className="wizard-type-grid">
         {EVENT_TYPES.map(({ type, icon: Icon }) => {
           const isSel = value === type;
+          const btnClass = `wizard-type-btn ${isSel ? 'wizard-type-btn-selected' : ''}`.trim();
           return (
             <button
               key={type}
@@ -30,21 +28,10 @@ export function WizardStep1({ value, onChange }: WizardStep1Props): React.JSX.El
               aria-pressed={isSel}
               id={`wizard-type-${type}`}
               onClick={() => onChange(type)}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '18px 12px',
-                borderRadius: 'var(--radius-sm)',
-                border: isSel ? '2px solid var(--accent-gold)' : '1px solid var(--border-subtle)',
-                background: isSel ? 'var(--bg-surface-elevated)' : 'transparent',
-                color: 'var(--text-primary)',
-                cursor: 'pointer',
-              }}
+              className={btnClass}
             >
               <Icon size={24} color="var(--accent-gold)" aria-hidden="true" />
-              <span style={{ textTransform: 'capitalize', fontWeight: 600 }}>{type}</span>
+              <span className="wizard-type-label">{type}</span>
             </button>
           );
         })}

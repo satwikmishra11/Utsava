@@ -21,24 +21,14 @@ function validateStep(
   return null;
 }
 
-function useWizardFormState() {
-  const [step, setStep] = useState<number>(1);
-  const [eventType, setEventType] = useState<EventType>('wedding');
+function useWizardDetailsState() {
   const [title, setTitle] = useState('Grand Wedding Celebration');
   const [date, setDate] = useState('2026-11-20');
   const [location, setLocation] = useState('San Francisco, CA');
   const [guestCount, setGuestCount] = useState<string>('150');
   const [totalBudget, setTotalBudget] = useState<string>('30000');
   const [currency, setCurrency] = useState('INR');
-  const [culture, setCulture] = useState('South Asian');
-  const [dietary, setDietary] = useState<string[]>(['Vegetarian']);
-  const [accessibility, setAccessibility] = useState<string[]>(['Wheelchair Ramp']);
-  const [error, setError] = useState<string>('');
   return {
-    step,
-    setStep,
-    eventType,
-    setEventType,
     title,
     setTitle,
     date,
@@ -51,6 +41,22 @@ function useWizardFormState() {
     setTotalBudget,
     currency,
     setCurrency,
+  };
+}
+
+function useWizardFormState() {
+  const [step, setStep] = useState<number>(1);
+  const [eventType, setEventType] = useState<EventType>('wedding');
+  const [culture, setCulture] = useState('South Asian');
+  const [dietary, setDietary] = useState<string[]>(['Vegetarian']);
+  const [accessibility, setAccessibility] = useState<string[]>(['Wheelchair Ramp']);
+  const [error, setError] = useState<string>('');
+  const details = useWizardDetailsState();
+  return {
+    step,
+    setStep,
+    eventType,
+    setEventType,
     culture,
     setCulture,
     dietary,
@@ -59,6 +65,7 @@ function useWizardFormState() {
     setAccessibility,
     error,
     setError,
+    ...details,
   };
 }
 

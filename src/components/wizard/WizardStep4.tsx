@@ -25,7 +25,7 @@ export function WizardStep4({
   budgetError,
 }: WizardStep4Props): React.JSX.Element {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+    <div className="wizard-form-grid">
       <Input
         label="Total Target Budget"
         type="number"
@@ -36,8 +36,8 @@ export function WizardStep4({
         error={budgetError}
         required
       />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-        <label htmlFor="wizard-currency" style={{ fontSize: '0.875rem', fontWeight: 600 }}>
+      <div className="wizard-field-group">
+        <label htmlFor="wizard-currency" className="wizard-field-label">
           Currency
         </label>
         <select

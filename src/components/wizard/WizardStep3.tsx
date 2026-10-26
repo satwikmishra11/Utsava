@@ -13,7 +13,7 @@ export function WizardStep3({
   guestError,
 }: WizardStep3Props): React.JSX.Element {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+    <div className="wizard-form-grid">
       <Input
         label="Expected Guest Count"
         type="number"

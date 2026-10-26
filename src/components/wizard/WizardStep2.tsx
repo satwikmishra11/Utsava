@@ -23,7 +23,7 @@ export function WizardStep2({
   dateError,
 }: WizardStep2Props): React.JSX.Element {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+    <div className="wizard-form-grid">
       <Input
         label="Event Title"
         value={title}
