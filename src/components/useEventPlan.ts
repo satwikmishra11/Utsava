@@ -9,6 +9,9 @@ import {
   VendorItem,
   IdeaRecommendation,
   VendorStatus,
+  BudgetCategory,
+  PlanAction,
+  PlanActionType,
 } from '@/domain/types';
 import {
   generateBudgetPlan,
@@ -23,7 +26,11 @@ import {
 import { useDebouncedAutosave } from './useAutosave';
 import { detectOverspend } from '@/domain/budgetLogic';
 import { WizardData } from './OnboardingWizard';
-import { TOAST_DURATION_MS, FALLBACK_EXPENSE_ESTIMATE } from '@/lib/constants';
+import {
+  TOAST_DURATION_MS,
+  FALLBACK_EXPENSE_ESTIMATE,
+  FALLBACK_EXPENSE_ESTIMATE_VENDOR,
+} from '@/lib/constants';
 import { DEMO_INDIAN_WEDDING, getDemoEventByType } from '@/domain/demoEvents';
 
 export const INITIAL_PLAN: EventPlan = DEMO_INDIAN_WEDDING;
@@ -194,6 +201,55 @@ function useIdeaAiSync(
   return { loading, pending, setPending, regenerate, accept };
 }
 
+interface PlanActionApplierMutations {
+  readonly addBudgetItem: (item: BudgetItem) => void;
+  readonly addTimelineItem: (item: TimelineItem) => void;
+  readonly addVendor: (item: VendorItem) => void;
+}
+
+function applyActionToPlan(
+  actionType: string,
+  payload: Record<string, unknown>,
+  planId: string,
+  mutations: PlanActionApplierMutations,
+  showToast: (msg: string) => void
+): void {
+  if (actionType === 'add_budget_item') {
+    mutations.addBudgetItem({
+      id: `budget-auto-${Date.now()}`,
+      eventId: planId,
+      category: (payload.category as BudgetCategory) || 'miscellaneous',
+      estimated: Number(payload.estimatedCost) || FALLBACK_EXPENSE_ESTIMATE,
+      actual: Number(payload.estimatedCost) || FALLBACK_EXPENSE_ESTIMATE,
+      notes: String(payload.name ?? 'Contingency Allocation'),
+    });
+    showToast('Applied assistant action: Added contingency budget item.');
+  } else if (actionType === 'add_timeline_item') {
+    mutations.addTimelineItem({
+      id: `timeline-auto-${Date.now()}`,
+      phase: 'preparation',
+      title: String(payload.title ?? 'Review event milestones & logistics'),
+      time: '09:00',
+      durationMinutes: 60,
+      completed: false,
+      assignedTo: String(payload.assignedTo ?? 'Event Organizer'),
+      notes: typeof payload.timeframe === 'string' ? `Timeframe: ${payload.timeframe}` : undefined,
+    });
+    showToast('Applied assistant action: Added timeline milestone.');
+  } else if (actionType === 'add_vendor_item') {
+    mutations.addVendor({
+      id: `vendor-auto-${Date.now()}`,
+      category: (payload.category as BudgetCategory) || 'catering',
+      name: String(payload.role ?? 'Premium Service Provider'),
+      status: 'contacted',
+      quotedAmount: Number(payload.estimatedCost) || FALLBACK_EXPENSE_ESTIMATE_VENDOR,
+      deliverables: ['Custom consultation & planning'],
+      notes: 'Added from AI chat suggestion',
+    });
+    showToast('Applied assistant action: Added vendor requirement.');
+  }
+}
+
 function useItemMutations(
   setPlan: React.Dispatch<React.SetStateAction<EventPlan>>,
   plan: EventPlan,
@@ -233,18 +289,22 @@ function useItemMutations(
   const saveIdea = (idea: IdeaRecommendation) =>
     setPlan((p) => ({ ...p, ideas: [...p.ideas, idea] }));
   const replaceIdeas = (ideas: readonly IdeaRecommendation[]) => setPlan((p) => ({ ...p, ideas }));
-  const applyPlanAction = (actionType: string, payload: Record<string, unknown>) => {
-    if (actionType === 'add_budget_item') {
-      addBudgetItem({
-        id: `budget-auto-${Date.now()}`,
-        eventId: plan.id,
-        category: 'miscellaneous',
-        estimated: Number(payload.estimatedCost) || FALLBACK_EXPENSE_ESTIMATE,
-        actual: Number(payload.estimatedCost) || FALLBACK_EXPENSE_ESTIMATE,
-        notes: String(payload.name ?? 'Contingency Allocation'),
-      });
-      showToast('Applied assistant action: Added contingency budget item.');
-    }
+  const applyPlanAction = (
+    actionOrType: PlanAction | PlanActionType | string,
+    maybePayload?: Record<string, unknown>
+  ) => {
+    const actionType = typeof actionOrType === 'object' ? actionOrType.actionType : actionOrType;
+    const payload =
+      typeof actionOrType === 'object'
+        ? (actionOrType.payload as Record<string, unknown>)
+        : (maybePayload ?? {});
+    applyActionToPlan(
+      actionType,
+      payload,
+      plan.id,
+      { addBudgetItem, addTimelineItem, addVendor },
+      showToast
+    );
   };
   return {
     addBudgetItem,
