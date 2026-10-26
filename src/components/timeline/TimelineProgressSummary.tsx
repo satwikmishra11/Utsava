@@ -35,6 +35,32 @@ function calculatePhaseCounts(items: readonly TimelineItem[]): Record<TimelinePh
   );
 }
 
+function PhaseMiniCard({
+  phase,
+  done,
+  total,
+}: {
+  readonly phase: string;
+  readonly done: number;
+  readonly total: number;
+}): React.JSX.Element {
+  return (
+    <div
+      style={{
+        padding: '8px 10px',
+        background: 'var(--bg-surface)',
+        borderRadius: 'var(--radius-sm)',
+        fontSize: '0.8rem',
+      }}
+    >
+      <p style={{ textTransform: 'capitalize', fontWeight: 600 }}>{phase}</p>
+      <p style={{ color: 'var(--text-secondary)', marginTop: '2px' }}>
+        {done}/{total} completed
+      </p>
+    </div>
+  );
+}
+
 function TimelineProgressChart({
   pct,
   completed,
@@ -79,25 +105,32 @@ function TimelineProgressChart({
       >
         {ORDERED_PHASES.map((ph) => {
           const data = phaseCounts[ph] ?? { total: 0, done: 0 };
-          return (
-            <div
-              key={ph}
-              style={{
-                padding: '8px 10px',
-                background: 'var(--bg-surface)',
-                borderRadius: 'var(--radius-sm)',
-                fontSize: '0.8rem',
-              }}
-            >
-              <p style={{ textTransform: 'capitalize', fontWeight: 600 }}>{ph}</p>
-              <p style={{ color: 'var(--text-secondary)', marginTop: '2px' }}>
-                {data.done}/{data.total} completed
-              </p>
-            </div>
-          );
+          return <PhaseMiniCard key={ph} phase={ph} done={data.done} total={data.total} />;
         })}
       </div>
     </div>
+  );
+}
+
+function TimelinePhaseRow({
+  phase,
+  done,
+  total,
+}: {
+  readonly phase: string;
+  readonly done: number;
+  readonly total: number;
+}): React.JSX.Element {
+  const isAllDone = total > 0 && done === total;
+  return (
+    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+      <td style={{ padding: '6px 8px', textTransform: 'capitalize', fontWeight: 600 }}>{phase}</td>
+      <td style={{ padding: '6px 8px' }}>{done}</td>
+      <td style={{ padding: '6px 8px' }}>{total}</td>
+      <td style={{ padding: '6px 8px' }}>
+        {total === 0 ? 'No tasks' : isAllDone ? 'Completed' : 'In Progress'}
+      </td>
+    </tr>
   );
 }
 
@@ -141,22 +174,49 @@ function TimelineProgressTable({
         <tbody>
           {ORDERED_PHASES.map((ph) => {
             const data = phaseCounts[ph] ?? { total: 0, done: 0 };
-            const isAllDone = data.total > 0 && data.done === data.total;
-            return (
-              <tr key={ph} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                <td style={{ padding: '6px 8px', textTransform: 'capitalize', fontWeight: 600 }}>
-                  {ph}
-                </td>
-                <td style={{ padding: '6px 8px' }}>{data.done}</td>
-                <td style={{ padding: '6px 8px' }}>{data.total}</td>
-                <td style={{ padding: '6px 8px' }}>
-                  {data.total === 0 ? 'No tasks' : isAllDone ? 'Completed' : 'In Progress'}
-                </td>
-              </tr>
-            );
+            return <TimelinePhaseRow key={ph} phase={ph} done={data.done} total={data.total} />;
           })}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+function TimelineProgressHeader({
+  completed,
+  total,
+  pct,
+  viewMode,
+  onToggle,
+}: {
+  readonly completed: number;
+  readonly total: number;
+  readonly pct: number;
+  readonly viewMode: 'chart' | 'table';
+  readonly onToggle: () => void;
+}): React.JSX.Element {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '10px',
+        flexWrap: 'wrap',
+        gap: '8px',
+      }}
+    >
+      <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>
+        Schedule Progress & Phase Completion ({completed}/{total} Milestones · {pct}%)
+      </span>
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={onToggle}
+        leftIcon={viewMode === 'chart' ? <TableIcon size={14} /> : <BarChart3 size={14} />}
+      >
+        {viewMode === 'chart' ? 'View as Data Table' : 'View as Chart'}
+      </Button>
     </div>
   );
 }
@@ -182,29 +242,13 @@ export function TimelineProgressSummary({
         marginBottom: '20px',
       }}
     >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '10px',
-          flexWrap: 'wrap',
-          gap: '8px',
-        }}
-      >
-        <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>
-          Schedule Progress & Phase Completion ({completed}/{total} Milestones · {pct}%)
-        </span>
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => setViewMode((m) => (m === 'chart' ? 'table' : 'chart'))}
-          leftIcon={viewMode === 'chart' ? <TableIcon size={14} /> : <BarChart3 size={14} />}
-        >
-          {viewMode === 'chart' ? 'View as Data Table' : 'View as Chart'}
-        </Button>
-      </div>
-
+      <TimelineProgressHeader
+        completed={completed}
+        total={total}
+        pct={pct}
+        viewMode={viewMode}
+        onToggle={() => setViewMode((m) => (m === 'chart' ? 'table' : 'chart'))}
+      />
       {viewMode === 'chart' ? (
         <TimelineProgressChart
           pct={pct}
