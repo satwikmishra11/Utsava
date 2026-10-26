@@ -40,7 +40,7 @@ describe('Repository Mappers', () => {
       location: 'City Hall',
       totalBudget: 20000,
       currency: 'INR',
-      preferences: { culture: 'South Asian' },
+      preferences: { culture: 'South Asian', dietary: [], accessibilityNeeds: [] },
       createdAt: '2026-01-01',
     };
     const event = mapEventRow(raw);
@@ -102,9 +102,9 @@ describe('Repository Mappers', () => {
     const mapped = mapVendorRow(raw);
     expect(mapped.quote).toBe(3000);
 
-    const merged = mergeVendor(raw, { quote: 3500, status: 'contracted' });
+    const merged = mergeVendor(raw, { quote: 3500, status: 'booked' });
     expect(merged.quote).toBe(3500);
-    expect(merged.status).toBe('contracted');
+    expect(merged.status).toBe('booked');
   });
 
   it('maps idea set row', () => {
@@ -115,7 +115,7 @@ describe('Repository Mappers', () => {
       decor: ['flowers'],
       menu: ['biryani'],
       activities: ['dancing'],
-      generatedMetadata: '{}',
+      generatedMetadata: { source: 'ai' },
     };
     const mapped = mapIdeaSetRow(raw);
     expect(mapped.theme).toBe('Royal');
@@ -134,7 +134,7 @@ describe('Repository Mappers', () => {
         location: 'Hall',
         totalBudget: 10000,
         currency: 'INR',
-        preferences: {},
+        preferences: { dietary: [], accessibilityNeeds: [] },
         createdAt: '2026-01-01',
       },
     ];
@@ -180,7 +180,7 @@ describe('Repository Mappers', () => {
         decor: [],
         menu: [],
         activities: [],
-        generatedMetadata: '{}',
+        generatedMetadata: {},
       },
     ];
 
