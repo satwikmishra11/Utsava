@@ -13,9 +13,12 @@ export function Card({
   style,
   ...props
 }: CardProps): React.JSX.Element {
-  const bg = elevated ? 'var(--bg-surface-elevated)' : 'var(--bg-surface)';
   return (
-    <div className={`card ${className}`.trim()} style={{ background: bg, ...style }} {...props}>
+    <div
+      className={`card ${elevated ? 'card-elevated' : ''} ${className}`.trim()}
+      style={style}
+      {...props}
+    >
       {children}
     </div>
   );
@@ -23,20 +26,12 @@ export function Card({
 
 export function CardHeader({
   children,
+  className = '',
   style,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>): React.JSX.Element {
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '16px',
-        ...style,
-      }}
-      {...props}
-    >
+    <div className={`card-header ${className}`.trim()} style={style} {...props}>
       {children}
     </div>
   );
@@ -44,14 +39,12 @@ export function CardHeader({
 
 export function CardTitle({
   children,
+  className = '',
   style,
   ...props
 }: React.HTMLAttributes<HTMLHeadingElement>): React.JSX.Element {
   return (
-    <h3
-      style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)', ...style }}
-      {...props}
-    >
+    <h3 className={`card-title ${className}`.trim()} style={style} {...props}>
       {children}
     </h3>
   );
@@ -59,11 +52,12 @@ export function CardTitle({
 
 export function CardContent({
   children,
+  className = '',
   style,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>): React.JSX.Element {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', ...style }} {...props}>
+    <div className={`card-content ${className}`.trim()} style={style} {...props}>
       {children}
     </div>
   );
@@ -71,23 +65,12 @@ export function CardContent({
 
 export function CardFooter({
   children,
+  className = '',
   style,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>): React.JSX.Element {
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        gap: '12px',
-        marginTop: '16px',
-        paddingTop: '16px',
-        borderTop: '1px solid var(--border-subtle)',
-        ...style,
-      }}
-      {...props}
-    >
+    <div className={`card-footer ${className}`.trim()} style={style} {...props}>
       {children}
     </div>
   );

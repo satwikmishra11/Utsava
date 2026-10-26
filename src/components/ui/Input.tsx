@@ -21,18 +21,14 @@ function InputFeedback({
 }): React.JSX.Element | null {
   if (error) {
     return (
-      <p
-        id={errorId}
-        aria-live="assertive"
-        style={{ fontSize: '0.8rem', color: 'var(--accent-rose)' }}
-      >
+      <p id={errorId} aria-live="assertive" className="input-error-msg">
         {error}
       </p>
     );
   }
   if (helperText) {
     return (
-      <p id={helperId} style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+      <p id={helperId} className="input-helper-msg">
         {helperText}
       </p>
     );
@@ -50,9 +46,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
   const helperId = helperText ? `${inputId}-helper` : undefined;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%' }}>
+    <div className="input-group">
       {label && (
-        <label htmlFor={inputId} style={{ fontSize: '0.875rem', fontWeight: 600 }}>
+        <label htmlFor={inputId} className="input-label">
           {label}
         </label>
       )}
@@ -61,8 +57,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
         id={inputId}
         aria-invalid={Boolean(error)}
         aria-describedby={[errorId, helperId].filter(Boolean).join(' ') || undefined}
-        className={`input ${className}`.trim()}
-        style={{ borderColor: error ? 'var(--accent-rose)' : undefined, ...style }}
+        className={`input ${error ? 'input-error' : ''} ${className}`.trim()}
+        style={style}
         {...props}
       />
       <InputFeedback error={error} errorId={errorId} helperText={helperText} helperId={helperId} />

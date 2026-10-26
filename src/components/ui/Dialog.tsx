@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { X } from 'lucide-react';
-import { Z_INDEX_MODAL } from '@/lib/constants';
 import { useFocusTrap } from './useFocusTrap';
 
 export interface DialogProps {
@@ -13,26 +12,6 @@ export interface DialogProps {
   readonly maxWidth?: string;
 }
 
-const BACKDROP_STYLE: React.CSSProperties = {
-  position: 'fixed',
-  inset: 0,
-  backgroundColor: 'rgba(0, 0, 0, 0.75)',
-  backdropFilter: 'blur(4px)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  zIndex: Z_INDEX_MODAL,
-  padding: '16px',
-};
-
-const DIALOG_CARD_STYLE: React.CSSProperties = {
-  width: '100%',
-  maxHeight: '90vh',
-  overflowY: 'auto',
-  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.8)',
-  border: '1px solid var(--border-accent)',
-};
-
 function DialogHeader({
   title,
   onClose,
@@ -41,22 +20,14 @@ function DialogHeader({
   readonly onClose: () => void;
 }): React.JSX.Element {
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '20px',
-      }}
-    >
-      <h2 id="dialog-title" style={{ fontSize: '1.25rem', fontWeight: 700 }}>
+    <div className="dialog-header">
+      <h2 id="dialog-title" className="dialog-title">
         {title}
       </h2>
       <button
         onClick={onClose}
         aria-label="Close dialog"
-        className="btn btn-secondary"
-        style={{ padding: '6px', borderRadius: '50%' }}
+        className="btn btn-secondary dialog-close-btn"
         id="btn-close-dialog"
       >
         <X size={18} aria-hidden="true" />
@@ -82,16 +53,16 @@ export function Dialog({
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
-      style={BACKDROP_STYLE}
+      className="dialog-backdrop"
     >
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="dialog-title"
-        className="card"
+        className="card dialog-card"
         tabIndex={-1}
-        style={{ ...DIALOG_CARD_STYLE, maxWidth }}
+        style={{ maxWidth }}
       >
         <DialogHeader title={title} onClose={onClose} />
         {children}

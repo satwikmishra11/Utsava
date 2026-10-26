@@ -18,15 +18,8 @@ function VendorCardFooter({
   readonly onAdvance?: () => void;
 }): React.JSX.Element {
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: '6px',
-      }}
-    >
-      <span style={{ fontWeight: 700, color: 'var(--accent-gold)' }}>
+    <div className="vendor-card-footer">
+      <span className="vendor-card-quoted-amount">
         {currency} {quotedAmount.toLocaleString()}
       </span>
       {nextStatus && onAdvance && (
@@ -55,22 +48,12 @@ export function VendorCard({
   const meta = STATUS_TITLES[vendor.status];
   const nextStatus = meta.next;
   return (
-    <div
-      style={{
-        background: 'var(--bg-secondary)',
-        border: '1px solid var(--border-subtle)',
-        borderRadius: 'var(--radius-sm)',
-        padding: '14px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px',
-      }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <h4 style={{ fontSize: '1rem', fontWeight: 700 }}>{vendor.name}</h4>
+    <div className="vendor-card">
+      <div className="vendor-card-header">
+        <h4 className="vendor-card-title">{vendor.name}</h4>
         <span className={`badge ${meta.badge}`}>{vendor.category}</span>
       </div>
-      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+      <p className="vendor-card-deliverables">
         {vendor.deliverables.join(' • ') || 'General services'}
       </p>
       <VendorCardFooter

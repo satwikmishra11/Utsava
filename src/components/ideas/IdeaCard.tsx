@@ -5,16 +5,11 @@ import { IdeaRecommendation } from '@/domain/types';
 import { Plus, Check } from 'lucide-react';
 import { Button } from '../ui/Button';
 
-const TAG_STYLE: React.CSSProperties = {
-  background: 'var(--bg-surface-elevated)',
-  color: 'var(--text-muted)',
-};
-
 function IdeaCardTags({ tags }: { readonly tags: readonly string[] }): React.JSX.Element {
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px' }}>
+    <div className="idea-card-tags">
       {tags.map((tag) => (
-        <span key={tag} className="badge" style={TAG_STYLE}>
+        <span key={tag} className="badge idea-card-tag">
           #{tag}
         </span>
       ))}
@@ -25,29 +20,14 @@ function IdeaCardTags({ tags }: { readonly tags: readonly string[] }): React.JSX
 function IdeaCardDetails({ idea }: { readonly idea: IdeaRecommendation }): React.JSX.Element {
   return (
     <>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '8px',
-        }}
-      >
+      <div className="idea-card-header">
         <span className="badge badge-gold">{idea.category.replace('_', ' ')}</span>
-        <span
-          style={{ fontSize: '0.775rem', color: 'var(--text-muted)', textTransform: 'capitalize' }}
-        >
-          Cost: {idea.estimatedCostTier}
-        </span>
+        <span className="idea-card-tier">Cost: {idea.estimatedCostTier}</span>
       </div>
-      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '6px' }}>{idea.title}</h3>
-      <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-        {idea.description}
-      </p>
+      <h3 className="idea-card-title">{idea.title}</h3>
+      <p className="idea-card-description">{idea.description}</p>
       {idea.culturalContext && (
-        <p style={{ fontSize: '0.8rem', color: 'var(--accent-gold)', marginTop: '8px' }}>
-          Tradition: {idea.culturalContext}
-        </p>
+        <p className="idea-card-cultural">Tradition: {idea.culturalContext}</p>
       )}
       <IdeaCardTags tags={idea.tags} />
     </>
@@ -64,22 +44,11 @@ export function IdeaCard({
   readonly onSave: () => void;
 }): React.JSX.Element {
   return (
-    <div
-      style={{
-        background: 'var(--bg-secondary)',
-        border: '1px solid var(--border-subtle)',
-        borderRadius: 'var(--radius-sm)',
-        padding: '20px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        gap: '14px',
-      }}
-    >
+    <div className="idea-card">
       <div>
         <IdeaCardDetails idea={idea} />
       </div>
-      <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '12px' }}>
+      <div className="idea-card-footer">
         <Button
           onClick={onSave}
           disabled={isSaved}

@@ -69,6 +69,15 @@ function handleAddVendorItemAction(
   showToast('Applied assistant action: Added vendor requirement.');
 }
 
+function toPayloadRecord(
+  payload: PlanAction['payload'] | Record<string, unknown>
+): Record<string, unknown> {
+  if (typeof payload === 'object' && payload !== null) {
+    return { ...payload };
+  }
+  return {};
+}
+
 function applyActionToPlan(
   actionType: string,
   rawPayload: PlanAction['payload'] | Record<string, unknown>,
@@ -76,7 +85,7 @@ function applyActionToPlan(
   mutations: PlanActionApplierMutations,
   showToast: (msg: string) => void
 ): void {
-  const payload = rawPayload as unknown as Record<string, unknown>;
+  const payload = toPayloadRecord(rawPayload);
   if (actionType === 'add_budget_item') {
     handleAddBudgetItemAction(payload, planId, mutations.addBudgetItem, showToast);
   } else if (actionType === 'add_timeline_item') {

@@ -1,4 +1,4 @@
-# Utsava Developer Guide (CLAUDE.md)
+# Utsava Developer Guide (AGENTS.md)
 
 Utsava is a GenAI-powered event planning assistant for weddings, birthdays, and community events. Core capabilities: budget planner, timeline generator, vendor checklist, personalized idea studio, and a plan-acting chat assistant.
 

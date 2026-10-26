@@ -24,13 +24,6 @@ export interface HeaderProps {
   readonly saveStatus?: 'saved' | 'saving' | 'unsaved' | 'error';
 }
 
-const META_ITEM_STYLE: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '6px',
-  color: 'var(--text-secondary)',
-};
-
 const META_ACTIONS = [
   { id: 'btn-export-ics', label: 'Export ICS', icon: CalendarPlus, actionKey: 'ics' as const },
   { id: 'btn-export-pdf', label: 'Print / PDF', icon: Printer, actionKey: 'pdf' as const },
@@ -40,32 +33,19 @@ const META_ACTIONS = [
 function HeaderBrand({ title }: { readonly title: string }): React.JSX.Element {
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+      <div className="header-brand-row">
         <Sparkles size={24} color="#f59e0b" aria-hidden="true" />
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.02em' }}>
-          Utsava: {title}
-        </h1>
+        <h1 className="header-title">Utsava: {title}</h1>
         <span
           role="status"
           aria-label="Demo mode active with MockProvider"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '3px 10px',
-            borderRadius: '9999px',
-            background: 'var(--bg-secondary)',
-            border: '1px solid var(--accent-gold)',
-            color: 'var(--text-primary)',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-          }}
+          className="header-demo-badge"
         >
           <Sparkles size={12} color="var(--accent-gold)" aria-hidden="true" />
           <span>Demo Mode (MockProvider)</span>
         </span>
       </div>
-      <p style={{ color: 'var(--text-secondary)', marginTop: '4px', fontSize: '0.95rem' }}>
+      <p className="header-subtitle">
         GenAI-powered planning assistant for life&apos;s most cherished gatherings.
       </p>
     </div>
@@ -82,7 +62,7 @@ function HeaderControls({
   readonly onOpenWizard: () => void;
 }): React.JSX.Element {
   return (
-    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+    <div className="header-controls">
       <Button
         variant="primary"
         onClick={onOpenWizard}
@@ -97,10 +77,9 @@ function HeaderControls({
       </label>
       <select
         id="event-type-select"
-        className="select"
+        className="select header-event-select"
         value={eventType}
         onChange={(e) => onEventTypeChange(e.target.value as EventType)}
-        style={{ width: 'auto', fontWeight: 600 }}
         aria-label="Switch between realistic demo events"
       >
         <option value="wedding">Indian Royal Wedding</option>
@@ -120,14 +99,9 @@ function HeaderSaveStatusIndicator({
     <div
       role="status"
       aria-live="polite"
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '6px',
-        fontSize: '0.8rem',
-        color: status === 'saving' ? 'var(--accent-gold)' : 'var(--accent-emerald)',
-        fontWeight: 500,
-      }}
+      className={`header-save-status ${
+        status === 'saving' ? 'header-save-status-saving' : 'header-save-status-saved'
+      }`}
     >
       <span>{status === 'saving' ? '⏳' : '✓'}</span>
       <span>{status === 'saving' ? 'Saving...' : 'Saved'}</span>
@@ -143,16 +117,16 @@ function HeaderMetaDetails({
   readonly saveStatus?: 'saved' | 'saving' | 'unsaved' | 'error';
 }): React.JSX.Element {
   return (
-    <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-      <div style={META_ITEM_STYLE}>
+    <div className="header-meta-details">
+      <div className="header-meta-item">
         <Calendar size={16} aria-hidden="true" />
         <span>{plan.date}</span>
       </div>
-      <div style={META_ITEM_STYLE}>
+      <div className="header-meta-item">
         <Users size={16} aria-hidden="true" />
         <span>{plan.guestCount} Guests</span>
       </div>
-      <div style={META_ITEM_STYLE}>
+      <div className="header-meta-item">
         <IndianRupee size={16} aria-hidden="true" />
         <span>
           {plan.currency} {plan.totalBudget.toLocaleString()}
@@ -174,7 +148,7 @@ function HeaderMetaActions({
 }): React.JSX.Element {
   const handlers = { ics: onExportICS, pdf: onExportPDF, share: onShareLink };
   return (
-    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+    <div className="header-meta-actions">
       {META_ACTIONS.map(({ id, label, icon: Icon, actionKey }) => (
         <Button
           key={id}
@@ -205,18 +179,7 @@ function HeaderMeta({
   readonly saveStatus?: 'saved' | 'saving' | 'unsaved' | 'error';
 }): React.JSX.Element {
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        gap: '16px',
-        marginTop: '20px',
-        flexWrap: 'wrap',
-        borderTop: '1px solid var(--border-subtle)',
-        paddingTop: '16px',
-      }}
-    >
+    <div className="header-meta">
       <HeaderMetaDetails plan={plan} saveStatus={saveStatus} />
       <HeaderMetaActions
         onExportICS={onExportICS}
@@ -229,16 +192,8 @@ function HeaderMeta({
 
 export function Header(props: HeaderProps): React.JSX.Element {
   return (
-    <header className="card" style={{ marginBottom: '24px' }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '16px',
-        }}
-      >
+    <header className="card header-card">
+      <div className="header-top">
         <HeaderBrand title={props.plan.title} />
         <HeaderControls
           eventType={props.plan.eventType}

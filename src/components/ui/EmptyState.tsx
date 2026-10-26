@@ -21,25 +21,12 @@ export function EmptyState({
   actionVariant = 'primary',
 }: EmptyStateProps): React.JSX.Element {
   return (
-    <div
-      className="card"
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-        padding: '48px 24px',
-        gap: '12px',
-      }}
-    >
-      {icon && <div style={{ color: 'var(--accent-gold)', marginBottom: '8px' }}>{icon}</div>}
-      <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>{title}</h3>
-      <p style={{ color: 'var(--text-secondary)', maxWidth: '420px', fontSize: '0.925rem' }}>
-        {description}
-      </p>
+    <div className="card empty-state">
+      {icon && <div className="empty-state-icon">{icon}</div>}
+      <h3 className="empty-state-title">{title}</h3>
+      <p className="empty-state-description">{description}</p>
       {actionLabel && onAction && (
-        <Button onClick={onAction} variant={actionVariant} style={{ marginTop: '12px' }}>
+        <Button onClick={onAction} variant={actionVariant} className="empty-state-action">
           {actionLabel}
         </Button>
       )}
