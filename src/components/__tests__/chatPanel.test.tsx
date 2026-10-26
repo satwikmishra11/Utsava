@@ -96,7 +96,7 @@ describe('ChatAssistant Component Tests', () => {
 
   it('allows stopping response generation midway', async () => {
     const mockStream = new ReadableStream({
-      start(_controller) {
+      start() {
         // Stream remains open until client aborts/stops
       },
     });

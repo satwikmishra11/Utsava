@@ -107,9 +107,9 @@ describe('BudgetPlanner Component Tests', () => {
       />
     );
 
-    const deleteButtons = screen.getAllByRole('button', { name: /delete/i });
-    expect(deleteButtons.length).toBeGreaterThan(0);
-    fireEvent.click(deleteButtons[0]!);
+    const [deleteButton] = screen.getAllByRole('button', { name: /delete/i });
+    expect(deleteButton).toBeDefined();
+    if (deleteButton) fireEvent.click(deleteButton);
 
     expect(onRemoveItem).toHaveBeenCalledWith('b-1');
   });
@@ -127,9 +127,9 @@ describe('BudgetPlanner Component Tests', () => {
       />
     );
 
-    const toggleButtons = screen.getAllByRole('button', { name: /toggle payment status/i });
-    expect(toggleButtons.length).toBeGreaterThan(0);
-    fireEvent.click(toggleButtons[0]!);
+    const [toggleButton] = screen.getAllByRole('button', { name: /toggle payment status/i });
+    expect(toggleButton).toBeDefined();
+    if (toggleButton) fireEvent.click(toggleButton);
 
     expect(onUpdateStatus).toHaveBeenCalledWith('b-1');
   });

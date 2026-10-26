@@ -89,7 +89,7 @@ export function backScheduleTimeline(
       id: t.id,
       title: t.title,
       category: t.category,
-      dueDate: scheduledDates.get(t.id)!,
+      dueDate: scheduledDates.get(t.id) ?? eventDateStr,
       daysBeforeEvent: t.daysBeforeEvent,
       dependsOn: t.dependsOn,
     }))

@@ -2,16 +2,16 @@ import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import axe from 'axe-core';
-import { NavigationTabs } from '../NavigationTabs';
+import { NavigationTabs, TabId } from '../NavigationTabs';
 import { BudgetPlanner } from '../BudgetPlanner';
 import { TimelineGenerator } from '../TimelineGenerator';
 import { VendorChecklist } from '../VendorChecklist';
 
 describe('UI Accessibility & Interaction (WCAG 2.2 AA)', () => {
   it('NavigationTabs has no axe violations and supports keyboard navigation', async () => {
-    let active = 'budget';
+    let active: TabId = 'budget';
     const { container, rerender } = render(
-      <NavigationTabs activeTab={active as any} onTabChange={(t) => (active = t)} />
+      <NavigationTabs activeTab={active} onTabChange={(t) => (active = t)} />
     );
 
     const results = await axe.run(container);

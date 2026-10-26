@@ -74,7 +74,7 @@ describe('LLMProvider Architecture & Swappability', () => {
 
   it('MockProvider supports custom structured handler and JSON system prompt in generateText', async () => {
     const provider = new MockProvider();
-    provider.setCustomStructuredHandler((_prompt) => ({
+    provider.setCustomStructuredHandler(() => ({
       custom: 'handled',
     }));
 

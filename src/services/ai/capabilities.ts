@@ -219,7 +219,7 @@ export async function executeChatAssistant(
 ): Promise<ChatAssistantResult> {
   const guardrail = checkScopeGuardrails(params.message);
   if (!guardrail.isAllowed) {
-    const refusal = guardrail.refusalMessage!;
+    const refusal = guardrail.refusalMessage ?? '';
     return { replyText: refusal, stream: createTextStream(refusal), toolCalls: [] };
   }
 

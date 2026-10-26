@@ -76,17 +76,19 @@ describe('OnboardingWizard Component Tests', () => {
     fireEvent.click(finishBtn);
 
     expect(onComplete).toHaveBeenCalledTimes(1);
-    const completedData = onComplete.mock.calls[0]?.[0];
-    expect(completedData).toBeDefined();
-    expect(completedData?.eventType).toBe('birthday');
-    expect(completedData?.title).toBe("Rohan's 30th Birthday");
-    expect(completedData?.date).toBe('2026-10-15');
-    expect(completedData?.guestCount).toBe(75);
-    expect(completedData?.totalBudget).toBe(8500);
-    expect(completedData?.currency).toBe('INR');
-    expect(completedData?.culture).toBe('Casual Bollywood');
-    expect(completedData?.dietary).toContain('Vegan');
-    expect(completedData?.accessibilityNeeds).toContain('Accessible Parking');
+    const [call] = onComplete.mock.calls;
+    expect(call).toBeDefined();
+    if (!call) return;
+    const completedData = call[0];
+    expect(completedData.eventType).toBe('birthday');
+    expect(completedData.title).toBe("Rohan's 30th Birthday");
+    expect(completedData.date).toBe('2026-10-15');
+    expect(completedData.guestCount).toBe(75);
+    expect(completedData.totalBudget).toBe(8500);
+    expect(completedData.currency).toBe('INR');
+    expect(completedData.culture).toBe('Casual Bollywood');
+    expect(completedData.dietary).toContain('Vegan');
+    expect(completedData.accessibilityNeeds).toContain('Accessible Parking');
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 

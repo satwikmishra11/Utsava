@@ -39,7 +39,7 @@ const eslintConfig = [
     },
   },
   {
-    files: ['**/__tests__/**', 'e2e/**', '**/*.test.*', '**/*.spec.*'],
+    files: ['**/__tests__/**', 'e2e/**'],
     rules: {
       'max-lines-per-function': 'off',
     },

@@ -119,7 +119,7 @@ export class MockProvider implements LLMProvider {
     return `[Mock:${this.name}] Response to: ${prompt.slice(0, 30)}...`;
   }
 
-  public async streamText(prompt: string, _options?: LLMOptions): Promise<ReadableStream<string>> {
+  public async streamText(prompt: string): Promise<ReadableStream<string>> {
     const text = this.defaultResponse || prompt;
     const words = text.split(' ');
 
@@ -136,8 +136,7 @@ export class MockProvider implements LLMProvider {
 
   public async generateStructured<T>(
     prompt: string,
-    schema: z.ZodType<T, z.ZodTypeDef, unknown>,
-    _options?: LLMOptions
+    schema: z.ZodType<T, z.ZodTypeDef, unknown>
   ): Promise<T> {
     if (this.failureCount > 0) {
       this.failureCount--;

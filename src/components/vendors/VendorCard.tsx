@@ -53,6 +53,7 @@ export function VendorCard({
   readonly onUpdate: (id: string, s: VendorStatus) => void;
 }): React.JSX.Element {
   const meta = STATUS_TITLES[vendor.status];
+  const nextStatus = meta.next;
   return (
     <div
       style={{
@@ -75,8 +76,8 @@ export function VendorCard({
       <VendorCardFooter
         currency={currency}
         quotedAmount={vendor.quotedAmount}
-        nextStatus={meta.next}
-        onAdvance={meta.next ? () => onUpdate(vendor.id, meta.next!) : undefined}
+        nextStatus={nextStatus}
+        onAdvance={nextStatus ? () => onUpdate(vendor.id, nextStatus) : undefined}
       />
     </div>
   );

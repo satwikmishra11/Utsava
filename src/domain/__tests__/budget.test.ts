@@ -71,8 +71,11 @@ describe('Budget Domain Functions', () => {
   });
 
   it('updates item immutably', () => {
+    const firstItem = sampleItems[0];
+    expect(firstItem).toBeDefined();
+    if (!firstItem) return;
     const updated: BudgetItem = {
-      ...sampleItems[0]!,
+      ...firstItem,
       actual: 5500,
     };
     const next = updateBudgetItem(sampleItems, updated);
