@@ -209,11 +209,12 @@ interface PlanActionApplierMutations {
 
 function applyActionToPlan(
   actionType: string,
-  payload: Record<string, unknown>,
+  rawPayload: PlanAction['payload'] | Record<string, unknown>,
   planId: string,
   mutations: PlanActionApplierMutations,
   showToast: (msg: string) => void
 ): void {
+  const payload = rawPayload as unknown as Record<string, unknown>;
   if (actionType === 'add_budget_item') {
     mutations.addBudgetItem({
       id: `budget-auto-${Date.now()}`,
@@ -291,13 +292,10 @@ function useItemMutations(
   const replaceIdeas = (ideas: readonly IdeaRecommendation[]) => setPlan((p) => ({ ...p, ideas }));
   const applyPlanAction = (
     actionOrType: PlanAction | PlanActionType | string,
-    maybePayload?: Record<string, unknown>
+    maybePayload?: PlanAction['payload'] | Record<string, unknown>
   ) => {
     const actionType = typeof actionOrType === 'object' ? actionOrType.actionType : actionOrType;
-    const payload =
-      typeof actionOrType === 'object'
-        ? (actionOrType.payload as Record<string, unknown>)
-        : (maybePayload ?? {});
+    const payload = typeof actionOrType === 'object' ? actionOrType.payload : (maybePayload ?? {});
     applyActionToPlan(
       actionType,
       payload,
