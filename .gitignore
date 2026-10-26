@@ -33,7 +33,6 @@ next-env.d.ts
 # playwright
 /test-results/
 /playwright-report/
-/.screenshots/
 
 # SQLite databases
 *.db
