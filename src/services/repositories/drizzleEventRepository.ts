@@ -15,6 +15,7 @@ import {
   mergeTimelineTask,
   mergeVendor,
   assembleBatchDetails,
+  fetchBatchRelationRows,
 } from './mappers';
 
 export class DrizzleEventRepository implements EventRepository {
@@ -283,28 +284,10 @@ export class DrizzleEventRepository implements EventRepository {
     const matchedIds = eventRows.map((e) => e.id);
     if (matchedIds.length === 0) return [];
 
-    const [budgetRows, timelineRows, vendorRows, ideaRows] = await Promise.all([
-      this.db
-        .select()
-        .from(schema.budgetItems)
-        .where(inArray(schema.budgetItems.eventId, matchedIds))
-        .all(),
-      this.db
-        .select()
-        .from(schema.timelineTasks)
-        .where(inArray(schema.timelineTasks.eventId, matchedIds))
-        .all(),
-      this.db
-        .select()
-        .from(schema.vendors)
-        .where(inArray(schema.vendors.eventId, matchedIds))
-        .all(),
-      this.db
-        .select()
-        .from(schema.ideaSets)
-        .where(inArray(schema.ideaSets.eventId, matchedIds))
-        .all(),
-    ]);
+    const [budgetRows, timelineRows, vendorRows, ideaRows] = await fetchBatchRelationRows(
+      this.db,
+      matchedIds
+    );
 
     return assembleBatchDetails(eventRows, budgetRows, timelineRows, vendorRows, ideaRows);
   }
