@@ -80,7 +80,7 @@ function handleStreamError(
 
 export type PlanActionCallback = (
   actionType: PlanAction['actionType'],
-  payload: Record<string, unknown>
+  payload: PlanAction['payload'] | Record<string, unknown>
 ) => void;
 
 export function useChatStream(plan: EventPlan, onApplyPlanAction: PlanActionCallback) {

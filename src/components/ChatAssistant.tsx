@@ -8,7 +8,7 @@ export interface ChatAssistantProps {
   readonly plan: EventPlan;
   readonly onApplyPlanAction: (
     actionType: PlanAction['actionType'],
-    payload: Record<string, unknown>
+    payload: PlanAction['payload'] | Record<string, unknown>
   ) => void;
 }
 

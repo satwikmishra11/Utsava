@@ -7,7 +7,7 @@ describe('detectActionProposal', () => {
   const mockPlan: EventPlan = {
     id: 'plan-test-1',
     title: 'Festival of Lights',
-    eventType: 'festival',
+    eventType: 'wedding',
     date: '2026-11-01',
     guestCount: 200,
     totalBudget: 50000,
