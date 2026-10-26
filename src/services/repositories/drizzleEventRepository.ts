@@ -2,18 +2,20 @@ import Database from 'better-sqlite3';
 import { drizzle, BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { eq, and, inArray, sql } from 'drizzle-orm';
 import * as schema from '@/domain/db/schema';
-import {
-  Event,
-  BudgetItem,
-  TimelineTask,
-  Vendor,
-  IdeaSet,
-  EventType,
-  BudgetCategory,
-  TimelineTaskStatus,
-  VendorStatus,
-} from '@/domain/schemas';
+import { Event, BudgetItem, TimelineTask, Vendor, IdeaSet, EventType } from '@/domain/schemas';
 import { EventRepository, EventQueryOptions, EventDetails } from './eventRepository';
+import { bootstrapSqlite } from './sqliteBootstrap';
+import {
+  mapEventRow,
+  mapBudgetItemRow,
+  mapTimelineTaskRow,
+  mapVendorRow,
+  mapIdeaSetRow,
+  mergeBudgetItem,
+  mergeTimelineTask,
+  mergeVendor,
+  assembleBatchDetails,
+} from './mappers';
 
 export class DrizzleEventRepository implements EventRepository {
   private readonly sqlite: Database.Database;
@@ -21,98 +23,16 @@ export class DrizzleEventRepository implements EventRepository {
 
   constructor(sqliteInstance?: Database.Database) {
     this.sqlite = sqliteInstance ?? new Database(':memory:');
-    this.sqlite.pragma('foreign_keys = ON');
-    this.initTables();
+    bootstrapSqlite(this.sqlite);
     this.db = drizzle(this.sqlite, { schema });
-  }
-
-  private initTables(): void {
-    this.createCoreTables();
-    this.createSecondaryTables();
-  }
-
-  private createCoreTables(): void {
-    this.sqlite.exec(`
-      CREATE TABLE IF NOT EXISTS events (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL DEFAULT 'usr_default',
-        type TEXT NOT NULL,
-        title TEXT NOT NULL,
-        date TEXT NOT NULL,
-        guest_count INTEGER NOT NULL,
-        location TEXT NOT NULL,
-        total_budget REAL NOT NULL,
-        currency TEXT NOT NULL,
-        preferences TEXT NOT NULL,
-        created_at TEXT NOT NULL
-      );
-      CREATE INDEX IF NOT EXISTS idx_events_user_id ON events(user_id);
-      CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at);
-      CREATE INDEX IF NOT EXISTS idx_events_type ON events(type);
-      CREATE TABLE IF NOT EXISTS budget_items (
-        id TEXT PRIMARY KEY,
-        event_id TEXT NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-        category TEXT NOT NULL,
-        estimated REAL NOT NULL,
-        actual REAL NOT NULL,
-        vendor_id TEXT,
-        notes TEXT
-      );
-      CREATE INDEX IF NOT EXISTS idx_budget_items_event_id ON budget_items(event_id);
-    `);
-  }
-
-  private createSecondaryTables(): void {
-    this.sqlite.exec(`
-      CREATE TABLE IF NOT EXISTS timeline_tasks (
-        id TEXT PRIMARY KEY,
-        event_id TEXT NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-        title TEXT NOT NULL,
-        due_date TEXT NOT NULL,
-        status TEXT NOT NULL,
-        depends_on TEXT NOT NULL,
-        category TEXT NOT NULL,
-        assignee TEXT
-      );
-      CREATE INDEX IF NOT EXISTS idx_timeline_tasks_event_id ON timeline_tasks(event_id);
-      CREATE TABLE IF NOT EXISTS vendors (
-        id TEXT PRIMARY KEY,
-        event_id TEXT NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-        category TEXT NOT NULL,
-        name TEXT NOT NULL,
-        contact TEXT NOT NULL,
-        quote REAL NOT NULL,
-        status TEXT NOT NULL
-      );
-      CREATE INDEX IF NOT EXISTS idx_vendors_event_id ON vendors(event_id);
-      CREATE TABLE IF NOT EXISTS idea_sets (
-        id TEXT PRIMARY KEY,
-        event_id TEXT NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-        theme TEXT NOT NULL,
-        decor TEXT NOT NULL,
-        menu TEXT NOT NULL,
-        activities TEXT NOT NULL,
-        generated_metadata TEXT NOT NULL
-      );
-      CREATE INDEX IF NOT EXISTS idx_idea_sets_event_id ON idea_sets(event_id);
-    `);
   }
 
   public async createEvent(event: Event): Promise<Event> {
     this.db
       .insert(schema.events)
       .values({
-        id: event.id,
+        ...event,
         userId: event.userId ?? 'usr_default',
-        type: event.type,
-        title: event.title,
-        date: event.date,
-        guestCount: event.guestCount,
-        location: event.location,
-        totalBudget: event.totalBudget,
-        currency: event.currency,
-        preferences: event.preferences,
-        createdAt: event.createdAt,
       })
       .run();
     return event;
@@ -123,20 +43,7 @@ export class DrizzleEventRepository implements EventRepository {
       ? and(eq(schema.events.id, id), eq(schema.events.userId, userId))
       : eq(schema.events.id, id);
     const row = this.db.select().from(schema.events).where(condition).get();
-    if (!row) return null;
-    return {
-      id: row.id,
-      userId: row.userId,
-      type: row.type as EventType,
-      title: row.title,
-      date: row.date,
-      guestCount: row.guestCount,
-      location: row.location,
-      totalBudget: row.totalBudget,
-      currency: row.currency,
-      preferences: row.preferences,
-      createdAt: row.createdAt,
-    };
+    return row ? mapEventRow(row) : null;
   }
 
   public async listEvents(userId?: string, options?: EventQueryOptions): Promise<readonly Event[]> {
@@ -146,29 +53,10 @@ export class DrizzleEventRepository implements EventRepository {
 
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
     let query = this.db.select().from(schema.events);
-    if (whereClause) {
-      query = query.where(whereClause) as typeof query;
-    }
-    if (options?.limit !== undefined) {
-      query = query.limit(options.limit) as typeof query;
-    }
-    if (options?.offset !== undefined) {
-      query = query.offset(options.offset) as typeof query;
-    }
-    const rows = query.all();
-    return rows.map((r) => ({
-      id: r.id,
-      userId: r.userId,
-      type: r.type as EventType,
-      title: r.title,
-      date: r.date,
-      guestCount: r.guestCount,
-      location: r.location,
-      totalBudget: r.totalBudget,
-      currency: r.currency,
-      preferences: r.preferences,
-      createdAt: r.createdAt,
-    }));
+    if (whereClause) query = query.where(whereClause) as typeof query;
+    if (options?.limit !== undefined) query = query.limit(options.limit) as typeof query;
+    if (options?.offset !== undefined) query = query.offset(options.offset) as typeof query;
+    return query.all().map(mapEventRow);
   }
 
   public async countEvents(userId?: string, type?: EventType): Promise<number> {
@@ -189,22 +77,7 @@ export class DrizzleEventRepository implements EventRepository {
     const existing = await this.getEventById(id, userId);
     if (!existing) return null;
     const merged: Event = { ...existing, ...updates };
-
-    this.db
-      .update(schema.events)
-      .set({
-        type: merged.type,
-        title: merged.title,
-        date: merged.date,
-        guestCount: merged.guestCount,
-        location: merged.location,
-        totalBudget: merged.totalBudget,
-        currency: merged.currency,
-        preferences: merged.preferences,
-      })
-      .where(eq(schema.events.id, id))
-      .run();
-
+    this.db.update(schema.events).set(merged).where(eq(schema.events.id, id)).run();
     return merged;
   }
 
@@ -225,11 +98,7 @@ export class DrizzleEventRepository implements EventRepository {
     this.db
       .insert(schema.budgetItems)
       .values({
-        id: item.id,
-        eventId: item.eventId,
-        category: item.category,
-        estimated: item.estimated,
-        actual: item.actual,
+        ...item,
         vendorId: item.vendorId ?? null,
         notes: item.notes ?? null,
       })
@@ -243,15 +112,7 @@ export class DrizzleEventRepository implements EventRepository {
       .from(schema.budgetItems)
       .where(eq(schema.budgetItems.eventId, eventId))
       .all();
-    return rows.map((r) => ({
-      id: r.id,
-      eventId: r.eventId,
-      category: r.category as BudgetCategory,
-      estimated: r.estimated,
-      actual: r.actual,
-      vendorId: r.vendorId ?? undefined,
-      notes: r.notes ?? undefined,
-    }));
+    return rows.map(mapBudgetItemRow);
   }
 
   public async updateBudgetItem(
@@ -264,15 +125,7 @@ export class DrizzleEventRepository implements EventRepository {
       .where(eq(schema.budgetItems.id, id))
       .get();
     if (!row) return null;
-    const merged: BudgetItem = {
-      id: row.id,
-      eventId: row.eventId,
-      category: (updates.category ?? row.category) as BudgetCategory,
-      estimated: updates.estimated ?? row.estimated,
-      actual: updates.actual ?? row.actual,
-      vendorId: updates.vendorId !== undefined ? updates.vendorId : (row.vendorId ?? undefined),
-      notes: updates.notes !== undefined ? updates.notes : (row.notes ?? undefined),
-    };
+    const merged = mergeBudgetItem(row, updates);
     this.db
       .update(schema.budgetItems)
       .set({
@@ -296,13 +149,8 @@ export class DrizzleEventRepository implements EventRepository {
     this.db
       .insert(schema.timelineTasks)
       .values({
-        id: task.id,
-        eventId: task.eventId,
-        title: task.title,
-        dueDate: task.dueDate,
-        status: task.status,
+        ...task,
         dependsOn: [...task.dependsOn],
-        category: task.category,
         assignee: task.assignee ?? null,
       })
       .run();
@@ -315,16 +163,7 @@ export class DrizzleEventRepository implements EventRepository {
       .from(schema.timelineTasks)
       .where(eq(schema.timelineTasks.eventId, eventId))
       .all();
-    return rows.map((r) => ({
-      id: r.id,
-      eventId: r.eventId,
-      title: r.title,
-      dueDate: r.dueDate,
-      status: r.status as TimelineTaskStatus,
-      dependsOn: r.dependsOn,
-      category: r.category,
-      assignee: r.assignee ?? undefined,
-    }));
+    return rows.map(mapTimelineTaskRow);
   }
 
   public async updateTimelineTask(
@@ -337,16 +176,7 @@ export class DrizzleEventRepository implements EventRepository {
       .where(eq(schema.timelineTasks.id, id))
       .get();
     if (!row) return null;
-    const merged: TimelineTask = {
-      id: row.id,
-      eventId: row.eventId,
-      title: updates.title ?? row.title,
-      dueDate: updates.dueDate ?? row.dueDate,
-      status: (updates.status ?? row.status) as TimelineTaskStatus,
-      dependsOn: updates.dependsOn ?? row.dependsOn,
-      category: updates.category ?? row.category,
-      assignee: updates.assignee !== undefined ? updates.assignee : (row.assignee ?? undefined),
-    };
+    const merged = mergeTimelineTask(row, updates);
     this.db
       .update(schema.timelineTasks)
       .set({
@@ -368,18 +198,7 @@ export class DrizzleEventRepository implements EventRepository {
   }
 
   public async addVendor(vendor: Vendor): Promise<Vendor> {
-    this.db
-      .insert(schema.vendors)
-      .values({
-        id: vendor.id,
-        eventId: vendor.eventId,
-        category: vendor.category,
-        name: vendor.name,
-        contact: vendor.contact,
-        quote: vendor.quote,
-        status: vendor.status,
-      })
-      .run();
+    this.db.insert(schema.vendors).values(vendor).run();
     return vendor;
   }
 
@@ -389,29 +208,13 @@ export class DrizzleEventRepository implements EventRepository {
       .from(schema.vendors)
       .where(eq(schema.vendors.eventId, eventId))
       .all();
-    return rows.map((r) => ({
-      id: r.id,
-      eventId: r.eventId,
-      category: r.category as BudgetCategory,
-      name: r.name,
-      contact: r.contact,
-      quote: r.quote,
-      status: r.status as VendorStatus,
-    }));
+    return rows.map(mapVendorRow);
   }
 
   public async updateVendor(id: string, updates: Partial<Vendor>): Promise<Vendor | null> {
     const row = this.db.select().from(schema.vendors).where(eq(schema.vendors.id, id)).get();
     if (!row) return null;
-    const merged: Vendor = {
-      id: row.id,
-      eventId: row.eventId,
-      category: (updates.category ?? row.category) as BudgetCategory,
-      name: updates.name ?? row.name,
-      contact: updates.contact ?? row.contact,
-      quote: updates.quote ?? row.quote,
-      status: (updates.status ?? row.status) as VendorStatus,
-    };
+    const merged = mergeVendor(row, updates);
     this.db
       .update(schema.vendors)
       .set({
@@ -435,13 +238,10 @@ export class DrizzleEventRepository implements EventRepository {
     this.db
       .insert(schema.ideaSets)
       .values({
-        id: ideaSet.id,
-        eventId: ideaSet.eventId,
-        theme: ideaSet.theme,
+        ...ideaSet,
         decor: [...ideaSet.decor],
         menu: [...ideaSet.menu],
         activities: [...ideaSet.activities],
-        generatedMetadata: ideaSet.generatedMetadata,
       })
       .run();
     return ideaSet;
@@ -453,15 +253,7 @@ export class DrizzleEventRepository implements EventRepository {
       .from(schema.ideaSets)
       .where(eq(schema.ideaSets.eventId, eventId))
       .all();
-    return rows.map((r) => ({
-      id: r.id,
-      eventId: r.eventId,
-      theme: r.theme,
-      decor: r.decor,
-      menu: r.menu,
-      activities: r.activities,
-      generatedMetadata: r.generatedMetadata,
-    }));
+    return rows.map(mapIdeaSetRow);
   }
 
   public async getEventWithDetails(id: string, userId?: string): Promise<EventDetails | null> {
@@ -514,116 +306,6 @@ export class DrizzleEventRepository implements EventRepository {
         .all(),
     ]);
 
-    return this.assembleBatchDetails(eventRows, budgetRows, timelineRows, vendorRows, ideaRows);
-  }
-
-  private mapBudgetByEvent(
-    rows: (typeof schema.budgetItems.$inferSelect)[]
-  ): Map<string, BudgetItem[]> {
-    const map = new Map<string, BudgetItem[]>();
-    for (const r of rows) {
-      const arr = map.get(r.eventId) ?? [];
-      arr.push({
-        id: r.id,
-        eventId: r.eventId,
-        category: r.category as BudgetCategory,
-        estimated: r.estimated,
-        actual: r.actual,
-        vendorId: r.vendorId ?? undefined,
-        notes: r.notes ?? undefined,
-      });
-      map.set(r.eventId, arr);
-    }
-    return map;
-  }
-
-  private mapTimelineByEvent(
-    rows: (typeof schema.timelineTasks.$inferSelect)[]
-  ): Map<string, TimelineTask[]> {
-    const map = new Map<string, TimelineTask[]>();
-    for (const r of rows) {
-      const arr = map.get(r.eventId) ?? [];
-      arr.push({
-        id: r.id,
-        eventId: r.eventId,
-        title: r.title,
-        dueDate: r.dueDate,
-        status: r.status as TimelineTaskStatus,
-        dependsOn: r.dependsOn,
-        category: r.category,
-        assignee: r.assignee ?? undefined,
-      });
-      map.set(r.eventId, arr);
-    }
-    return map;
-  }
-
-  private mapVendorsByEvent(rows: (typeof schema.vendors.$inferSelect)[]): Map<string, Vendor[]> {
-    const map = new Map<string, Vendor[]>();
-    for (const r of rows) {
-      const arr = map.get(r.eventId) ?? [];
-      arr.push({
-        id: r.id,
-        eventId: r.eventId,
-        category: r.category as BudgetCategory,
-        name: r.name,
-        contact: r.contact,
-        quote: r.quote,
-        status: r.status as VendorStatus,
-      });
-      map.set(r.eventId, arr);
-    }
-    return map;
-  }
-
-  private mapIdeasByEvent(rows: (typeof schema.ideaSets.$inferSelect)[]): Map<string, IdeaSet[]> {
-    const map = new Map<string, IdeaSet[]>();
-    for (const r of rows) {
-      const arr = map.get(r.eventId) ?? [];
-      arr.push({
-        id: r.id,
-        eventId: r.eventId,
-        theme: r.theme,
-        decor: r.decor,
-        menu: r.menu,
-        activities: r.activities,
-        generatedMetadata: r.generatedMetadata,
-      });
-      map.set(r.eventId, arr);
-    }
-    return map;
-  }
-
-  private assembleBatchDetails(
-    eventRows: (typeof schema.events.$inferSelect)[],
-    budgetRows: (typeof schema.budgetItems.$inferSelect)[],
-    timelineRows: (typeof schema.timelineTasks.$inferSelect)[],
-    vendorRows: (typeof schema.vendors.$inferSelect)[],
-    ideaRows: (typeof schema.ideaSets.$inferSelect)[]
-  ): readonly EventDetails[] {
-    const bMap = this.mapBudgetByEvent(budgetRows);
-    const tMap = this.mapTimelineByEvent(timelineRows);
-    const vMap = this.mapVendorsByEvent(vendorRows);
-    const iMap = this.mapIdeasByEvent(ideaRows);
-
-    return eventRows.map((e) => ({
-      event: {
-        id: e.id,
-        userId: e.userId,
-        type: e.type as EventType,
-        title: e.title,
-        date: e.date,
-        guestCount: e.guestCount,
-        location: e.location,
-        totalBudget: e.totalBudget,
-        currency: e.currency,
-        preferences: e.preferences,
-        createdAt: e.createdAt,
-      },
-      budgetItems: bMap.get(e.id) ?? [],
-      timelineTasks: tMap.get(e.id) ?? [],
-      vendors: vMap.get(e.id) ?? [],
-      ideaSets: iMap.get(e.id) ?? [],
-    }));
+    return assembleBatchDetails(eventRows, budgetRows, timelineRows, vendorRows, ideaRows);
   }
 }
