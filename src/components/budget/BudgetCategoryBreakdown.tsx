@@ -10,6 +10,48 @@ export interface BudgetCategoryBreakdownProps {
   readonly totalBudget: number;
 }
 
+function BudgetCategoryChartItem({
+  cat,
+  amt,
+  currency,
+  totalBudget,
+}: {
+  readonly cat: string;
+  readonly amt: number;
+  readonly currency: string;
+  readonly totalBudget: number;
+}): React.JSX.Element {
+  const pct = percentOf(amt, totalBudget, { max: 100 });
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+        <span style={{ textTransform: 'capitalize', fontWeight: 600 }}>{cat}</span>
+        <span style={{ color: 'var(--text-secondary)' }}>
+          {currency} {amt.toLocaleString()} ({pct}%)
+        </span>
+      </div>
+      <div
+        style={{
+          height: '8px',
+          width: '100%',
+          background: 'var(--bg-surface)',
+          borderRadius: '4px',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            height: '100%',
+            width: `${pct}%`,
+            background: 'var(--accent-gold)',
+            transition: 'width 0.3s ease',
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 function BudgetCategoryChart({
   entries,
   currency,
@@ -25,37 +67,15 @@ function BudgetCategoryChart({
       aria-label="Category Budget Breakdown Chart. Accessible data table alternative available via toggle."
       style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
     >
-      {entries.map(([cat, amt]) => {
-        const pct = percentOf(amt, totalBudget, { max: 100 });
-        return (
-          <div key={cat} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-              <span style={{ textTransform: 'capitalize', fontWeight: 600 }}>{cat}</span>
-              <span style={{ color: 'var(--text-secondary)' }}>
-                {currency} {amt.toLocaleString()} ({pct}%)
-              </span>
-            </div>
-            <div
-              style={{
-                height: '8px',
-                width: '100%',
-                background: 'var(--bg-surface)',
-                borderRadius: '4px',
-                overflow: 'hidden',
-              }}
-            >
-              <div
-                style={{
-                  height: '100%',
-                  width: `${pct}%`,
-                  background: 'var(--accent-gold)',
-                  transition: 'width 0.3s ease',
-                }}
-              />
-            </div>
-          </div>
-        );
-      })}
+      {entries.map(([cat, amt]) => (
+        <BudgetCategoryChartItem
+          key={cat}
+          cat={cat}
+          amt={amt}
+          currency={currency}
+          totalBudget={totalBudget}
+        />
+      ))}
     </div>
   );
 }
@@ -99,24 +119,29 @@ function BudgetCategoryTable({
           </tr>
         </thead>
         <tbody>
-          {entries.map(([cat, amt]) => {
-            const pct = percentOf(amt, totalBudget);
-            return (
-              <tr key={cat} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                <td style={{ padding: '8px', textTransform: 'capitalize', fontWeight: 600 }}>
-                  {cat}
-                </td>
-                <td style={{ padding: '8px' }}>
-                  {currency} {amt.toLocaleString()}
-                </td>
-                <td style={{ padding: '8px' }}>{pct}%</td>
-              </tr>
-            );
-          })}
+          {entries.map(([cat, amt]) => (
+            <tr key={cat} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+              <td style={{ padding: '8px', textTransform: 'capitalize', fontWeight: 600 }}>
+                {cat}
+              </td>
+              <td style={{ padding: '8px' }}>
+                {currency} {amt.toLocaleString()}
+              </td>
+              <td style={{ padding: '8px' }}>{percentOf(amt, totalBudget)}%</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
   );
+}
+
+function calculateCategoryEntries(items: readonly BudgetItem[]): readonly [string, number][] {
+  const totals = items.reduce<Record<string, number>>((acc, item) => {
+    acc[item.category] = (acc[item.category] ?? 0) + item.estimated;
+    return acc;
+  }, {});
+  return Object.entries(totals).sort((a, b) => b[1] - a[1]);
 }
 
 export function BudgetCategoryBreakdown({
@@ -127,12 +152,8 @@ export function BudgetCategoryBreakdown({
   const [viewMode, setViewMode] = useState<'chart' | 'table'>('chart');
   if (items.length === 0) return null;
 
-  const categoryTotals = items.reduce<Record<string, number>>((acc, item) => {
-    acc[item.category] = (acc[item.category] ?? 0) + item.estimated;
-    return acc;
-  }, {});
-
-  const entries = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
+  const entries = calculateCategoryEntries(items);
+  const isChart = viewMode === 'chart';
 
   return (
     <div
@@ -159,13 +180,12 @@ export function BudgetCategoryBreakdown({
           variant="secondary"
           size="sm"
           onClick={() => setViewMode((m) => (m === 'chart' ? 'table' : 'chart'))}
-          leftIcon={viewMode === 'chart' ? <TableIcon size={14} /> : <BarChart3 size={14} />}
+          leftIcon={isChart ? <TableIcon size={14} /> : <BarChart3 size={14} />}
         >
-          {viewMode === 'chart' ? 'View as Data Table' : 'View as Chart'}
+          {isChart ? 'View as Data Table' : 'View as Chart'}
         </Button>
       </div>
-
-      {viewMode === 'chart' ? (
+      {isChart ? (
         <BudgetCategoryChart entries={entries} currency={currency} totalBudget={totalBudget} />
       ) : (
         <BudgetCategoryTable entries={entries} currency={currency} totalBudget={totalBudget} />

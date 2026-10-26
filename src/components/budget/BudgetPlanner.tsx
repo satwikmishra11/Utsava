@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { BudgetItem } from '@/domain/types';
+import { BudgetItem, BudgetCategory } from '@/domain/types';
 import { calculateBudgetSummary } from '@/domain/budget';
 import { OverspendAnalysis } from '@/domain/budgetLogic';
 import { GeneratedBudgetItem } from '@/services/ai';
@@ -30,6 +30,80 @@ export interface BudgetPlannerProps {
   readonly overspendAnalysis?: OverspendAnalysis;
 }
 
+function createBudgetItem(name: string, category: BudgetCategory, cost: number): BudgetItem {
+  return {
+    id: `budget-${Date.now()}`,
+    eventId: 'evt-utsava-main',
+    category,
+    estimated: cost,
+    actual: cost,
+    notes: name,
+  };
+}
+
+function BudgetPlannerAlerts({
+  isLoadingAI,
+  hasSuggestions,
+  suggestions,
+  currency,
+  onAccept,
+  onDismiss,
+}: {
+  readonly isLoadingAI: boolean;
+  readonly hasSuggestions: boolean;
+  readonly suggestions?: readonly GeneratedBudgetItem[] | null;
+  readonly currency: string;
+  readonly onAccept?: () => void;
+  readonly onDismiss?: () => void;
+}): React.JSX.Element | null {
+  return (
+    <>
+      {isLoadingAI && <CardSkeleton />}
+      {hasSuggestions && suggestions && onAccept && onDismiss && (
+        <BudgetSuggestionsAlert
+          suggestions={suggestions}
+          currency={currency}
+          onAccept={onAccept}
+          onDismiss={onDismiss}
+        />
+      )}
+    </>
+  );
+}
+
+function BudgetItemsView({
+  items,
+  currency,
+  onUpdateStatus,
+  onRemoveItem,
+  onRegenerateAI,
+}: {
+  readonly items: readonly BudgetItem[];
+  readonly currency: string;
+  readonly onUpdateStatus: (id: string) => void;
+  readonly onRemoveItem: (id: string) => void;
+  readonly onRegenerateAI?: () => void;
+}): React.JSX.Element {
+  if (items.length === 0) {
+    return (
+      <EmptyState
+        title="No Budget Items Yet"
+        description="Add your first expense manually or click 'Regenerate AI Budget' to auto-allocate."
+        actionLabel={onRegenerateAI ? 'Auto-Allocate AI Budget' : undefined}
+        onAction={onRegenerateAI}
+      />
+    );
+  }
+  return (
+    <BudgetTable
+      items={items}
+      currency={currency}
+      onUpdate={onUpdateStatus}
+      onRemove={onRemoveItem}
+    />
+  );
+}
+
 export function BudgetPlanner(props: BudgetPlannerProps): React.JSX.Element {
   const {
     totalBudget,
@@ -40,18 +114,12 @@ export function BudgetPlanner(props: BudgetPlannerProps): React.JSX.Element {
     onUpdateStatus,
     onRegenerateAI,
     isLoadingAI = false,
-    pendingSuggestions,
-    onAcceptSuggestions,
-    onDismissSuggestions,
     overspendAnalysis,
   } = props;
   const summary = calculateBudgetSummary(totalBudget, items);
   const isOver = overspendAnalysis?.isOverspent ?? summary.isOverBudget;
   const hasSuggestions = Boolean(
-    pendingSuggestions &&
-    pendingSuggestions.length > 0 &&
-    onAcceptSuggestions &&
-    onDismissSuggestions
+    props.pendingSuggestions?.length && props.onAcceptSuggestions && props.onDismissSuggestions
   );
 
   return (
@@ -72,42 +140,22 @@ export function BudgetPlanner(props: BudgetPlannerProps): React.JSX.Element {
         overspendAnalysis={overspendAnalysis}
         totalActual={summary.totalActual}
       />
-      {isLoadingAI && <CardSkeleton />}
-      {hasSuggestions && pendingSuggestions && onAcceptSuggestions && onDismissSuggestions && (
-        <BudgetSuggestionsAlert
-          suggestions={pendingSuggestions}
-          currency={currency}
-          onAccept={onAcceptSuggestions}
-          onDismiss={onDismissSuggestions}
-        />
-      )}
-      <BudgetAddForm
-        onAdd={(name, category, cost) =>
-          onAddItem({
-            id: `budget-${Date.now()}`,
-            eventId: 'evt-utsava-main',
-            category,
-            estimated: cost,
-            actual: cost,
-            notes: name,
-          })
-        }
+      <BudgetPlannerAlerts
+        isLoadingAI={isLoadingAI}
+        hasSuggestions={hasSuggestions}
+        suggestions={props.pendingSuggestions}
+        currency={currency}
+        onAccept={props.onAcceptSuggestions}
+        onDismiss={props.onDismissSuggestions}
       />
-      {items.length === 0 ? (
-        <EmptyState
-          title="No Budget Items Yet"
-          description="Add your first expense manually or click 'Regenerate AI Budget' to auto-allocate."
-          actionLabel={onRegenerateAI ? 'Auto-Allocate AI Budget' : undefined}
-          onAction={onRegenerateAI}
-        />
-      ) : (
-        <BudgetTable
-          items={items}
-          currency={currency}
-          onUpdate={onUpdateStatus}
-          onRemove={onRemoveItem}
-        />
-      )}
+      <BudgetAddForm onAdd={(name, cat, cost) => onAddItem(createBudgetItem(name, cat, cost))} />
+      <BudgetItemsView
+        items={items}
+        currency={currency}
+        onUpdateStatus={onUpdateStatus}
+        onRemoveItem={onRemoveItem}
+        onRegenerateAI={onRegenerateAI}
+      />
     </section>
   );
 }
