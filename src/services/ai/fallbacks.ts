@@ -1,5 +1,5 @@
 import { BudgetCategory } from '@/domain/schemas';
-import { allocateBudget } from '@/domain/budgetLogic';
+import { adviseBudgetSplit } from '@/domain/budgetAdvisor';
 import { backScheduleTimeline, TaskTemplate } from '@/domain/timelineLogic';
 import { getVendorChecklistTemplates } from '@/domain/vendorTemplates';
 import { buildMockIdeas } from '../llm/mockData';
@@ -50,18 +50,51 @@ const DEFAULT_TIMELINE_TEMPLATES: readonly TaskTemplate[] = [
   },
 ];
 
-export function buildFallbackBudgetPlan(context: PersonalizationContext): GeneratedBudgetPlan {
+export function computeDaysUntilEvent(eventDate?: string, todayStr?: string): number | undefined {
+  if (!eventDate) return undefined;
+  const today = todayStr ?? new Date().toISOString().slice(0, 10);
+  const [ey, em, ed] = eventDate.split('-').map(Number);
+  const [ty, tm, td] = today.split('-').map(Number);
+  if (!ey || !em || !ed || !ty || !tm || !td) return undefined;
+  const eventTime = Date.UTC(ey, em - 1, ed);
+  const todayTime = Date.UTC(ty, tm - 1, td);
+  return Math.round((eventTime - todayTime) / 86400000);
+}
+
+export function buildFallbackBudgetPlan(
+  context: PersonalizationContext,
+  todayStr?: string
+): GeneratedBudgetPlan {
   const total = context.totalBudget ?? DEFAULT_FALLBACK_BUDGET;
-  const allocations = allocateBudget(context.eventType, total);
-  const items = Object.entries(allocations).map(([category, estimated]) => ({
+  const currency = context.currency ?? 'INR';
+  const daysUntilEvent = computeDaysUntilEvent(context.eventDate, todayStr);
+
+  const advice = adviseBudgetSplit({
+    eventType: context.eventType,
+    totalBudget: total,
+    currency,
+    guestCount: context.guestCount,
+    dietary: context.dietary,
+    accessibilityNeeds: context.accessibilityNeeds,
+    culture: context.culture,
+    daysUntilEvent,
+  });
+
+  const reasonsText =
+    advice.reasons.length > 0
+      ? advice.reasons.join(' | ').slice(0, 300)
+      : `Default allocation for ${context.eventType}`;
+
+  const items = Object.entries(advice.percentages).map(([category, pct]) => ({
     category: category as BudgetCategory,
-    estimated,
-    notes: `Default allocation for ${context.eventType}`,
+    estimated: Math.round(((total * pct) / 100) * 100) / 100,
+    notes: reasonsText,
   }));
+
   return {
     items,
     totalAllocated: total,
-    currency: context.currency ?? 'INR',
+    currency,
   };
 }
 

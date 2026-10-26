@@ -59,6 +59,9 @@ describe('Prompt Builders Deep Unit Tests', () => {
       expect(prompt).toContain('luxury');
       expect(prompt).toContain('80000');
       expect(prompt).toContain('Jain Vegetarian');
+      expect(prompt).toContain('"hasDietaryRequirements": true');
+      expect(prompt).toContain('"hasAccessibilityNeeds": true');
+      expect(prompt).toContain('"perGuestCost": 229');
     });
 
     it('handles minimal context with default fallback values', () => {

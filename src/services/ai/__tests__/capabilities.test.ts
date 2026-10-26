@@ -63,9 +63,9 @@ describe('AI Layer Capabilities with MockProvider', () => {
     const res = await generateBudgetPlan(context, { provider: failingProvider, skipCache: true });
     expect(res.source).toBe('fallback');
     expect(res.data.items.length).toBeGreaterThan(0);
-    // Phase 2 allocates budget based on default percentages
+    // Context-aware fallback allocates budget based on advisor rules
     const venueItem = res.data.items.find((i) => i.category === 'venue');
-    expect(venueItem?.estimated).toBe(8750); // 35% of 25000
+    expect(venueItem?.estimated).toBe(8000);
   });
 
   it('generates structured timeline and falls back on error', async () => {

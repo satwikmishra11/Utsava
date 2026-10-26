@@ -30,3 +30,22 @@ export const Z_INDEX_OVERLAY = 9999;
 // Contingency reserve calculation ratios
 export const CONTINGENCY_RATIO_RECOMMENDED = 0.05;
 export const CONTINGENCY_RATIO_DEFAULT = 0.1;
+
+// Reference per-guest budget ranges in INR per event type
+export const PER_GUEST_BUDGET_RANGES_INR: Record<
+  import('@/domain/schemas').EventType,
+  { readonly min: number; readonly max: number }
+> = {
+  wedding: { min: 150, max: 250 },
+  birthday: { min: 60, max: 120 },
+  community: { min: 30, max: 60 },
+};
+
+// Guest count thresholds for budget rule adjustments
+export const GUEST_COUNT_THRESHOLDS = {
+  LARGE: 200,
+  INTIMATE: 50,
+} as const;
+
+// Days-until-event threshold for rush contingency allocation
+export const RUSH_PLANNING_DAYS_THRESHOLD = 30;

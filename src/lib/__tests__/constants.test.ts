@@ -36,4 +36,11 @@ describe('Application Constants (src/lib/constants.ts)', () => {
     expect(constants.CONTINGENCY_RATIO_RECOMMENDED).toBe(0.05);
     expect(constants.CONTINGENCY_RATIO_DEFAULT).toBe(0.1);
   });
+
+  it('defines budget advisor reference ranges and thresholds', () => {
+    expect(constants.PER_GUEST_BUDGET_RANGES_INR.wedding.min).toBe(150);
+    expect(constants.GUEST_COUNT_THRESHOLDS.LARGE).toBe(200);
+    expect(constants.GUEST_COUNT_THRESHOLDS.INTIMATE).toBe(50);
+    expect(constants.RUSH_PLANNING_DAYS_THRESHOLD).toBe(30);
+  });
 });

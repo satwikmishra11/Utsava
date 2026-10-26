@@ -33,7 +33,7 @@ describe('Versioned & Parameterized Prompt Templates', () => {
   };
 
   it('declares semantic versions for all prompts', () => {
-    expect(BUDGET_PROMPT_VERSION).toBe('1.0.0');
+    expect(BUDGET_PROMPT_VERSION).toBe('1.1.0');
     expect(TIMELINE_PROMPT_VERSION).toBe('1.0.0');
     expect(VENDOR_PROMPT_VERSION).toBe('1.0.0');
     expect(IDEAS_PROMPT_VERSION).toBe('1.0.0');

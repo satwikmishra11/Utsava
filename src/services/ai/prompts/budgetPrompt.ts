@@ -1,19 +1,29 @@
 import { PersonalizationContext } from '../types';
-import { DEFAULT_FALLBACK_BUDGET } from '@/lib/constants';
+import { DEFAULT_FALLBACK_BUDGET, RUSH_PLANNING_DAYS_THRESHOLD } from '@/lib/constants';
+import { computeDaysUntilEvent } from '../fallbacks';
 
-export const BUDGET_PROMPT_VERSION = '1.0.0';
+export const BUDGET_PROMPT_VERSION = '1.1.0';
 
 export function buildBudgetPrompt(context: PersonalizationContext): string {
+  const total = context.totalBudget ?? DEFAULT_FALLBACK_BUDGET;
+  const daysUntilEvent = computeDaysUntilEvent(context.eventDate);
+  const perGuestCost = context.guestCount > 0 ? Math.round(total / context.guestCount) : 0;
+
   const payload = {
     eventType: context.eventType,
     culture: context.culture ?? 'general',
     budgetBand: context.budgetBand,
-    totalBudget: context.totalBudget ?? DEFAULT_FALLBACK_BUDGET,
+    totalBudget: total,
     currency: context.currency ?? 'INR',
     guestCount: context.guestCount,
     dietary: context.dietary,
     accessibilityNeeds: context.accessibilityNeeds,
     location: context.location ?? 'unspecified',
+    daysUntilEvent,
+    perGuestCost,
+    hasDietaryRequirements: (context.dietary ?? []).length >= 2,
+    hasAccessibilityNeeds: (context.accessibilityNeeds ?? []).length > 0,
+    isRushPlanning: daysUntilEvent !== undefined && daysUntilEvent < RUSH_PLANNING_DAYS_THRESHOLD,
   };
 
   return [
