@@ -6,6 +6,7 @@ import { Header } from './Header';
 import { NavigationTabs, TabId } from './NavigationTabs';
 import { ActiveTabPanel } from './ActiveTabPanel';
 import { useEventPlan } from './useEventPlan';
+import { Z_INDEX_TOAST } from '@/lib/constants';
 
 const OnboardingWizard = dynamic(
   () => import('./OnboardingWizard').then((m) => m.OnboardingWizard),
@@ -35,7 +36,7 @@ function ToastNotification({
         boxShadow: 'var(--shadow-lg)',
         padding: '12px 20px',
         borderRadius: 'var(--radius-sm)',
-        zIndex: 1000,
+        zIndex: Z_INDEX_TOAST,
         fontWeight: 600,
         fontSize: '0.9rem',
       }}

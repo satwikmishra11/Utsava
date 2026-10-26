@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { tokenTracker, TokenUsageRecord, TokenUsageSummary } from '@/services/ai/tokenTracker';
+import { Z_INDEX_MODAL } from '@/lib/constants';
 
 export function DevTokenPanel(): React.JSX.Element | null {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,7 +37,7 @@ export function DevTokenPanel(): React.JSX.Element | null {
         position: 'fixed',
         bottom: '16px',
         left: '16px',
-        zIndex: 9999,
+        zIndex: Z_INDEX_MODAL,
         fontFamily: 'monospace',
         fontSize: '0.8rem',
       }}

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
+import { Z_INDEX_MODAL } from '@/lib/constants';
 
 export interface DialogProps {
   readonly isOpen: boolean;
@@ -97,7 +98,7 @@ export function Dialog({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 9999,
+        zIndex: Z_INDEX_MODAL,
         padding: '16px',
       }}
     >

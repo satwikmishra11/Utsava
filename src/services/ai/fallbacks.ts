@@ -10,6 +10,7 @@ import {
   GeneratedVendorChecklist,
   GeneratedIdeas,
 } from './types';
+import { DEFAULT_FALLBACK_BUDGET } from '@/lib/constants';
 
 const DEFAULT_TIMELINE_TEMPLATES: readonly TaskTemplate[] = [
   {
@@ -50,7 +51,7 @@ const DEFAULT_TIMELINE_TEMPLATES: readonly TaskTemplate[] = [
 ];
 
 export function buildFallbackBudgetPlan(context: PersonalizationContext): GeneratedBudgetPlan {
-  const total = context.totalBudget ?? 10000;
+  const total = context.totalBudget ?? DEFAULT_FALLBACK_BUDGET;
   const allocations = allocateBudget(context.eventType, total);
   const items = Object.entries(allocations).map(([category, estimated]) => ({
     category: category as BudgetCategory,

@@ -1,4 +1,5 @@
 import { PersonalizationContext } from '../types';
+import { DEFAULT_FALLBACK_BUDGET } from '@/lib/constants';
 
 export const BUDGET_PROMPT_VERSION = '1.0.0';
 
@@ -7,7 +8,7 @@ export function buildBudgetPrompt(context: PersonalizationContext): string {
     eventType: context.eventType,
     culture: context.culture ?? 'general',
     budgetBand: context.budgetBand,
-    totalBudget: context.totalBudget ?? 10000,
+    totalBudget: context.totalBudget ?? DEFAULT_FALLBACK_BUDGET,
     currency: context.currency ?? 'INR',
     guestCount: context.guestCount,
     dietary: context.dietary,
