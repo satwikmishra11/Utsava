@@ -1,3 +1,5 @@
+import { inArray } from 'drizzle-orm';
+import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import * as schema from '@/domain/db/schema';
 import {
   Event,
@@ -190,4 +192,32 @@ export function assembleBatchDetails(
     vendors: vMap.get(e.id) ?? [],
     ideaSets: iMap.get(e.id) ?? [],
   }));
+}
+
+export async function fetchBatchRelationRows(
+  db: BetterSQLite3Database<typeof schema>,
+  matchedIds: readonly string[]
+) {
+  return Promise.all([
+    db
+      .select()
+      .from(schema.budgetItems)
+      .where(inArray(schema.budgetItems.eventId, [...matchedIds]))
+      .all(),
+    db
+      .select()
+      .from(schema.timelineTasks)
+      .where(inArray(schema.timelineTasks.eventId, [...matchedIds]))
+      .all(),
+    db
+      .select()
+      .from(schema.vendors)
+      .where(inArray(schema.vendors.eventId, [...matchedIds]))
+      .all(),
+    db
+      .select()
+      .from(schema.ideaSets)
+      .where(inArray(schema.ideaSets.eventId, [...matchedIds]))
+      .all(),
+  ]);
 }
