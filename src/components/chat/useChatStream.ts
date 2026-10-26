@@ -78,66 +78,76 @@ function handleStreamError(
   setLiveAnnouncement(`Error: ${msg}`);
 }
 
-export type PlanActionCallback = (
-  actionType: PlanAction['actionType'],
-  payload: PlanAction['payload'] | Record<string, unknown>
-) => void;
+async function postChatMessage(
+  userText: string,
+  controller: AbortController,
+  plan: EventPlan,
+  history: readonly ChatMessage[],
+  setMessages: React.Dispatch<React.SetStateAction<readonly ChatMessage[]>>,
+  setLiveAnnouncement: (msg: string) => void
+): Promise<void> {
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    signal: controller.signal,
+    body: JSON.stringify({
+      message: userText,
+      eventPlan: plan,
+      chatHistory: history
+        .slice(-CHAT_HISTORY_WINDOW)
+        .map((m) => ({ role: m.role, content: m.content })),
+    }),
+  });
+  if (!res.ok) throw new Error((await res.json()).error || 'Server error');
+  const reader = res.body?.getReader();
+  if (!reader) return;
+  const assistantId = `assistant-${Date.now()}`;
+  setMessages((prev) => [
+    ...prev,
+    { id: assistantId, role: 'assistant', content: '', timestamp: Date.now() },
+  ]);
+  await processAssistantStream(reader, assistantId, plan, setMessages, setLiveAnnouncement);
+}
 
-export function useChatStream(plan: EventPlan, onApplyPlanAction: PlanActionCallback) {
+function markProposalApplied(
+  setMessages: React.Dispatch<React.SetStateAction<readonly ChatMessage[]>>,
+  messageId: string
+) {
+  setMessages((prev) =>
+    prev.map((m) =>
+      m.id === messageId && m.actionProposal
+        ? { ...m, actionProposal: { ...m.actionProposal, applied: true } }
+        : m
+    )
+  );
+}
+
+function useChatMessages(plan: EventPlan) {
   const [messages, setMessages] = useState<readonly ChatMessage[]>(() =>
     createInitialMessages(plan)
   );
+  const [liveAnnouncement, setLiveAnnouncement] = useState('');
+  return { messages, setMessages, liveAnnouncement, setLiveAnnouncement };
+}
+
+function useChatSubmit(
+  plan: EventPlan,
+  messages: readonly ChatMessage[],
+  setMessages: React.Dispatch<React.SetStateAction<readonly ChatMessage[]>>,
+  setLiveAnnouncement: (msg: string) => void
+) {
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
-  const [liveAnnouncement, setLiveAnnouncement] = useState('');
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const handleStopGenerating = () => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-      abortControllerRef.current = null;
-    }
+  const stopGenerating = () => {
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
     setIsStreaming(false);
     setLiveAnnouncement('Response generation stopped by user.');
   };
 
-  const handleApplyProposal = (messageId: string, proposal: ActionProposal) => {
-    onApplyPlanAction(proposal.actionType, proposal.payload);
-    setMessages((prev) =>
-      prev.map((m) =>
-        m.id === messageId && m.actionProposal
-          ? { ...m, actionProposal: { ...m.actionProposal, applied: true } }
-          : m
-      )
-    );
-    setLiveAnnouncement('Action recommendation applied to plan.');
-  };
-
-  const executePost = async (userText: string, controller: AbortController) => {
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      signal: controller.signal,
-      body: JSON.stringify({
-        message: userText,
-        eventPlan: plan,
-        chatHistory: messages
-          .slice(-CHAT_HISTORY_WINDOW)
-          .map((m) => ({ role: m.role, content: m.content })),
-      }),
-    });
-    if (!res.ok) throw new Error((await res.json()).error || 'Server error');
-    const reader = res.body?.getReader();
-    if (!reader) return;
-    const assistantId = `assistant-${Date.now()}`;
-    setMessages((prev) => [
-      ...prev,
-      { id: assistantId, role: 'assistant', content: '', timestamp: Date.now() },
-    ]);
-    await processAssistantStream(reader, assistantId, plan, setMessages, setLiveAnnouncement);
-  };
-
-  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+  const submit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     if (!input.trim() || isStreaming) return;
     const userText = input.trim();
@@ -150,7 +160,7 @@ export function useChatStream(plan: EventPlan, onApplyPlanAction: PlanActionCall
     const controller = new AbortController();
     abortControllerRef.current = controller;
     try {
-      await executePost(userText, controller);
+      await postChatMessage(userText, controller, plan, messages, setMessages, setLiveAnnouncement);
     } catch (err: unknown) {
       handleStreamError(err, setMessages, setLiveAnnouncement);
     } finally {
@@ -159,14 +169,37 @@ export function useChatStream(plan: EventPlan, onApplyPlanAction: PlanActionCall
     }
   };
 
+  return { input, setInput, isStreaming, stopGenerating, submit };
+}
+
+export type PlanActionCallback = (
+  actionType: PlanAction['actionType'],
+  payload: PlanAction['payload'] | Record<string, unknown>
+) => void;
+
+export function useChatStream(plan: EventPlan, onApplyPlanAction: PlanActionCallback) {
+  const { messages, setMessages, liveAnnouncement, setLiveAnnouncement } = useChatMessages(plan);
+  const { input, setInput, isStreaming, stopGenerating, submit } = useChatSubmit(
+    plan,
+    messages,
+    setMessages,
+    setLiveAnnouncement
+  );
+
+  const handleApplyProposal = (messageId: string, proposal: ActionProposal) => {
+    onApplyPlanAction(proposal.actionType, proposal.payload);
+    markProposalApplied(setMessages, messageId);
+    setLiveAnnouncement('Action recommendation applied to plan.');
+  };
+
   return {
     messages,
     input,
     setInput,
     isStreaming,
     liveAnnouncement,
-    handleSubmit,
-    handleStopGenerating,
+    handleSubmit: submit,
+    handleStopGenerating: stopGenerating,
     handleApplyProposal,
   };
 }

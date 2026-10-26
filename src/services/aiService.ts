@@ -42,47 +42,49 @@ const createIdea = (
   ...(culturalContext ? { culturalContext } : {}),
 });
 
+const MOCK_EXPERIENCE_IDEAS = [
+  createIdea(
+    'idea-2',
+    'food_beverage',
+    'Curated Artisan Tasting Stations',
+    'Interactive live cooking corners featuring regional delicacies and craft mocktails.',
+    'medium',
+    ['interactive', 'dining', 'culinary']
+  ),
+  createIdea(
+    'idea-3',
+    'entertainment',
+    'Acoustic Fusion Ensemble',
+    'Live instrumentalists pairing classical strings with contemporary acoustic beats.',
+    'low',
+    ['live-music', 'welcome', 'acoustic']
+  ),
+  createIdea(
+    'idea-4',
+    'cultural',
+    'Interactive Community Memory Wall',
+    'An illuminated polaroid station where attendees leave personalized blessings and photos.',
+    'low',
+    ['interactive', 'keepsake', 'sentimental']
+  ),
+];
+
 export function buildMockIdeas(
   eventType: EventType,
   culturalContext?: string
 ): readonly IdeaRecommendation[] {
   const prefix = culturalContext ? `${culturalContext} ` : '';
   const themeTitle = `${prefix}${eventType === 'wedding' ? 'Royal Heritage' : 'Sunset Radiance'} Theme`;
-  return [
-    createIdea(
-      'idea-1',
-      'theme',
-      themeTitle,
-      'A rich visual motif blending traditional floral installations with ambient warm lighting.',
-      'medium',
-      ['decor', 'lighting', 'festive'],
-      culturalContext ?? 'Traditional'
-    ),
-    createIdea(
-      'idea-2',
-      'food_beverage',
-      'Curated Artisan Tasting Stations',
-      'Interactive live cooking corners featuring regional delicacies and craft mocktails.',
-      'medium',
-      ['interactive', 'dining', 'culinary']
-    ),
-    createIdea(
-      'idea-3',
-      'entertainment',
-      'Acoustic Fusion Ensemble',
-      'Live instrumentalists pairing classical strings with contemporary acoustic beats.',
-      'low',
-      ['live-music', 'welcome', 'acoustic']
-    ),
-    createIdea(
-      'idea-4',
-      'cultural',
-      'Interactive Community Memory Wall',
-      'An illuminated polaroid station where attendees leave personalized blessings and photos.',
-      'low',
-      ['interactive', 'keepsake', 'sentimental']
-    ),
-  ];
+  const themeIdea = createIdea(
+    'idea-1',
+    'theme',
+    themeTitle,
+    'A rich visual motif blending traditional floral installations with ambient warm lighting.',
+    'medium',
+    ['decor', 'lighting', 'festive'],
+    culturalContext ?? 'Traditional'
+  );
+  return [themeIdea, ...MOCK_EXPERIENCE_IDEAS];
 }
 
 const createTimelineItem = (

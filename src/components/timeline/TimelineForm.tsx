@@ -25,6 +25,20 @@ export function useTimelineForm(onAdd: (title: string, time: string) => void) {
   return { title, setTitle, time, setTime, error, setError, handleSubmit };
 }
 
+function TimelineFormError({ error }: { readonly error: string }): React.JSX.Element | null {
+  if (!error) return null;
+  return (
+    <p
+      id="timeline-form-error"
+      role="alert"
+      aria-live="assertive"
+      style={{ color: 'var(--accent-rose)', fontSize: '0.8rem', marginTop: '4px' }}
+    >
+      {error}
+    </p>
+  );
+}
+
 function TimelineTitleInput({
   title,
   setTitle,
@@ -54,16 +68,7 @@ function TimelineTitleInput({
         aria-describedby={error ? 'timeline-form-error' : undefined}
         required
       />
-      {error && (
-        <p
-          id="timeline-form-error"
-          role="alert"
-          aria-live="assertive"
-          style={{ color: 'var(--accent-rose)', fontSize: '0.8rem', marginTop: '4px' }}
-        >
-          {error}
-        </p>
-      )}
+      <TimelineFormError error={error} />
     </div>
   );
 }

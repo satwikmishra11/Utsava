@@ -21,7 +21,7 @@ function validateStep(
   return null;
 }
 
-export function useOnboardingWizard(onComplete: (data: WizardData) => void, onClose: () => void) {
+function useWizardFormState() {
   const [step, setStep] = useState<number>(1);
   const [eventType, setEventType] = useState<EventType>('wedding');
   const [title, setTitle] = useState('Grand Wedding Celebration');
@@ -34,50 +34,11 @@ export function useOnboardingWizard(onComplete: (data: WizardData) => void, onCl
   const [dietary, setDietary] = useState<string[]>(['Vegetarian']);
   const [accessibility, setAccessibility] = useState<string[]>(['Wheelchair Ramp']);
   const [error, setError] = useState<string>('');
-
-  const submitFinal = () => {
-    onComplete({
-      eventType,
-      title: title.trim(),
-      date,
-      location: location.trim(),
-      guestCount: Number(guestCount),
-      totalBudget: Number(totalBudget),
-      currency,
-      culture: culture.trim(),
-      dietary,
-      accessibilityNeeds: accessibility,
-    });
-    onClose();
-  };
-
-  const handleNext = () => {
-    const err = validateStep(step, title, date, guestCount, totalBudget);
-    if (err) {
-      setError(err);
-      return;
-    }
-    setError('');
-    if (step < 5) setStep((s) => s + 1);
-    else submitFinal();
-  };
-
-  const handleEventTypeChange = (t: EventType) => {
-    setEventType(t);
-    setTitle(
-      t === 'wedding'
-        ? 'Grand Wedding Celebration'
-        : t === 'birthday'
-          ? 'Birthday Milestone Bash'
-          : 'Annual Community Festival'
-    );
-  };
-
   return {
     step,
     setStep,
     eventType,
-    handleEventTypeChange,
+    setEventType,
     title,
     setTitle,
     date,
@@ -97,7 +58,57 @@ export function useOnboardingWizard(onComplete: (data: WizardData) => void, onCl
     accessibility,
     setAccessibility,
     error,
+    setError,
+  };
+}
+
+function buildWizardData(state: ReturnType<typeof useWizardFormState>): WizardData {
+  return {
+    eventType: state.eventType,
+    title: state.title.trim(),
+    date: state.date,
+    location: state.location.trim(),
+    guestCount: Number(state.guestCount),
+    totalBudget: Number(state.totalBudget),
+    currency: state.currency,
+    culture: state.culture.trim(),
+    dietary: state.dietary,
+    accessibilityNeeds: state.accessibility,
+  };
+}
+
+const DEFAULT_TITLES: Record<EventType, string> = {
+  wedding: 'Grand Wedding Celebration',
+  birthday: 'Birthday Milestone Bash',
+  community: 'Annual Community Festival',
+};
+
+export function useOnboardingWizard(onComplete: (data: WizardData) => void, onClose: () => void) {
+  const s = useWizardFormState();
+
+  const handleNext = () => {
+    const err = validateStep(s.step, s.title, s.date, s.guestCount, s.totalBudget);
+    if (err) {
+      s.setError(err);
+      return;
+    }
+    s.setError('');
+    if (s.step < 5) s.setStep((step) => step + 1);
+    else {
+      onComplete(buildWizardData(s));
+      onClose();
+    }
+  };
+
+  const handleEventTypeChange = (t: EventType) => {
+    s.setEventType(t);
+    s.setTitle(DEFAULT_TITLES[t]);
+  };
+
+  return {
+    ...s,
     handleNext,
-    handleBack: () => setStep((s) => s - 1),
+    handleBack: () => s.setStep((step) => step - 1),
+    handleEventTypeChange,
   };
 }

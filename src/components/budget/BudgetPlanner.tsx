@@ -104,27 +104,23 @@ function BudgetItemsView({
   );
 }
 
-export function BudgetPlanner(props: BudgetPlannerProps): React.JSX.Element {
-  const {
-    totalBudget,
-    currency,
-    items,
-    onAddItem,
-    onRemoveItem,
-    onUpdateStatus,
-    onRegenerateAI,
-    isLoadingAI = false,
-    overspendAnalysis,
-  } = props;
-  const summary = calculateBudgetSummary(totalBudget, items);
-  const isOver = overspendAnalysis?.isOverspent ?? summary.isOverBudget;
-  const hasSuggestions = Boolean(
-    props.pendingSuggestions?.length && props.onAcceptSuggestions && props.onDismissSuggestions
-  );
-
+function BudgetPlannerOverview({
+  totalBudget,
+  summary,
+  items,
+  currency,
+  isOver,
+  overspendAnalysis,
+}: {
+  readonly totalBudget: number;
+  readonly summary: ReturnType<typeof calculateBudgetSummary>;
+  readonly items: readonly BudgetItem[];
+  readonly currency: string;
+  readonly isOver: boolean;
+  readonly overspendAnalysis?: OverspendAnalysis;
+}): React.JSX.Element {
   return (
-    <section id="panel-budget" role="tabpanel" aria-labelledby="tab-budget" className="card">
-      <BudgetPlannerHeader onRegenerateAI={onRegenerateAI} isLoadingAI={isLoadingAI} />
+    <>
       <BudgetSummaryKpis
         total={totalBudget}
         actual={summary.totalActual}
@@ -140,8 +136,31 @@ export function BudgetPlanner(props: BudgetPlannerProps): React.JSX.Element {
         overspendAnalysis={overspendAnalysis}
         totalActual={summary.totalActual}
       />
+    </>
+  );
+}
+
+export function BudgetPlanner(props: BudgetPlannerProps): React.JSX.Element {
+  const { totalBudget, currency, items, onAddItem } = props;
+  const summary = calculateBudgetSummary(totalBudget, items);
+  const isOver = props.overspendAnalysis?.isOverspent ?? summary.isOverBudget;
+  const hasSuggestions = Boolean(
+    props.pendingSuggestions?.length && props.onAcceptSuggestions && props.onDismissSuggestions
+  );
+
+  return (
+    <section id="panel-budget" role="tabpanel" aria-labelledby="tab-budget" className="card">
+      <BudgetPlannerHeader onRegenerateAI={props.onRegenerateAI} isLoadingAI={props.isLoadingAI} />
+      <BudgetPlannerOverview
+        totalBudget={totalBudget}
+        summary={summary}
+        items={items}
+        currency={currency}
+        isOver={isOver}
+        overspendAnalysis={props.overspendAnalysis}
+      />
       <BudgetPlannerAlerts
-        isLoadingAI={isLoadingAI}
+        isLoadingAI={props.isLoadingAI ?? false}
         hasSuggestions={hasSuggestions}
         suggestions={props.pendingSuggestions}
         currency={currency}
@@ -152,9 +171,9 @@ export function BudgetPlanner(props: BudgetPlannerProps): React.JSX.Element {
       <BudgetItemsView
         items={items}
         currency={currency}
-        onUpdateStatus={onUpdateStatus}
-        onRemoveItem={onRemoveItem}
-        onRegenerateAI={onRegenerateAI}
+        onUpdateStatus={props.onUpdateStatus}
+        onRemoveItem={props.onRemoveItem}
+        onRegenerateAI={props.onRegenerateAI}
       />
     </section>
   );

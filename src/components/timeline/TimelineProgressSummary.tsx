@@ -17,6 +17,31 @@ const ORDERED_PHASES: readonly TimelinePhase[] = [
   'teardown',
 ];
 
+const PROGRESS_TRACK_STYLE: React.CSSProperties = {
+  height: '10px',
+  width: '100%',
+  background: 'var(--bg-surface)',
+  borderRadius: '5px',
+  overflow: 'hidden',
+  marginBottom: '12px',
+};
+
+const PHASE_GRID_STYLE: React.CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+  gap: '8px',
+};
+
+const SUMMARY_CARD_STYLE: React.CSSProperties = {
+  background: 'var(--bg-secondary)',
+  border: '1px solid var(--border-subtle)',
+  borderRadius: 'var(--radius-sm)',
+  padding: '16px',
+  marginBottom: '20px',
+};
+
+const TABLE_HEADER_COLS = ['Phase', 'Completed', 'Total', 'Status'];
+
 function calculatePhaseCounts(items: readonly TimelineItem[]): Record<TimelinePhase, PhaseStats> {
   return items.reduce<Record<TimelinePhase, PhaseStats>>(
     (acc, it) => {
@@ -77,16 +102,7 @@ function TimelineProgressChart({
       role="img"
       aria-label={`Timeline Progress Bar: ${completed} of ${total} milestones completed (${pct}%). Data table available via toggle.`}
     >
-      <div
-        style={{
-          height: '10px',
-          width: '100%',
-          background: 'var(--bg-surface)',
-          borderRadius: '5px',
-          overflow: 'hidden',
-          marginBottom: '12px',
-        }}
-      >
+      <div style={PROGRESS_TRACK_STYLE}>
         <div
           style={{
             height: '100%',
@@ -96,13 +112,7 @@ function TimelineProgressChart({
           }}
         />
       </div>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-          gap: '8px',
-        }}
-      >
+      <div style={PHASE_GRID_STYLE}>
         {ORDERED_PHASES.map((ph) => {
           const data = phaseCounts[ph] ?? { total: 0, done: 0 };
           return <PhaseMiniCard key={ph} phase={ph} done={data.done} total={data.total} />;
@@ -134,6 +144,22 @@ function TimelinePhaseRow({
   );
 }
 
+function TimelineProgressTableHead(): React.JSX.Element {
+  return (
+    <thead>
+      <tr
+        style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
+      >
+        {TABLE_HEADER_COLS.map((col) => (
+          <th key={col} scope="col" style={{ padding: '6px 8px' }}>
+            {col}
+          </th>
+        ))}
+      </tr>
+    </thead>
+  );
+}
+
 function TimelineProgressTable({
   phaseCounts,
 }: {
@@ -150,27 +176,7 @@ function TimelineProgressTable({
         }}
       >
         <caption className="sr-only">Milestone Phase Completion Breakdown</caption>
-        <thead>
-          <tr
-            style={{
-              borderBottom: '1px solid var(--border-subtle)',
-              color: 'var(--text-secondary)',
-            }}
-          >
-            <th scope="col" style={{ padding: '6px 8px' }}>
-              Phase
-            </th>
-            <th scope="col" style={{ padding: '6px 8px' }}>
-              Completed
-            </th>
-            <th scope="col" style={{ padding: '6px 8px' }}>
-              Total
-            </th>
-            <th scope="col" style={{ padding: '6px 8px' }}>
-              Status
-            </th>
-          </tr>
-        </thead>
+        <TimelineProgressTableHead />
         <tbody>
           {ORDERED_PHASES.map((ph) => {
             const data = phaseCounts[ph] ?? { total: 0, done: 0 };
@@ -233,15 +239,7 @@ export function TimelineProgressSummary({
   const phaseCounts = calculatePhaseCounts(items);
 
   return (
-    <div
-      style={{
-        background: 'var(--bg-secondary)',
-        border: '1px solid var(--border-subtle)',
-        borderRadius: 'var(--radius-sm)',
-        padding: '16px',
-        marginBottom: '20px',
-      }}
-    >
+    <div style={SUMMARY_CARD_STYLE}>
       <TimelineProgressHeader
         completed={completed}
         total={total}

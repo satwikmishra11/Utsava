@@ -9,6 +9,42 @@ export interface ChatInputFormProps {
   readonly onStop: () => void;
 }
 
+function ChatSubmitButton({
+  isStreaming,
+  canSend,
+  onStop,
+}: {
+  readonly isStreaming: boolean;
+  readonly canSend: boolean;
+  readonly onStop: () => void;
+}): React.JSX.Element {
+  if (isStreaming) {
+    return (
+      <button
+        type="button"
+        onClick={onStop}
+        className="btn btn-secondary"
+        id="btn-chat-stop"
+        aria-label="Stop generating response"
+      >
+        <Square size={16} aria-hidden="true" />
+        <span>Stop generating</span>
+      </button>
+    );
+  }
+  return (
+    <button
+      type="submit"
+      disabled={!canSend}
+      className="btn btn-primary"
+      id="btn-chat-send"
+      aria-label="Send message"
+    >
+      <Send size={18} aria-hidden="true" />
+    </button>
+  );
+}
+
 export function ChatInputForm({
   input,
   isStreaming,
@@ -30,28 +66,7 @@ export function ChatInputForm({
         disabled={isStreaming}
         style={{ flex: 1 }}
       />
-      {isStreaming ? (
-        <button
-          type="button"
-          onClick={onStop}
-          className="btn btn-secondary"
-          id="btn-chat-stop"
-          aria-label="Stop generating response"
-        >
-          <Square size={16} aria-hidden="true" />
-          <span>Stop generating</span>
-        </button>
-      ) : (
-        <button
-          type="submit"
-          disabled={!input.trim()}
-          className="btn btn-primary"
-          id="btn-chat-send"
-          aria-label="Send message"
-        >
-          <Send size={18} aria-hidden="true" />
-        </button>
-      )}
+      <ChatSubmitButton isStreaming={isStreaming} canSend={Boolean(input.trim())} onStop={onStop} />
     </form>
   );
 }
