@@ -1,32 +1,19 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { EventPlan, PlanAction } from '@/domain/types';
-import { useChatStream, ChatHeader, ChatMessageBubble, ChatInputForm } from './chat';
+import { useChatStream, ChatHeader, ChatMessageList, ChatInputForm } from './chat';
 
 export interface ChatAssistantProps {
   readonly plan: EventPlan;
   readonly onApplyPlanAction: (
-    type: PlanAction['actionType'],
+    actionType: PlanAction['actionType'],
     payload: Record<string, unknown>
   ) => void;
 }
 
 export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): React.JSX.Element {
-  const {
-    messages,
-    input,
-    setInput,
-    isStreaming,
-    liveAnnouncement,
-    handleSubmit,
-    handleStopGenerating,
-    handleApplyProposal,
-  } = useChatStream(plan, onApplyPlanAction);
-  const endRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  const chat = useChatStream(plan, onApplyPlanAction);
 
   return (
     <section
@@ -43,35 +30,20 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
         aria-atomic="true"
         className="sr-only"
       >
-        {liveAnnouncement}
+        {chat.liveAnnouncement}
       </div>
       <ChatHeader />
-      <div
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '16px',
-          paddingRight: '8px',
-        }}
-      >
-        {messages.map((m) => (
-          <ChatMessageBubble
-            key={m.id}
-            message={m}
-            isStreaming={isStreaming && !m.content}
-            onApply={handleApplyProposal}
-          />
-        ))}
-        <div ref={endRef} />
-      </div>
+      <ChatMessageList
+        messages={chat.messages}
+        isStreaming={chat.isStreaming}
+        onApply={chat.handleApplyProposal}
+      />
       <ChatInputForm
-        input={input}
-        isStreaming={isStreaming}
-        onInputChange={setInput}
-        onSubmit={handleSubmit}
-        onStop={handleStopGenerating}
+        input={chat.input}
+        isStreaming={chat.isStreaming}
+        onInputChange={chat.setInput}
+        onSubmit={chat.handleSubmit}
+        onStop={chat.handleStopGenerating}
       />
     </section>
   );
