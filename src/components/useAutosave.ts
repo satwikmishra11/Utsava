@@ -5,6 +5,12 @@ import { EventPlan } from '@/domain/types';
 
 export type SaveStatus = 'saved' | 'saving' | 'unsaved' | 'error';
 
+export interface UseAutosaveResult {
+  saveStatus: SaveStatus;
+  lastSavedAt: string | null;
+  forceSave: () => void;
+}
+
 function savePlanToStorage(targetPlan: EventPlan): boolean {
   try {
     if (typeof window !== 'undefined' && window.localStorage) {
@@ -17,14 +23,7 @@ function savePlanToStorage(targetPlan: EventPlan): boolean {
   }
 }
 
-export function useDebouncedAutosave(
-  plan: EventPlan,
-  delayMs: number = 600
-): {
-  saveStatus: SaveStatus;
-  lastSavedAt: string | null;
-  forceSave: () => void;
-} {
+export function useDebouncedAutosave(plan: EventPlan, delayMs: number = 600): UseAutosaveResult {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved');
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const isInitialMount = useRef(true);

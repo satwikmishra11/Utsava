@@ -24,6 +24,22 @@ function getNextTabIndex(key: string, index: number, total: number): number | nu
   return null;
 }
 
+function getTabButtonStyle(isActive: boolean): React.CSSProperties {
+  return {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '10px 16px',
+    borderRadius: 'var(--radius-sm)',
+    border: isActive ? '1px solid var(--accent-gold)' : '1px solid var(--border-subtle)',
+    background: isActive ? 'var(--bg-surface-elevated)' : 'transparent',
+    color: isActive ? 'var(--accent-gold)' : 'var(--text-secondary)',
+    fontWeight: isActive ? 700 : 500,
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
+  };
+}
+
 function TabButton<T extends string>({
   tab,
   isActive,
@@ -45,19 +61,7 @@ function TabButton<T extends string>({
       onClick={onSelect}
       onKeyDown={onKeyDown}
       className={`tab-btn ${isActive ? 'active' : ''}`}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '8px',
-        padding: '10px 16px',
-        borderRadius: 'var(--radius-sm)',
-        border: isActive ? '1px solid var(--accent-gold)' : '1px solid var(--border-subtle)',
-        background: isActive ? 'var(--bg-surface-elevated)' : 'transparent',
-        color: isActive ? 'var(--accent-gold)' : 'var(--text-secondary)',
-        fontWeight: isActive ? 700 : 500,
-        cursor: 'pointer',
-        whiteSpace: 'nowrap',
-      }}
+      style={getTabButtonStyle(isActive)}
     >
       {tab.icon}
       <span>{tab.label}</span>
