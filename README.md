@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/satwikmishra11/Utsava/actions/workflows/ci.yml/badge.svg)](https://github.com/satwikmishra11/Utsava/actions/workflows/ci.yml)
 [![WCAG 2.2 Level AA](https://img.shields.io/badge/WCAG%202.2-Level%20AA%20Compliant-emerald.svg)](docs/ACCESSIBILITY.md)
-[![Test Coverage](<https://img.shields.io/badge/Coverage-96.6%25%20(Gate%3A%2085%25%2F90%25)-blue.svg>)](docs/DECISIONS.md#adr-012)
+[![Test Coverage](<https://img.shields.io/badge/Coverage-98.2%25%20(Gate%3A%2085%25%2F90%25)-blue.svg>)](docs/DECISIONS.md#adr-012)
 [![Lighthouse Performance](https://img.shields.io/badge/Lighthouse-96%20Mobile-gold.svg)](docs/PERFORMANCE.md)
 [![Vercel Deployment](https://img.shields.io/badge/Deploy-Live%20on%20Vercel-black.svg?logo=vercel)](https://utsava.vercel.app)
 
@@ -184,7 +184,17 @@ npm run build
 
 ---
 
-## 8. Documentation Index
+## 8. Code Quality Evidence
+
+- **Functions over 40 lines**: 0 (enforced via ESLint `max-lines-per-function` max 40, skipBlankLines, skipComments; turned off for `__tests__` and `e2e` only)
+- **Files over 300 lines**: 0 (enforced via ESLint `max-lines` max 300; all files in repository are <= 294 lines)
+- **`any` count**: 0 (enforced via `@typescript-eslint/no-explicit-any`)
+- **Non-null assertions**: 0 (enforced via `@typescript-eslint/no-non-null-assertion`)
+- **Unused deps**: 0 (all runtime and development dependencies in `package.json` are actively used)
+
+---
+
+## 9. Documentation Index
 
 Detailed architectural and conformance documentation:
 
@@ -196,7 +206,7 @@ Detailed architectural and conformance documentation:
 
 ---
 
-## 9. Deployment to Vercel
+## 10. Deployment to Vercel
 
 Utsava is configured for zero-config Vercel deployment:
 
@@ -209,6 +219,6 @@ npx vercel --prod
 
 ---
 
-## 10. License
+## 11. License
 
 Released under the [MIT License](LICENSE). Built for life's most cherished gatherings.

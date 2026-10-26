@@ -18,14 +18,8 @@ const eslintConfig = [
   {
     rules: {
       '@next/next/no-html-link-for-pages': 'off',
-      'max-lines-per-function': [
-        'error',
-        { max: 40, skipBlankLines: true, skipComments: true },
-      ],
-      'max-lines': [
-        'error',
-        { max: 300, skipBlankLines: true, skipComments: true },
-      ],
+      'max-lines-per-function': ['error', { max: 40, skipBlankLines: true, skipComments: true }],
+      'max-lines': ['error', { max: 300, skipBlankLines: true, skipComments: true }],
       complexity: ['error', 10],
       '@typescript-eslint/no-non-null-assertion': 'error',
       '@typescript-eslint/no-explicit-any': 'error',

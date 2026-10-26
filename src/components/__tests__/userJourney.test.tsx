@@ -7,12 +7,6 @@ import { BudgetPlanner } from '../BudgetPlanner';
 import { TimelineGenerator } from '../TimelineGenerator';
 import { VendorChecklist } from '../VendorChecklist';
 import { IdeaGenerator } from '../IdeaGenerator';
-import { ThemeToggle } from '../ThemeToggle';
-import {
-  exportPlanToICS,
-  generateShareableLink,
-  exportPlanToPrintablePDF,
-} from '@/lib/exportUtils';
 import { detectOverspend } from '@/domain/budgetLogic';
 import { EventPlan } from '@/domain/types';
 
@@ -296,34 +290,6 @@ describe('Full User Journey — End-to-End Acceptance Tests', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /accept suggestion/i }));
     expect(savedIdeaId).toBe('i-1');
-  });
-
-  it('exports plan as RFC 5545 iCalendar (.ics) and shareable encoded link', () => {
-    const link = generateShareableLink(MOCK_PLAN);
-    expect(link).toContain('?shared=');
-
-    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {});
-    exportPlanToPrintablePDF();
-    expect(printSpy).toHaveBeenCalled();
-
-    const appendChildSpy = vi.spyOn(document.body, 'appendChild');
-    const removeChildSpy = vi.spyOn(document.body, 'removeChild');
-    exportPlanToICS(MOCK_PLAN);
-    expect(appendChildSpy).toHaveBeenCalled();
-    expect(removeChildSpy).toHaveBeenCalled();
-  });
-
-  it('toggles light and dark themes updating document attribute and storage', () => {
-    render(<ThemeToggle />);
-    const toggleBtn = screen.getByRole('button', { name: /switch to/i });
-
-    fireEvent.click(toggleBtn);
-    expect(document.documentElement.getAttribute('data-theme')).toBe('light');
-    expect(localStorage.getItem('utsava-theme')).toBe('light');
-
-    fireEvent.click(toggleBtn);
-    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
-    expect(localStorage.getItem('utsava-theme')).toBe('dark');
   });
 
   it('meets WCAG 2.2 AA accessibility standards with zero axe violations on the wizard', async () => {

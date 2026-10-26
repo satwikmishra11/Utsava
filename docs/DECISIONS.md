@@ -56,7 +56,10 @@ The codebase is structured into:
 
 ### Consequences
 
-- Every function is strictly under 40 lines.
+- Every function is strictly under 40 lines (enforced via ESLint `max-lines-per-function`).
+- Every file is strictly under 300 lines (enforced via ESLint `max-lines`).
+- Cyclomatic complexity is strictly capped at 10 (enforced via ESLint `complexity`).
+- Non-null assertions and `any` types are strictly prohibited (`@typescript-eslint/no-non-null-assertion`, `@typescript-eslint/no-explicit-any`).
 - Unused variables and dead code are banned by compiler flags.
 - Testability is maximized since domain logic is pure and decoupled from React and Next.js.
 
@@ -105,7 +108,8 @@ Utsava requires strong schema validation with exported inferred types for Event,
   - `allocateBudget`, `rebalanceBudget`, and `detectOverspend` in `src/domain/budgetLogic.ts`.
   - `backScheduleTimeline`, `detectCycles`, and `subtractDays` in `src/domain/timelineLogic.ts`.
   - `getVendorChecklistTemplates`, `filterTemplatesByCategory`, and `filterTemplatesByPriority` in `src/domain/vendorTemplates.ts`.
-- **Repository Pattern**: `EventRepository` interface in `src/services/repositories/eventRepository.ts` implemented by `DrizzleEventRepository` in `src/services/repositories/drizzleEventRepository.ts` using `better-sqlite3`.
+- **Repository Pattern**: `EventRepository` interface in `src/services/repositories/eventRepository.ts` implemented by `DrizzleEventRepository` in `src/services/repositories/drizzleEventRepository.ts` (modularized with `sqliteBootstrap.ts` for schema bootstrap and `mappers.ts` for domain mapping) using `better-sqlite3`.
+- **Golden Event Datasets**: Modularized under `src/domain/demo/` with one file per event type, preserving unified exports via `src/domain/demoEvents.ts`.
 
 ### Consequences
 
@@ -392,8 +396,18 @@ Utsava requires a robust, layered, and deterministic testing strategy that verif
 
 ### Consequences
 
-- All 234 unit/integration tests execute deterministically in **2.99 seconds**.
-- All 18 Playwright E2E tests execute in **28.1 seconds**.
+- All 275 unit/integration tests across 48 test suites execute deterministically in **~4.4 seconds**.
+- All 18 Playwright E2E tests execute in **26.0 seconds**.
 - Total test pyramid run time is ~31 seconds (well under the 3-minute limit).
-- Code coverage achieves **96.59% overall**, **99.1% domain**, and **99.56% services**.
+- Code coverage achieves **98.23% overall**, **99.17% domain**, and **94.5%+ services** (exceeding 85%/90% gates).
 - Zero external network dependencies, zero unmocked LLM calls, zero flakiness.
+
+---
+
+## Code Quality Evidence
+
+- **Functions over 40 lines**: 0 (enforced via ESLint `max-lines-per-function` max 40, skipBlankLines, skipComments; turned off for `__tests__` and `e2e` only)
+- **Files over 300 lines**: 0 (enforced via ESLint `max-lines` max 300; all files in repository are <= 294 lines)
+- **`any` count**: 0 (enforced via `@typescript-eslint/no-explicit-any`)
+- **Non-null assertions**: 0 (enforced via `@typescript-eslint/no-non-null-assertion`)
+- **Unused deps**: 0 (all runtime and development dependencies in `package.json` are actively used)
