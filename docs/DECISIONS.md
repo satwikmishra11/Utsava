@@ -396,10 +396,10 @@ Utsava requires a robust, layered, and deterministic testing strategy that verif
 
 ### Consequences
 
-- All 289 unit/integration tests across 50 test suites execute deterministically in **~3.6 seconds**.
-- All 18 Playwright E2E tests execute in **28.7 seconds**.
-- Total test pyramid run time is ~32 seconds (well under the 3-minute limit).
-- Code coverage achieves **98.29% overall**, **99.29% domain**, and **94.65%+ services** (exceeding 85%/90% gates).
+- All 304 unit/integration tests across 51 test suites execute deterministically in **~4.4 seconds**.
+- All 18 Playwright E2E tests execute in **28.8 seconds**.
+- Total test pyramid run time is ~33 seconds (well under the 3-minute limit).
+- Code coverage achieves **98.35% overall**, **99.4% domain**, and **94.34%+ services** (exceeding 85%/90% gates).
 - Zero external network dependencies, zero unmocked LLM calls, zero flakiness.
 
 ---

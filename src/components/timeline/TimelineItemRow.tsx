@@ -1,6 +1,6 @@
 import React from 'react';
 import { TimelineItem } from '@/domain/types';
-import { CheckSquare, Square } from 'lucide-react';
+import { CheckSquare, Square, Zap, AlertCircle } from 'lucide-react';
 
 export interface TimelineItemRowProps {
   readonly item: TimelineItem;
@@ -31,6 +31,29 @@ function MilestoneToggleButton({
   );
 }
 
+function TimelineTaskFlags({ item }: { readonly item: TimelineItem }): React.JSX.Element | null {
+  const isCompressed = item.isCompressed || item.flags?.includes('compressed');
+  const isOverdue = item.isOverdue || item.flags?.includes('overdue');
+  if (!isCompressed && !isOverdue) return null;
+
+  return (
+    <div className="timeline-flags-group">
+      {isCompressed && (
+        <span id={`timeline-flag-compressed-${item.id}`} className="badge badge-compressed">
+          <Zap size={12} aria-hidden="true" />
+          <span>Compressed</span>
+        </span>
+      )}
+      {isOverdue && (
+        <span id={`timeline-flag-overdue-${item.id}`} className="badge badge-overdue">
+          <AlertCircle size={12} aria-hidden="true" />
+          <span>Overdue</span>
+        </span>
+      )}
+    </div>
+  );
+}
+
 export function TimelineItemRow({ item, onToggle }: TimelineItemRowProps): React.JSX.Element {
   const rowClass = `timeline-item-row ${item.completed ? 'timeline-item-completed' : ''}`.trim();
   return (
@@ -46,6 +69,7 @@ export function TimelineItemRow({ item, onToggle }: TimelineItemRowProps): React
           <div className="timeline-item-meta">
             <span className="badge badge-gold">{item.phase}</span>
             <span className="timeline-item-duration">{item.durationMinutes} mins</span>
+            <TimelineTaskFlags item={item} />
           </div>
         </div>
       </div>

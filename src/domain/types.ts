@@ -48,6 +48,9 @@ export interface TimelineItem {
   readonly completed: boolean;
   readonly assignedTo?: string;
   readonly notes?: string;
+  readonly flags?: readonly ('compressed' | 'overdue')[];
+  readonly isCompressed?: boolean;
+  readonly isOverdue?: boolean;
 }
 
 export interface VendorItem {

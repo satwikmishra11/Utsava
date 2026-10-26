@@ -54,6 +54,9 @@ export const GeneratedTimelineTaskSchema = z.object({
   assignee: z.string().max(100).optional(),
   dueDate: z.string().optional(),
   status: TimelineTaskStatusSchema.default('pending'),
+  flags: z.array(z.enum(['compressed', 'overdue'])).optional(),
+  isCompressed: z.boolean().optional(),
+  isOverdue: z.boolean().optional(),
 });
 export const GeneratedTimelineSchema = z.object({
   tasks: z.array(GeneratedTimelineTaskSchema).min(1),

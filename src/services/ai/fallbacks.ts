@@ -1,6 +1,6 @@
 import { BudgetCategory } from '@/domain/schemas';
 import { adviseBudgetSplit } from '@/domain/budgetAdvisor';
-import { backScheduleTimeline, TaskTemplate } from '@/domain/timelineLogic';
+import { planTimeline, DEFAULT_TIMELINE_TEMPLATES } from '@/domain/timelineLogic';
 import { getVendorChecklistTemplates } from '@/domain/vendorTemplates';
 import { buildMockIdeas } from '../llm/mockData';
 import {
@@ -11,44 +11,6 @@ import {
   GeneratedIdeas,
 } from './types';
 import { DEFAULT_FALLBACK_BUDGET } from '@/lib/constants';
-
-const DEFAULT_TIMELINE_TEMPLATES: readonly TaskTemplate[] = [
-  {
-    id: 't-1',
-    title: 'Secure Event Venue',
-    category: 'venue',
-    daysBeforeEvent: 180,
-    dependsOn: [],
-  },
-  {
-    id: 't-2',
-    title: 'Confirm Catering Menu',
-    category: 'catering',
-    daysBeforeEvent: 90,
-    dependsOn: ['t-1'],
-  },
-  {
-    id: 't-3',
-    title: 'Contract Photographer',
-    category: 'photography',
-    daysBeforeEvent: 60,
-    dependsOn: ['t-1'],
-  },
-  {
-    id: 't-4',
-    title: 'Finalize Decor & Theme',
-    category: 'decor',
-    daysBeforeEvent: 30,
-    dependsOn: ['t-1'],
-  },
-  {
-    id: 't-5',
-    title: 'Send Guest RSVPs',
-    category: 'logistics',
-    daysBeforeEvent: 14,
-    dependsOn: ['t-2'],
-  },
-];
 
 export function computeDaysUntilEvent(eventDate?: string, todayStr?: string): number | undefined {
   if (!eventDate) return undefined;
@@ -98,11 +60,15 @@ export function buildFallbackBudgetPlan(
   };
 }
 
-export function buildFallbackTimeline(context: PersonalizationContext): GeneratedTimeline {
+export function buildFallbackTimeline(
+  context: PersonalizationContext,
+  todayStr?: string
+): GeneratedTimeline {
   const eventDate = context.eventDate ?? '2026-12-31';
-  const scheduled = backScheduleTimeline(eventDate, DEFAULT_TIMELINE_TEMPLATES);
+  const today = todayStr ?? new Date().toISOString().slice(0, 10);
+  const planned = planTimeline(eventDate, DEFAULT_TIMELINE_TEMPLATES, today);
   return {
-    tasks: scheduled.map((s) => ({
+    tasks: planned.tasks.map((s) => ({
       id: s.id,
       title: s.title,
       category: s.category,
@@ -110,6 +76,9 @@ export function buildFallbackTimeline(context: PersonalizationContext): Generate
       dependsOn: [...s.dependsOn],
       dueDate: s.dueDate,
       status: 'pending',
+      flags: [...s.flags],
+      isCompressed: s.isCompressed,
+      isOverdue: s.isOverdue,
     })),
   };
 }

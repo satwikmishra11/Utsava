@@ -74,4 +74,17 @@ describe('AI Fallbacks Engine (src/services/ai/fallbacks.ts)', () => {
     const ideas = buildFallbackIdeas(context);
     expect(ideas.ideas.length).toBeGreaterThan(0);
   });
+
+  it('builds context-aware fallback timeline with compressed flags when event is imminent', () => {
+    const context: PersonalizationContext = {
+      eventType: 'wedding',
+      guestCount: 200,
+      eventDate: '2026-11-16', // 21 days from today
+    };
+
+    const timeline = buildFallbackTimeline(context, '2026-10-26');
+    expect(timeline.tasks.length).toBe(5);
+    expect(timeline.tasks[0]?.flags).toContain('compressed');
+    expect(timeline.tasks[0]?.isCompressed).toBe(true);
+  });
 });

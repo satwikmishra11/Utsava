@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { subtractDays, detectCycles, backScheduleTimeline, TaskTemplate } from '../timelineLogic';
+import {
+  subtractDays,
+  detectCycles,
+  backScheduleTimeline,
+  planTimeline,
+  computeDaysBetween,
+  TaskTemplate,
+  DEFAULT_TIMELINE_TEMPLATES,
+} from '../timelineLogic';
 
 describe('Timeline Logic Pure Functions', () => {
   it('accurately subtracts days across month and year boundaries', () => {
@@ -160,6 +168,111 @@ describe('Timeline Logic Pure Functions', () => {
     ];
     expect(() => backScheduleTimeline('2026-12-01', tasks)).toThrowError(
       /Referenced task ID not found/
+    );
+  });
+});
+
+describe('planTimeline Context-Aware Scheduler', () => {
+  const sampleTemplates: readonly TaskTemplate[] = [
+    {
+      id: 'venue',
+      title: 'Book Venue',
+      category: 'venue',
+      daysBeforeEvent: 60,
+      dependsOn: [],
+    },
+    {
+      id: 'catering',
+      title: 'Confirm Menu',
+      category: 'catering',
+      daysBeforeEvent: 30,
+      dependsOn: ['venue'],
+    },
+    {
+      id: 'invites',
+      title: 'Send RSVPs',
+      category: 'logistics',
+      daysBeforeEvent: 14,
+      dependsOn: ['catering'],
+    },
+  ];
+
+  it('calculates days between dates correctly', () => {
+    expect(computeDaysBetween('2026-11-16', '2026-10-26')).toBe(21);
+    expect(computeDaysBetween('2026-10-26', '2026-10-26')).toBe(0);
+  });
+
+  it('compresses lead times proportionally when longest lead exceeds days remaining', () => {
+    const today = '2026-10-26';
+    const eventDate = '2026-11-16'; // 21 days away, max lead = 60 -> ratio = 21/60 = 0.35 (35%)
+
+    const result = planTimeline(eventDate, sampleTemplates, today);
+
+    expect(result.reasons).toContain('Event is 21 days away: lead times compressed to 35%');
+    expect(result.tasks).toHaveLength(3);
+
+    const venue = result.tasks[0];
+    const catering = result.tasks[1];
+    const invites = result.tasks[2];
+
+    expect(venue && venue.flags.includes('compressed')).toBe(true);
+    expect(catering && catering.flags.includes('compressed')).toBe(true);
+    expect(invites && invites.flags.includes('compressed')).toBe(true);
+
+    if (venue && catering && invites) {
+      expect(venue.dueDate.localeCompare(catering.dueDate)).toBeLessThanOrEqual(0);
+      expect(catering.dueDate.localeCompare(invites.dueDate)).toBeLessThanOrEqual(0);
+    }
+  });
+
+  it('marks tasks due before today as overdue', () => {
+    const today = '2026-10-26';
+    const fitTemplates: readonly TaskTemplate[] = [
+      {
+        id: 'task-past',
+        title: 'Past Task',
+        category: 'venue',
+        daysBeforeEvent: 10,
+        dependsOn: [],
+      },
+    ];
+
+    const pastResult = planTimeline('2026-10-20', fitTemplates, today);
+    const firstTask = pastResult.tasks[0];
+    expect(firstTask && firstTask.flags.includes('overdue')).toBe(true);
+    expect(firstTask && firstTask.isOverdue).toBe(true);
+    expect(pastResult.reasons.some((r) => r.includes('due before today marked as overdue'))).toBe(
+      true
+    );
+  });
+
+  it('schedules without compression when lead times fit within the window', () => {
+    const today = '2026-01-01';
+    const eventDate = '2026-12-01'; // 334 days away, max lead = 180
+
+    const result = planTimeline(eventDate, DEFAULT_TIMELINE_TEMPLATES, today);
+
+    expect(result.reasons).toEqual([]);
+    expect(result.tasks.every((t) => !t.flags.includes('compressed'))).toBe(true);
+    expect(result.tasks.every((t) => !t.flags.includes('overdue'))).toBe(true);
+  });
+
+  it('rejects malformed date strings', () => {
+    expect(() => planTimeline('invalid', sampleTemplates, '2026-10-26')).toThrowError(
+      /Invalid date format/
+    );
+    expect(() => planTimeline('2026-10-26', sampleTemplates, 'invalid')).toThrowError(
+      /Invalid date format/
+    );
+  });
+
+  it('rejects cyclic task templates', () => {
+    const cycleTasks: TaskTemplate[] = [
+      { id: 'c1', title: 'C1', category: 'decor', daysBeforeEvent: 20, dependsOn: ['c2'] },
+      { id: 'c2', title: 'C2', category: 'decor', daysBeforeEvent: 10, dependsOn: ['c1'] },
+    ];
+    expect(() => planTimeline('2026-11-20', cycleTasks, '2026-10-26')).toThrowError(
+      /Cyclic dependency detected/
     );
   });
 });

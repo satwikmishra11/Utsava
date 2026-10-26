@@ -264,6 +264,37 @@ body {
   border: 1px solid var(--accent-rose);
 }
 
+.badge-compressed {
+  background: var(--badge-gold-bg);
+  color: var(--badge-gold-text);
+  border: 1px solid var(--border-accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-overdue {
+  background: var(--badge-rose-bg);
+  color: var(--badge-rose-text);
+  border: 1px solid var(--accent-rose);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.timeline-flags-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.upcoming-task-flags {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
 /* Accessible Input Fields with clear focus outline */
 .input,
 .select {

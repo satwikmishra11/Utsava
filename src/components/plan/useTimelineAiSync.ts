@@ -32,6 +32,9 @@ export function useTimelineAiSync(
       durationMinutes: 60,
       completed: false,
       notes: t.category,
+      flags: t.flags,
+      isCompressed: t.isCompressed,
+      isOverdue: t.isOverdue,
     }));
     setPlan((prev) => ({ ...prev, timelineItems: items }));
     setPending(null);
