@@ -74,21 +74,69 @@ export interface IdeaRecommendation {
   readonly tags: readonly string[];
 }
 
-export type ActionType =
-  | 'add_budget_item'
-  | 'update_budget_item'
-  | 'add_timeline_item'
-  | 'toggle_timeline_item'
-  | 'add_vendor_item'
-  | 'update_vendor_status';
+export interface AddBudgetItemPayload {
+  readonly name: string;
+  readonly category: import('./schemas').BudgetCategory;
+  readonly estimatedCost: number;
+}
 
-export interface ActionProposal {
+export interface AddTimelineItemPayload {
+  readonly title: string;
+  readonly timeframe: string;
+  readonly assignedTo: string;
+}
+
+export interface AddVendorItemPayload {
+  readonly category: import('./schemas').BudgetCategory;
+  readonly role: string;
+  readonly estimatedCost: number;
+}
+
+export interface AddBudgetItemProposal {
   readonly id: string;
-  readonly actionType: ActionType;
+  readonly actionType: 'add_budget_item';
   readonly description: string;
-  readonly payload: Record<string, string | number | boolean>;
+  readonly payload: AddBudgetItemPayload;
   readonly applied: boolean;
 }
+
+export interface AddTimelineItemProposal {
+  readonly id: string;
+  readonly actionType: 'add_timeline_item';
+  readonly description: string;
+  readonly payload: AddTimelineItemPayload;
+  readonly applied: boolean;
+}
+
+export interface AddVendorItemProposal {
+  readonly id: string;
+  readonly actionType: 'add_vendor_item';
+  readonly description: string;
+  readonly payload: AddVendorItemPayload;
+  readonly applied: boolean;
+}
+
+export type ActionProposal =
+  AddBudgetItemProposal | AddTimelineItemProposal | AddVendorItemProposal;
+
+export type PlanAction =
+  | {
+      readonly actionType: 'add_budget_item';
+      readonly payload: AddBudgetItemPayload;
+    }
+  | {
+      readonly actionType: 'add_timeline_item';
+      readonly payload: AddTimelineItemPayload;
+    }
+  | {
+      readonly actionType: 'add_vendor_item';
+      readonly payload: AddVendorItemPayload;
+    };
+
+export type PlanActionType = PlanAction['actionType'];
+
+export type ActionType =
+  PlanActionType | 'update_budget_item' | 'toggle_timeline_item' | 'update_vendor_status';
 
 export interface ChatMessage {
   readonly id: string;
