@@ -19,34 +19,118 @@
 
 ---
 
-## 1. Problem Statement
+## 1. Chosen Verticals and Personas
 
-Event planning is universally recognized as one of the most stressful life experiences. Planners face four chronic breakdowns:
+Utsava is specifically tailored for three high-stakes celebration verticals where generic planning tools (spreadsheets, basic to-do apps) break down:
 
-1. **Cultural Disconnect & Rigid Templates**: Generic project tools (spreadsheets, Trello) are culturally agnostic. They cannot anticipate multi-day Indian wedding rituals (Haldi, Mehendi, Sangeet, Pheras), specific dietary requirements (Jain, Halal, Kosher, nut allergies), or community festival municipal permits.
-2. **Budget Fragmentation & Silent Overspending**: Budgets are rarely balanced mathematically across categories. Planners make early venue commitments that cannibalize entertainment or photography without realization until invoices arrive.
-3. **Timeline Conflicts & Unrealistic Scheduling**: Day-of logistics require reverse-scheduling from key milestone ceremonies while accounting for phase-by-phase dependencies and guest transitions.
-4. **Unreliable "Black Box" AI**: Most generative AI tools spit out unstructured, hallucinated text that cannot be edited or integrated into a real budget or calendar.
-
-### The Utsava Solution
-
-Utsava combines **structured generative AI with human-in-the-loop control**, backed by strict domain models, mathematical rebalancing, automated back-scheduling, and complete WCAG 2.2 AA accessibility.
+| Vertical                              | Target Persona                                                                                                                              | Core Planning Breakdown Solved                                                                                                                                                                                          |
+| :------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 💍 **Indian Weddings**                | **Couples & Multigenerational Families** managing multi-day, high-touch celebrations with diverse dietary rituals and elder accommodations. | Unifies multi-day ritual run of shows (Haldi, Mehendi, Sangeet, Mandap, Bidaai) with percentage-based category splits, elder accessibility (step-free ramp logistics), and multi-diet catering (Jain, Halal, Pure Veg). |
+| 🎂 **Milestone Birthdays**            | **Parents & Hosts** organizing themed, age-appropriate gatherings with sensory and safety considerations.                                   | Paces day-of entertainment schedules with strict allergen tracking (peanut-free, dairy-free), sensory quiet zones, and accessible play spaces while preventing favor/cake budget creep.                                 |
+| 🎪 **Community Events & Fundraisers** | **Committee Organizers & Non-Profit Leads** balancing public venue logistics, permit deadlines, and donor accountability.                   | Coordinates municipal permit lead times, noise variances, stage accessibility (ADA ramps, ASL interpretation), volunteer shifts, and sponsor fundraising targets.                                                       |
 
 ---
 
-## 2. Features per Event Vertical
+## 2. Approach and Decision Logic
 
-Utsava delivers deep, domain-specific capabilities tailored to each celebration type:
+Utsava combines **structured generative AI with pure, deterministic domain logic**. When an AI generation is requested, the system attempts structured extraction through Claude 3.5 Sonnet. If the provider is unavailable, fails validation, or runs in Demo Mode, Utsava executes explainable, pure domain algorithms (`budgetAdvisor` and `planTimeline`) that guarantee valid plans with human-readable rationale.
 
-| Event Vertical                        | Domain-Specific Challenges Solved                                                                        | Key Features in Utsava                                                                                                                                                                                                                                                                                                                                     |
-| :------------------------------------ | :------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 💍 **Indian Weddings**                | Multi-day logistics, complex family roles, dietary customs (Jain, Halal, Pure Veg), elder accessibility. | • Multi-day ritual run of show (Haldi, Mehendi, Baraat, Mandap, Sangeet, Bidaai).<br>• Percentage budget allocations across Palace banquets, catering, and cinematography.<br>• Cultural idea studio: Marigold/brass decor, artisanal thandai bars, and step-free floral mandap ramp designs.<br>• Vendor procurement across booked/shortlisted statuses.  |
-| 🎂 **Milestone Birthdays**            | Age-appropriate entertainment pacing, kid allergen safety, sensory relief accommodations.                | • Run-of-show pacing (junior ranger check-in, animal shows, cake cutting).<br>• Allergen-safe catering tracking (100% peanut-free bakery, dairy-free alternatives).<br>• Inclusive accommodation: Sensory-friendly quiet tents and wheelchair lawn matting.<br>• Party favor and custom cake cost budgeting.                                               |
-| 🎪 **Community Events & Fundraisers** | Municipal permits, donor visibility, stage accessibility, volunteer coordination, waste diversion.       | • Municipal park permit, noise variance, and safety inspection checklist.<br>• Stage accessibility: ADA ramp certification, live ASL interpretation, and audio induction loops.<br>• Sponsor & silent auction milestone tracking with fundraising thermometer.<br>• Zero-waste diversion: Tri-stream composting and local artisan food truck coordination. |
+### User Context to Decision Rules
+
+| User Context & Input                                         | Triggered Rule & Calculation                                                                         | Resulting System Decision & Reason                                                                                                                                                              |
+| :----------------------------------------------------------- | :--------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Low Per-Guest Budget** (`totalBudget / guestCount < min`)  | Evaluated against `PER_GUEST_BUDGET_RANGES_INR[eventType]` (INR only).                               | **+4% Catering, -2% Decor, -2% Entertainment**<br>_Reason:_ `"Per-guest budget below reference range (₹X): +4% catering."` Ensures baseline meal quality is preserved.                          |
+| **High Per-Guest Budget** (`totalBudget / guestCount > max`) | Evaluated against `PER_GUEST_BUDGET_RANGES_INR[eventType]` (INR only).                               | **+2% Decor, +1% Photography, -3% Catering**<br>_Reason:_ `"Per-guest budget exceeds reference range (₹X): +3% decor/photo."` Shifts luxury surplus into aesthetics and memories.               |
+| **Large Guest List** (`guestCount >= 200`)                   | `GUEST_COUNT_THRESHOLDS.LARGE`                                                                       | **+2% Logistics, +2% Catering, -4% Decor**<br>_Reason:_ `"Large guest list (X): +2% logistics, +2% catering from decor."` Covers crowd transit, seating, and buffet throughput.                 |
+| **Intimate Guest List** (`guestCount <= 50`)                 | `GUEST_COUNT_THRESHOLDS.INTIMATE`                                                                    | **+2% Venue, +1% Decor, -3% Logistics**<br>_Reason:_ `"Intimate guest list (X): +2% venue, +1% decor from logistics."` Prioritizes boutique venue ambiance over heavy transport.                |
+| **Multiple Dietary Needs** (`dietary.length >= 2`)           | Count of special diets (Jain, Vegan, Halal, Allergen-free).                                          | **+2% Catering**<br>_Reason:_ `"Multiple dietary requirements (X): +2% catering."` Offsets specialized menu preparation and separation.                                                         |
+| **Accessibility Needs** (`accessibilityNeeds.length > 0`)    | Physical, mobility, auditory, or sensory accommodations.                                             | **+3% Logistics**<br>_Reason:_ `"Accessibility accommodations: +3% logistics."` Funds ramps, priority seating, shuttles, and live interpreters.                                                 |
+| **Short Planning Window** (`daysUntilEvent < 30`)            | `RUSH_PLANNING_DAYS_THRESHOLD`                                                                       | **+3% Miscellaneous Contingency**<br>_Reason:_ `"Short planning window (Xd): +3% miscellaneous contingency."` Absorbs expedited shipping and rush vendor premiums.                              |
+| **Percentage Clamping & Normalization**                      | Raw modified allocations clamped at `>= 0`.                                                          | **Normalized to sum to exactly 100%**; integer rounding residuals are assigned to the largest budget category.                                                                                  |
+| **Timeline Compression** (`maxLeadDays > daysRemaining`)     | Days remaining calculated via UTC date diff: `daysRemaining = computeDaysBetween(eventDate, today)`. | **Lead times proportionally compressed** by `ratio = daysRemaining / maxLeadDays`. Tasks flagged with badge `[Compressed]`.<br>_Reason:_ `"Event is X days away: lead times compressed to Y%"`. |
+| **Overdue Milestone Detection**                              | Back-scheduled `dueDate < today`.                                                                    | Tasks flagged with badge `[Overdue]` in data table and list views, warning planners of elapsed milestones.                                                                                      |
+| **Unpaid Vendor Commitments**                                | `sum(quotes of booked vendors) / totalBudget > 0.50`                                                 | **Triggers Budget Risk Warning** when unfulfilled commitments exceed 50% of the total budget.                                                                                                   |
+
+### LLM vs. Deterministic Fallback Matrix
+
+| Planning Capability     | Generative AI (`ClaudeProvider`)                                                                                               | Deterministic Fallback Engine (`MockProvider` / Fallback)                                                       |
+| :---------------------- | :----------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------- |
+| **Budget Planning**     | Generates tailored line-item allocations and contextual rationale notes for each category based on prompt guidelines.          | Executes `adviseBudgetSplit` applying the exact mathematical heuristics above, renormalizing to 100%.           |
+| **Timeline Scheduling** | Generates day-of runs of show and multi-week milestones mapped to event type and cultural context.                             | Executes `planTimeline` against dependency-ordered milestone templates with proportional lead-time compression. |
+| **Vendor Directory**    | Generates detailed procurement deliverables, role requirements, and cost estimates.                                            | Maps curated vertical templates (`getVendorChecklistTemplates`) with lead-time priorities and status defaults.  |
+| **Idea Studio**         | Proposes novel creative concepts, custom traditions, and aesthetic recommendations.                                            | Returns curated golden-dataset recommendations (`buildMockIdeas`) with tag filters and cost tiers.              |
+| **Plan-Acting Chat**    | Streams conversational advice and emits structured tool proposals (`add_budget_item`, `add_timeline_item`, `add_vendor_item`). | Streams pre-configured conversational responses and emits contextual action proposals for user approval.        |
 
 ---
 
-## 3. Architecture & Data Flow
+## 3. How It Works: Request Flow & Reliability
+
+```mermaid
+flowchart TD
+    Client["Client / User Action (Wizard, Regenerate, Chat)"] --> CSRF["CSRF & Session Validation (HMAC-SHA256 Cookie)"]
+    CSRF --> RateLimit["Sliding-Window Rate Limiter (IP & User ID)"]
+    RateLimit --> Guardrail["Scope Guardrail & Prompt Injection Sanitizer"]
+    Guardrail --> Cache{"Normalized Context Cache Hit?"}
+
+    Cache -- Yes --> ReturnCache["Return Cached Result (<1ms, 0 Token Burn)"]
+    Cache -- No --> ProviderCheck{"LLM_PROVIDER == 'claude' & API Key Set?"}
+
+    ProviderCheck -- No (Demo Mode) --> FallbackEngine["Execute Pure Domain Engines (budgetAdvisor, planTimeline)"]
+    ProviderCheck -- Yes (Live Mode) --> PrimaryLLM["Attempt 1: Claude 3.5 Sonnet Structured Request"]
+
+    PrimaryLLM --> Validate1{"Zod safeParse Success?"}
+    Validate1 -- Yes --> CacheAndReturn["Cache Normalized Result & Return Plan"]
+    Validate1 -- No --> RetryLLM["Attempt 2: Corrective Retry with Validation Errors"]
+
+    RetryLLM --> Validate2{"Zod safeParse Success?"}
+    Validate2 -- Yes --> CacheAndReturn
+    Validate2 -- No --> FallbackEngine
+
+    FallbackEngine --> CacheAndReturn
+```
+
+1. **Security & Rate Limiting**: Every mutating request checks a double-submit CSRF token, verifies an HMAC-SHA256 signed session cookie, and passes through a sliding-window rate limiter (15 req/min on AI endpoints).
+2. **Input Validation & Guardrails**: Inputs are validated through strict Zod schemas. Prompt text is stripped of delimiters (`<system>`, `assistant:`, `human:`) and verified against event-planning domain boundaries.
+3. **Generation Cache**: Context is normalized and hashed into a deterministic key (`createNormalizedHashKey`). Repeated generations with identical parameters resolve immediately without consuming tokens.
+4. **Live Mode vs. Demo Mode**:
+   - **Live Mode**: Calls Anthropic Claude 3.5 Sonnet with JSON schema constraints.
+   - **Demo Mode**: Active by default (`LLM_PROVIDER=mock`). Zero API key is required; all features run offline through pure domain logic.
+5. **Self-Healing Fallback**: If an LLM call fails or emits unparseable JSON, a corrective retry prompt with precise Zod error paths is dispatched. If the retry fails, the pure domain fallback executes seamlessly—the user never encounters a blank screen or a crash.
+
+---
+
+## 4. Assumptions and Calibration
+
+The domain heuristics in Utsava are built on documented assumptions calibrated for realistic event operations:
+
+### 1. Reference Per-Guest Budget Ranges (INR)
+
+Derived from documented hospitality benchmarks in [`src/lib/constants.ts`](src/lib/constants.ts):
+
+- **Indian Wedding (`wedding`)**: ₹150 – ₹250 per guest (scaled to demo budgets).
+- **Milestone Birthday (`birthday`)**: ₹60 – ₹120 per guest.
+- **Community Event (`community`)**: ₹30 – ₹60 per guest.
+  _Note: For non-INR currencies, per-guest budget scaling is bypassed, and base default category percentages are utilized._
+
+### 2. Operational Thresholds
+
+- **Large Guest Count Threshold**: 200 guests (triggers +2% logistics and +2% catering adjustments).
+- **Intimate Guest Count Threshold**: 50 guests (triggers +2% venue and +1% decor adjustments).
+- **Rush Planning Window**: 30 days before event date (triggers +3% miscellaneous contingency).
+- **Unpaid Commitments Risk Threshold**: 50% of total budget (triggers risk warning when booked unpaid vendors exceed half the budget).
+- **AI Chat History Window**: 5 recent messages passed for conversational context.
+
+### 3. Pre-Seeded Realistic Demo Data
+
+The repository includes three production-ready golden datasets:
+
+1. **Aarav & Meera's Grand Royal Wedding**: 350 guests, ₹65,000 budget, 8 line items, 7 timeline milestones, 5 vendor contracts.
+2. **Anya's 7th Magical Rainforest Safari**: 45 guests, ₹3,500 budget, 7 line items, 6 timeline milestones, 4 vendor contracts.
+3. **Oakridge Harmony Park Revitalization Gala**: 500 guests, ₹20,000 budget, 7 line items, 6 timeline milestones, 4 vendor contracts.
+
+---
+
+## 5. Architecture & Data Flow
 
 Utsava is built upon a **Five-Tier Clean Architecture** with strict dependency isolation:
 
@@ -109,7 +193,7 @@ flowchart TD
 
 ---
 
-## 4. Quickstart Setup in 5 Commands
+## 6. Quickstart Setup in 5 Commands
 
 Get Utsava running locally in less than 60 seconds:
 
@@ -134,7 +218,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 5. Environment Variables
+## 7. Environment Variables
 
 Utsava uses a fail-fast Zod-validated schema in [`src/lib/env.ts`](src/lib/env.ts):
 
@@ -148,7 +232,7 @@ Utsava uses a fail-fast Zod-validated schema in [`src/lib/env.ts`](src/lib/env.t
 
 ---
 
-## 6. Demo Mode (Zero API Key Required)
+## 8. Demo Mode (Zero API Key Required)
 
 Utsava includes a built-in **Demo Mode** enabled by default:
 
@@ -161,7 +245,7 @@ Utsava includes a built-in **Demo Mode** enabled by default:
 
 ---
 
-## 7. Testing & Quality Verification Commands
+## 9. Testing & Quality Verification Commands
 
 The test pyramid is deterministic, mocked, and executes in **under 35 seconds total**:
 
@@ -184,17 +268,43 @@ npm run build
 
 ---
 
-## 8. Code Quality Evidence
+## 10. Code Quality Evidence
 
 - **Functions over 40 lines**: 0 (enforced via ESLint `max-lines-per-function` max 40, skipBlankLines, skipComments; turned off for `__tests__` and `e2e` only)
-- **Files over 300 lines**: 0 (enforced via ESLint `max-lines` max 300; all files in repository are <= 294 lines)
+- **Files over 300 lines**: 0 (enforced via ESLint `max-lines` max 300; all files in repository are <= 294 lines of code)
 - **`any` count**: 0 (enforced via `@typescript-eslint/no-explicit-any`)
 - **Non-null assertions**: 0 (enforced via `@typescript-eslint/no-non-null-assertion`)
 - **Unused deps**: 0 (all runtime and development dependencies in `package.json` are actively used)
 
 ---
 
-## 9. Documentation Index
+## 11. Current Limitations and What to Do Next
+
+### Current Limitations
+
+1. **Single-Node Embedded SQLite Database**:
+   - The persistence layer utilizes `better-sqlite3` on a single-node SQLite database file with an automatic in-memory fallback for serverless or read-only deployments (Vercel). It does not provide distributed multi-region database clustering or multi-tenant sharding.
+2. **INR-Calibrated Hospitality Ranges**:
+   - The per-guest reference benchmark ranges (`PER_GUEST_BUDGET_RANGES_INR`) in `budgetAdvisor` are calibrated specifically for Indian Rupee costs. Planners configuring other currencies (USD, EUR, GBP) receive unadjusted base category splits without per-guest dynamic shifts.
+3. **Single-Client Optimistic Synchronization**:
+   - Dashboard state updates optimistically and persists via autosave to `/api/events/[id]`. Concurrent live editing across multiple clients does not currently implement conflict-free replicated data types (CRDTs) or WebSocket message brokers.
+4. **Browser-Native Print Export**:
+   - The PDF generation workflow invokes browser `window.print()` styled via CSS `@media print` rules. While dependency-free, rendered output depends on the host browser's print engine rather than a deterministic, server-side vector PDF renderer.
+
+### What We Would Do Next
+
+1. **Global Multi-Currency Purchasing Power Parity**:
+   - Expand `PER_GUEST_BUDGET_RANGES` with localized reference benchmarks for USD ($120–$350/guest for weddings), EUR, GBP, and AED.
+2. **Real-Time Collaborative Planning**:
+   - Introduce Yjs or WebSocket rooms to support live concurrent co-planning between couples, family elders, and professional event coordinators.
+3. **Server-Side Headless PDF Generation**:
+   - Deploy a serverless Chromium endpoint to render pixel-perfect, branded run-of-show schedules and contractor call sheets with QR codes.
+4. **Multimodal Vendor Contract & Invoice Parsing**:
+   - Add document upload to the chat assistant using Claude Vision tool use to parse PDF vendor quotes and deposit receipts directly into budget line items.
+
+---
+
+## 12. Documentation Index
 
 Detailed architectural and conformance documentation:
 
@@ -206,7 +316,7 @@ Detailed architectural and conformance documentation:
 
 ---
 
-## 10. Deployment to Vercel
+## 13. Deployment to Vercel
 
 Utsava is configured for zero-config Vercel deployment:
 
@@ -219,6 +329,6 @@ npx vercel --prod
 
 ---
 
-## 11. License
+## 14. License
 
 Released under the [MIT License](LICENSE). Built for life's most cherished gatherings.
