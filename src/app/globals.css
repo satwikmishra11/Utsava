@@ -339,3 +339,35 @@ body {
     margin-bottom: 20px;
   }
 }
+
+/* AI Suggestions Banner */
+.ai-banner {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--accent-gold);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.ai-banner-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.ai-banner-title {
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
+.ai-banner-description {
+  font-size: 0.875rem;
+  margin-top: 2px;
+}
+
+.ai-banner-actions {
+  display: flex;
+  gap: 8px;
+}

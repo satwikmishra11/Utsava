@@ -5,3 +5,4 @@ export * from './Dialog';
 export * from './Tabs';
 export * from './Skeleton';
 export * from './EmptyState';
+export * from './AiSuggestionsBanner';
