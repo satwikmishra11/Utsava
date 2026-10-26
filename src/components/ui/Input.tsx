@@ -8,6 +8,38 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   readonly helperText?: string;
 }
 
+function InputFeedback({
+  error,
+  errorId,
+  helperText,
+  helperId,
+}: {
+  readonly error?: string;
+  readonly errorId?: string;
+  readonly helperText?: string;
+  readonly helperId?: string;
+}): React.JSX.Element | null {
+  if (error) {
+    return (
+      <p
+        id={errorId}
+        aria-live="assertive"
+        style={{ fontSize: '0.8rem', color: 'var(--accent-rose)' }}
+      >
+        {error}
+      </p>
+    );
+  }
+  if (helperText) {
+    return (
+      <p id={helperId} style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+        {helperText}
+      </p>
+    );
+  }
+  return null;
+}
+
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Input(
   { label, error, helperText, id, className = '', style, ...props },
   ref
@@ -33,20 +65,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
         style={{ borderColor: error ? 'var(--accent-rose)' : undefined, ...style }}
         {...props}
       />
-      {error && (
-        <p
-          id={errorId}
-          aria-live="assertive"
-          style={{ fontSize: '0.8rem', color: 'var(--accent-rose)' }}
-        >
-          {error}
-        </p>
-      )}
-      {helperText && !error && (
-        <p id={helperId} style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-          {helperText}
-        </p>
-      )}
+      <InputFeedback error={error} errorId={errorId} helperText={helperText} helperId={helperId} />
     </div>
   );
 });
