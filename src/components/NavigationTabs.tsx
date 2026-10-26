@@ -23,6 +23,35 @@ const TABS: readonly TabItem[] = [
   { id: 'chat', label: 'Plan-Acting Chat', icon: MessageSquare },
 ];
 
+function NavigationTabButton({
+  tab,
+  isSelected,
+  onSelect,
+  onKeyDown,
+}: {
+  readonly tab: TabItem;
+  readonly isSelected: boolean;
+  readonly onSelect: () => void;
+  readonly onKeyDown: (e: KeyboardEvent<HTMLButtonElement>) => void;
+}): React.JSX.Element {
+  const Icon = tab.icon;
+  return (
+    <button
+      id={`tab-${tab.id}`}
+      role="tab"
+      aria-selected={isSelected}
+      tabIndex={isSelected ? 0 : -1}
+      onClick={onSelect}
+      onKeyDown={onKeyDown}
+      className={isSelected ? 'btn btn-primary' : 'btn btn-secondary'}
+      style={{ whiteSpace: 'nowrap' }}
+    >
+      <Icon size={18} aria-hidden={true} />
+      <span>{tab.label}</span>
+    </button>
+  );
+}
+
 interface NavigationTabsProps {
   readonly activeTab: TabId;
   readonly onTabChange: (tab: TabId) => void;
@@ -47,26 +76,15 @@ export function NavigationTabs({ activeTab, onTabChange }: NavigationTabsProps):
         role="tablist"
         style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}
       >
-        {TABS.map((tab, idx) => {
-          const Icon = tab.icon;
-          const isSelected = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              id={`tab-${tab.id}`}
-              role="tab"
-              aria-selected={isSelected}
-              tabIndex={isSelected ? 0 : -1}
-              onClick={() => onTabChange(tab.id)}
-              onKeyDown={(e) => handleKeyDown(e, idx)}
-              className={isSelected ? 'btn btn-primary' : 'btn btn-secondary'}
-              style={{ whiteSpace: 'nowrap' }}
-            >
-              <Icon size={18} aria-hidden={true} />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
+        {TABS.map((tab, idx) => (
+          <NavigationTabButton
+            key={tab.id}
+            tab={tab}
+            isSelected={activeTab === tab.id}
+            onSelect={() => onTabChange(tab.id)}
+            onKeyDown={(e) => handleKeyDown(e, idx)}
+          />
+        ))}
       </div>
     </nav>
   );

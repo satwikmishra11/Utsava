@@ -5,6 +5,18 @@ import { EventPlan } from '@/domain/types';
 
 export type SaveStatus = 'saved' | 'saving' | 'unsaved' | 'error';
 
+function savePlanToStorage(targetPlan: EventPlan): boolean {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(`utsava-plan-${targetPlan.id}`, JSON.stringify(targetPlan));
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 export function useDebouncedAutosave(
   plan: EventPlan,
   delayMs: number = 600
@@ -18,14 +30,10 @@ export function useDebouncedAutosave(
   const isInitialMount = useRef(true);
 
   const persistToStorage = (targetPlan: EventPlan) => {
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        localStorage.setItem(`utsava-plan-${targetPlan.id}`, JSON.stringify(targetPlan));
-        setSaveStatus('saved');
-        setLastSavedAt(new Date().toLocaleTimeString());
-      }
-    } catch {
-      setSaveStatus('error');
+    const success = savePlanToStorage(targetPlan);
+    setSaveStatus(success ? 'saved' : 'error');
+    if (success) {
+      setLastSavedAt(new Date().toLocaleTimeString());
     }
   };
 
