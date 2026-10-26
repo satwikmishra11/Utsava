@@ -19,9 +19,7 @@ export function minutesToTimeString(minutes: number): string {
 export function sortTimelineChronologically(
   items: readonly TimelineItem[]
 ): readonly TimelineItem[] {
-  return [...items].sort(
-    (a, b) => timeStringToMinutes(a.time) - timeStringToMinutes(b.time)
-  );
+  return [...items].sort((a, b) => timeStringToMinutes(a.time) - timeStringToMinutes(b.time));
 }
 
 export function findTimelineConflicts(

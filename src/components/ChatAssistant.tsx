@@ -3,6 +3,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { EventPlan, ChatMessage, ActionProposal } from '@/domain/types';
 import { Send, Check, Bot, User, ShieldCheck, Square } from 'lucide-react';
+import {
+  CONTINGENCY_RATIO_RECOMMENDED,
+  CONTINGENCY_RATIO_DEFAULT,
+  FALLBACK_EXPENSE_ESTIMATE_VENDOR,
+  LIVE_ANNOUNCEMENT_MAX_LENGTH,
+  CHAT_HISTORY_WINDOW,
+} from '@/lib/constants';
 
 function detectActionProposal(text: string, plan: EventPlan): ActionProposal | undefined {
   const lower = text.toLowerCase();
@@ -14,7 +21,7 @@ function detectActionProposal(text: string, plan: EventPlan): ActionProposal | u
       payload: {
         name: 'AI Recommended Contingency',
         category: 'miscellaneous',
-        estimatedCost: Math.round(plan.totalBudget * 0.05),
+        estimatedCost: Math.round(plan.totalBudget * CONTINGENCY_RATIO_RECOMMENDED),
       },
       applied: false,
     };
@@ -40,7 +47,7 @@ function detectActionProposal(text: string, plan: EventPlan): ActionProposal | u
       payload: {
         category: 'catering',
         role: 'Premium Service Provider',
-        estimatedCost: 1500,
+        estimatedCost: FALLBACK_EXPENSE_ESTIMATE_VENDOR,
       },
       applied: false,
     };
@@ -63,11 +70,11 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
       actionProposal: {
         id: 'prop-init',
         actionType: 'add_budget_item',
-        description: `Add a 10% contingency reserve of ${plan.currency} ${Math.round(plan.totalBudget * 0.1).toLocaleString()} for emergency event expenses.`,
+        description: `Add a 10% contingency reserve of ${plan.currency} ${Math.round(plan.totalBudget * CONTINGENCY_RATIO_DEFAULT).toLocaleString()} for emergency event expenses.`,
         payload: {
           name: 'Contingency Fund (10%)',
           category: 'miscellaneous',
-          estimatedCost: Math.round(plan.totalBudget * 0.1),
+          estimatedCost: Math.round(plan.totalBudget * CONTINGENCY_RATIO_DEFAULT),
         },
         applied: false,
       },
@@ -114,7 +121,9 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
     assistantId: string
   ): Promise<void> => {
     const completeText = await readStreamChunks(reader, assistantId);
-    setLiveAnnouncement(`Response completed: ${completeText.slice(0, 160)}`);
+    setLiveAnnouncement(
+      `Response completed: ${completeText.slice(0, LIVE_ANNOUNCEMENT_MAX_LENGTH)}`
+    );
     const proposal = detectActionProposal(completeText, plan);
     if (proposal) {
       setMessages((prev) =>
@@ -153,7 +162,9 @@ export function ChatAssistant({ plan, onApplyPlanAction }: ChatAssistantProps): 
         body: JSON.stringify({
           message: userText,
           eventPlan: plan,
-          chatHistory: messages.slice(-5).map((m) => ({ role: m.role, content: m.content })),
+          chatHistory: messages
+            .slice(-CHAT_HISTORY_WINDOW)
+            .map((m) => ({ role: m.role, content: m.content })),
         }),
       });
       if (!res.ok) throw new Error((await res.json()).error || 'Server error');

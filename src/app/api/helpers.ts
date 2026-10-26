@@ -3,7 +3,7 @@ import { aiRateLimiter } from '@/services/rateLimiter';
 import { getSessionUser, SessionUser } from '@/services/auth/session';
 import { validateCsrf } from '@/services/auth/csrf';
 
-export function getClientIdentifier(req: NextRequest, userId?: string): string {
+function getClientIdentifier(req: NextRequest, userId?: string): string {
   if (userId) return `user_${userId}`;
   const forwarded = req.headers.get('x-forwarded-for');
   if (forwarded) {
@@ -50,16 +50,6 @@ export async function requireAuth(req: NextRequest): Promise<{ user: SessionUser
     return NextResponse.json({ error: 'Unauthorized: Authentication required.' }, { status: 401 });
   }
   return { user };
-}
-
-export function enforceInputLength(input: string, maxLen: number = 2000): NextResponse | null {
-  if (input.length > maxLen) {
-    return NextResponse.json(
-      { error: `Input exceeds maximum allowed length of ${maxLen} characters.` },
-      { status: 400 }
-    );
-  }
-  return null;
 }
 
 export function enforceFieldLength(

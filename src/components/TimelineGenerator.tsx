@@ -117,11 +117,13 @@ function TimelineProgressSummary({
   const completed = items.filter((i) => i.completed).length;
   const pct = Math.round((completed / total) * 100);
 
-  const phaseCounts = items.reduce<Record<TimelinePhase, { total: number; done: number }>>(
+  type PhaseStats = { total: number; done: number };
+  const phaseCounts = items.reduce<Record<TimelinePhase, PhaseStats>>(
     (acc, it) => {
-      acc[it.phase] = acc[it.phase] ?? { total: 0, done: 0 };
-      acc[it.phase]!.total += 1;
-      if (it.completed) acc[it.phase]!.done += 1;
+      const entry = acc[it.phase] ?? { total: 0, done: 0 };
+      entry.total += 1;
+      if (it.completed) entry.done += 1;
+      acc[it.phase] = entry;
       return acc;
     },
     {

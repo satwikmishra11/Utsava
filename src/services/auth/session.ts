@@ -24,8 +24,8 @@ async function getCryptoKey(secret: string): Promise<CryptoKey> {
 
 function base64UrlEncode(bytes: Uint8Array): string {
   let str = '';
-  for (let i = 0; i < bytes.length; i++) {
-    str += String.fromCharCode(bytes[i]!);
+  for (const byte of bytes) {
+    str += String.fromCharCode(byte);
   }
   return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }

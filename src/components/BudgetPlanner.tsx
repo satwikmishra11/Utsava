@@ -21,7 +21,7 @@ import { Button } from './ui/Button';
 import { CardSkeleton } from './ui/Skeleton';
 import { EmptyState } from './ui/EmptyState';
 
-export interface BudgetPlannerProps {
+interface BudgetPlannerProps {
   readonly totalBudget: number;
   readonly currency: string;
   readonly items: readonly BudgetItem[];

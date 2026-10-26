@@ -23,6 +23,7 @@ import {
 import { useDebouncedAutosave } from './useAutosave';
 import { detectOverspend } from '@/domain/budgetLogic';
 import { WizardData } from './OnboardingWizard';
+import { TOAST_DURATION_MS, FALLBACK_EXPENSE_ESTIMATE } from '@/lib/constants';
 import { DEMO_INDIAN_WEDDING, getDemoEventByType } from '@/domain/demoEvents';
 
 export const INITIAL_PLAN: EventPlan = DEMO_INDIAN_WEDDING;
@@ -238,8 +239,8 @@ function useItemMutations(
         id: `budget-auto-${Date.now()}`,
         eventId: plan.id,
         category: 'miscellaneous',
-        estimated: Number(payload.estimatedCost) || 1000,
-        actual: Number(payload.estimatedCost) || 1000,
+        estimated: Number(payload.estimatedCost) || FALLBACK_EXPENSE_ESTIMATE,
+        actual: Number(payload.estimatedCost) || FALLBACK_EXPENSE_ESTIMATE,
         notes: String(payload.name ?? 'Contingency Allocation'),
       });
       showToast('Applied assistant action: Added contingency budget item.');
@@ -267,7 +268,7 @@ export function useEventPlan() {
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
+    setTimeout(() => setToastMessage(null), TOAST_DURATION_MS);
   };
 
   const budgetAi = useBudgetAiSync(plan, setPlan, showToast);

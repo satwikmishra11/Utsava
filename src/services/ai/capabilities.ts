@@ -205,6 +205,14 @@ function applyToolsToPlan(
   return tools.reduce((acc, tool) => applyToolCallToPlan(acc, tool), plan);
 }
 
+function eventPlanSummaryToRecord(summary: EventPlanSummary): Record<string, unknown> {
+  const record: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(summary)) {
+    record[key] = value;
+  }
+  return record;
+}
+
 export async function executeChatAssistant(
   params: ChatAssistantParams,
   fullPlanToEdit?: EventPlan
@@ -218,7 +226,7 @@ export async function executeChatAssistant(
   const provider = params.provider ?? getLLMProvider();
   const prompt = buildChatPrompt({
     message: params.message,
-    planSummary: params.eventPlan as unknown as Record<string, unknown>,
+    planSummary: eventPlanSummaryToRecord(params.eventPlan),
     history: params.chatHistory,
   });
 
