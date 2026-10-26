@@ -26,16 +26,25 @@ export interface PercentOfOptions {
   readonly fallback?: number;
 }
 
+function applyRounding(value: number, roundMode?: PercentOfOptions['round']): number {
+  if (roundMode === 'floor') return Math.floor(value);
+  if (roundMode === 'ceil') return Math.ceil(value);
+  if (roundMode === 'none' || roundMode === false) return value;
+  return Math.round(value);
+}
+
+function applyBounds(value: number, min?: number, max?: number): number {
+  let bounded = value;
+  if (max !== undefined) bounded = Math.min(max, bounded);
+  if (min !== undefined) bounded = Math.max(min, bounded);
+  return bounded;
+}
+
 /**
  * Calculates what percentage `part` is of `whole`.
  *
  * Safely guards against division by zero (and negative or non-finite denominators),
  * returning `options.fallback` (0 by default).
- *
- * @param part The numerator value
- * @param whole The denominator value (must be > 0 to compute)
- * @param options Configuration for rounding, min/max capping, and fallback
- * @returns The computed percentage value
  */
 export function percentOf(part: number, whole: number, options?: PercentOfOptions): number {
   const fallback = options?.fallback ?? 0;
@@ -43,23 +52,7 @@ export function percentOf(part: number, whole: number, options?: PercentOfOption
     return fallback;
   }
 
-  let value = (part / whole) * 100;
-
-  const roundMode = options?.round ?? 'round';
-  if (roundMode === 'round' || roundMode === true) {
-    value = Math.round(value);
-  } else if (roundMode === 'floor') {
-    value = Math.floor(value);
-  } else if (roundMode === 'ceil') {
-    value = Math.ceil(value);
-  }
-
-  if (options?.max !== undefined) {
-    value = Math.min(options.max, value);
-  }
-  if (options?.min !== undefined) {
-    value = Math.max(options.min, value);
-  }
-
-  return value;
+  const raw = (part / whole) * 100;
+  const rounded = applyRounding(raw, options?.round);
+  return applyBounds(rounded, options?.min, options?.max);
 }
