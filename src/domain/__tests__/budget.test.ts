@@ -94,4 +94,66 @@ describe('Budget Domain Functions', () => {
     const risks = detectBudgetRisks(summary);
     expect(risks.some((r) => r.includes('Budget exceeded'))).toBe(true);
   });
+
+  it('warns when booked vendor commitments exceed 50% of total budget', () => {
+    const summary = calculateBudgetSummary(10000, sampleItems);
+    const vendors = [{ id: 'v-1', status: 'booked' as const, quotedAmount: 6000 }];
+    const risks = detectBudgetRisks(summary, vendors);
+    expect(risks).toContain('High concentration of unpaid commitments (>50% of budget).');
+  });
+
+  it('extracts quote from Vendor objects using quote property or missing quote', () => {
+    const summary = calculateBudgetSummary(10000, sampleItems);
+    const vendors = [
+      { id: 'v-quote', status: 'booked' as const, quote: 6000 },
+      { id: 'v-zero', status: 'booked' as const },
+    ];
+    const risks = detectBudgetRisks(summary, vendors);
+    expect(risks).toContain('High concentration of unpaid commitments (>50% of budget).');
+  });
+
+  it('does not warn when booked vendor commitments are under 50% threshold', () => {
+    const summary = calculateBudgetSummary(10000, sampleItems);
+    const vendors = [{ id: 'v-1', status: 'booked' as const, quotedAmount: 4000 }];
+    const risks = detectBudgetRisks(summary, vendors);
+    expect(risks).not.toContain('High concentration of unpaid commitments (>50% of budget).');
+  });
+
+  it('ignores paid and shortlisted vendors when computing unpaid commitments', () => {
+    const summary = calculateBudgetSummary(10000, sampleItems);
+    const vendors = [
+      { id: 'v-1', status: 'paid' as const, quotedAmount: 8000 },
+      { id: 'v-2', status: 'shortlisted' as const, quote: 9000 },
+    ];
+    const risks = detectBudgetRisks(summary, vendors);
+    expect(risks).not.toContain('High concentration of unpaid commitments (>50% of budget).');
+  });
+
+  it('handles empty vendors list without warning on unpaid commitments', () => {
+    const summary = calculateBudgetSummary(10000, sampleItems);
+    const risks = detectBudgetRisks(summary, []);
+    expect(risks).not.toContain('High concentration of unpaid commitments (>50% of budget).');
+  });
+
+  it('warns on unusual non-venue allocations exceeding 45%', () => {
+    const skewedItems: readonly BudgetItem[] = [
+      {
+        id: 'b-skew',
+        eventId: 'evt-1',
+        category: 'decor',
+        estimated: 8000,
+        actual: 8000,
+      },
+      {
+        id: 'b-other',
+        eventId: 'evt-1',
+        category: 'catering',
+        estimated: 2000,
+        actual: 2000,
+      },
+    ];
+    const summary = calculateBudgetSummary(10000, skewedItems);
+    const risks = detectBudgetRisks(summary);
+    expect(risks.some((r) => r.includes('Unusual allocation: decor'))).toBe(true);
+  });
 });

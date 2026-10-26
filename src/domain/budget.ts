@@ -1,4 +1,15 @@
-import { BudgetItem, BudgetSummary, CategoryAllocation, BudgetCategory } from './types';
+import { BudgetItem, BudgetSummary, CategoryAllocation, BudgetCategory, VendorItem } from './types';
+import { Vendor, VendorStatus } from './schemas';
+import { UNPAID_COMMITMENTS_RISK_THRESHOLD } from '@/lib/constants';
+
+export type VendorRiskItem =
+  | VendorItem
+  | Vendor
+  | {
+      readonly status: VendorStatus;
+      readonly quotedAmount?: number;
+      readonly quote?: number;
+    };
 
 export const ALL_BUDGET_CATEGORIES: readonly BudgetCategory[] = [
   'venue',
@@ -83,13 +94,38 @@ export function removeBudgetItem(items: readonly BudgetItem[], id: string): read
   return items.filter((item) => item.id !== id);
 }
 
-export function detectBudgetRisks(summary: BudgetSummary): readonly string[] {
+function extractVendorQuote(v: VendorRiskItem): number {
+  if ('quotedAmount' in v && typeof v.quotedAmount === 'number') {
+    return v.quotedAmount;
+  }
+  if ('quote' in v && typeof v.quote === 'number') {
+    return v.quote;
+  }
+  return 0;
+}
+
+function calculateUnpaidCommitments(
+  summary: BudgetSummary,
+  vendors?: readonly VendorRiskItem[]
+): number {
+  if (!vendors) {
+    return summary.totalActual - summary.totalPaid;
+  }
+  return vendors
+    .filter((v) => v.status === 'booked')
+    .reduce((sum, v) => sum + extractVendorQuote(v), 0);
+}
+
+export function detectBudgetRisks(
+  summary: BudgetSummary,
+  vendors?: readonly VendorRiskItem[]
+): readonly string[] {
   const risks: string[] = [];
   if (summary.isOverBudget) {
     risks.push(`Budget exceeded by ${Math.abs(summary.variance)} units.`);
   }
-  const unpaidBooked = summary.totalActual - summary.totalPaid;
-  if (unpaidBooked > summary.totalBudget * 0.5) {
+  const unpaidBooked = calculateUnpaidCommitments(summary, vendors);
+  if (unpaidBooked > summary.totalBudget * UNPAID_COMMITMENTS_RISK_THRESHOLD) {
     risks.push('High concentration of unpaid commitments (>50% of budget).');
   }
   for (const alloc of summary.categoryAllocations) {

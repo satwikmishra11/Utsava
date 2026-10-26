@@ -49,3 +49,7 @@ export const GUEST_COUNT_THRESHOLDS = {
 
 // Days-until-event threshold for rush contingency allocation
 export const RUSH_PLANNING_DAYS_THRESHOLD = 30;
+
+// Maximum ratio of unpaid vendor commitments relative to total budget before triggering a risk warning (50%)
+export const UNPAID_COMMITMENTS_RISK_THRESHOLD = 0.5;
+export const MAX_UNPAID_COMMITMENTS_RATIO = 0.5;

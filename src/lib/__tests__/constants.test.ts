@@ -42,5 +42,6 @@ describe('Application Constants (src/lib/constants.ts)', () => {
     expect(constants.GUEST_COUNT_THRESHOLDS.LARGE).toBe(200);
     expect(constants.GUEST_COUNT_THRESHOLDS.INTIMATE).toBe(50);
     expect(constants.RUSH_PLANNING_DAYS_THRESHOLD).toBe(30);
+    expect(constants.UNPAID_COMMITMENTS_RISK_THRESHOLD).toBe(0.5);
   });
 });
