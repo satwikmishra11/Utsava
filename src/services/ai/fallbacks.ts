@@ -2,7 +2,7 @@ import { BudgetCategory } from '@/domain/schemas';
 import { allocateBudget } from '@/domain/budgetLogic';
 import { backScheduleTimeline, TaskTemplate } from '@/domain/timelineLogic';
 import { getVendorChecklistTemplates } from '@/domain/vendorTemplates';
-import { buildMockIdeas } from '../aiService';
+import { buildMockIdeas } from '../llm/mockData';
 import {
   PersonalizationContext,
   GeneratedBudgetPlan,

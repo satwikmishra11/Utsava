@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { generateIdeas, chatWithPlanAssistant, buildMockTimeline } from '../aiService';
+import { generateIdeas, chatWithPlanAssistant } from '../aiService';
+import { buildMockTimeline, createMockStream } from '../llm/mockData';
 import { EventPlan } from '../../domain/types';
 
 describe('AI Service (Mocked LLM in tests)', () => {
@@ -61,7 +62,6 @@ describe('AI Service (Mocked LLM in tests)', () => {
   });
 
   it('creates a chunked mock byte stream from text', async () => {
-    const { createMockStream } = await import('../aiService');
     const stream = createMockStream('Testing chunked output streaming');
     const reader = stream.getReader();
     let accumulated = '';

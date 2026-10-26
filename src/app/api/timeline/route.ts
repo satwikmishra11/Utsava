@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { GenerateTimelineRequestSchema } from '@/domain/schemas';
 import { enforceRateLimit, enforceCsrf, jsonValidationError } from '../helpers';
 import { getSessionUser } from '@/services/auth/session';
-import { buildMockTimeline } from '@/services/aiService';
+import { buildMockTimeline } from '@/services/llm/mockData';
 
 const QuerySchema = z.object({}).strict();
 
