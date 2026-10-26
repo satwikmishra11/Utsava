@@ -48,7 +48,7 @@ function BudgetTitleInput({
 }): React.JSX.Element {
   return (
     <div>
-      <label htmlFor="budget-item-name" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
+      <label htmlFor="budget-item-name" className="budget-input-label">
         Expense Title
       </label>
       <input
@@ -77,7 +77,7 @@ function BudgetCategorySelect({
 }): React.JSX.Element {
   return (
     <div>
-      <label htmlFor="budget-item-category" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
+      <label htmlFor="budget-item-category" className="budget-input-label">
         Category
       </label>
       <select
@@ -109,7 +109,7 @@ function BudgetAmountInput({
 }): React.JSX.Element {
   return (
     <div>
-      <label htmlFor="budget-item-cost" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
+      <label htmlFor="budget-item-cost" className="budget-input-label">
         Amount
       </label>
       <input
@@ -131,21 +131,13 @@ function BudgetAmountInput({
   );
 }
 
-const FORM_STYLE: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr)) auto',
-  gap: '12px',
-  alignItems: 'flex-end',
-  marginBottom: '24px',
-};
-
 export function BudgetAddForm({ onAdd }: BudgetAddFormProps): React.JSX.Element {
   const { name, setName, category, setCategory, cost, setCost, error, setError, submit } =
     useBudgetAddForm(onAdd);
   const clearError = () => setError('');
 
   return (
-    <form onSubmit={submit} noValidate style={FORM_STYLE}>
+    <form onSubmit={submit} noValidate className="budget-add-form">
       <BudgetTitleInput name={name} setName={setName} error={error} clearError={clearError} />
       <BudgetCategorySelect category={category} setCategory={setCategory} />
       <BudgetAmountInput cost={cost} setCost={setCost} error={error} clearError={clearError} />
@@ -158,7 +150,7 @@ export function BudgetAddForm({ onAdd }: BudgetAddFormProps): React.JSX.Element 
           id="budget-form-error"
           role="alert"
           aria-live="assertive"
-          style={{ gridColumn: '1 / -1', color: 'var(--accent-rose)', fontSize: '0.85rem' }}
+          className="budget-form-error"
         >
           {error}
         </div>

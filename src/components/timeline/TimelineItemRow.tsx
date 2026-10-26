@@ -19,8 +19,7 @@ function MilestoneToggleButton({
   return (
     <button
       onClick={onToggle}
-      className="btn btn-secondary"
-      style={{ padding: '4px' }}
+      className="btn btn-secondary btn-icon-toggle"
       aria-label={`Toggle completion for ${title}`}
     >
       {completed ? (
@@ -33,38 +32,24 @@ function MilestoneToggleButton({
 }
 
 export function TimelineItemRow({ item, onToggle }: TimelineItemRowProps): React.JSX.Element {
+  const rowClass = `timeline-item-row ${item.completed ? 'timeline-item-completed' : ''}`.trim();
   return (
-    <li
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '14px',
-        background: item.completed ? 'rgba(16, 185, 129, 0.05)' : 'var(--bg-secondary)',
-        borderRadius: 'var(--radius-sm)',
-        border: '1px solid var(--border-subtle)',
-        textDecoration: item.completed ? 'line-through' : 'none',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+    <li className={rowClass}>
+      <div className="timeline-item-main">
         <MilestoneToggleButton
           title={item.title}
           completed={item.completed}
           onToggle={() => onToggle(item.id)}
         />
         <div>
-          <span style={{ fontWeight: 600 }}>{item.title}</span>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
+          <span className="timeline-item-title">{item.title}</span>
+          <div className="timeline-item-meta">
             <span className="badge badge-gold">{item.phase}</span>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              {item.durationMinutes} mins
-            </span>
+            <span className="timeline-item-duration">{item.durationMinutes} mins</span>
           </div>
         </div>
       </div>
-      <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--accent-gold)' }}>
-        {item.time}
-      </span>
+      <span className="timeline-item-time">{item.time}</span>
     </li>
   );
 }

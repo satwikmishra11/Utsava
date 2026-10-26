@@ -23,7 +23,7 @@ export function OnboardingWizard({
           e.preventDefault();
           wizard.handleNext();
         }}
-        style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
+        className="wizard-form"
       >
         <WizardProgressBar step={wizard.step} />
         <WizardStepContent wizard={wizard} />
@@ -32,7 +32,7 @@ export function OnboardingWizard({
             id="wizard-error-summary"
             role="alert"
             aria-live="assertive"
-            style={{ color: 'var(--accent-rose)', fontSize: '0.85rem' }}
+            className="wizard-error-summary"
           >
             {wizard.error}
           </div>

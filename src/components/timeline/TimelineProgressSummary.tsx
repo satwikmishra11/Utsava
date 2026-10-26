@@ -17,29 +17,6 @@ const ORDERED_PHASES: readonly TimelinePhase[] = [
   'teardown',
 ];
 
-const PROGRESS_TRACK_STYLE: React.CSSProperties = {
-  height: '10px',
-  width: '100%',
-  background: 'var(--bg-surface)',
-  borderRadius: '5px',
-  overflow: 'hidden',
-  marginBottom: '12px',
-};
-
-const PHASE_GRID_STYLE: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-  gap: '8px',
-};
-
-const SUMMARY_CARD_STYLE: React.CSSProperties = {
-  background: 'var(--bg-secondary)',
-  border: '1px solid var(--border-subtle)',
-  borderRadius: 'var(--radius-sm)',
-  padding: '16px',
-  marginBottom: '20px',
-};
-
 const TABLE_HEADER_COLS = ['Phase', 'Completed', 'Total', 'Status'];
 
 function calculatePhaseCounts(items: readonly TimelineItem[]): Record<TimelinePhase, PhaseStats> {
@@ -70,16 +47,9 @@ function PhaseMiniCard({
   readonly total: number;
 }): React.JSX.Element {
   return (
-    <div
-      style={{
-        padding: '8px 10px',
-        background: 'var(--bg-surface)',
-        borderRadius: 'var(--radius-sm)',
-        fontSize: '0.8rem',
-      }}
-    >
-      <p style={{ textTransform: 'capitalize', fontWeight: 600 }}>{phase}</p>
-      <p style={{ color: 'var(--text-secondary)', marginTop: '2px' }}>
+    <div className="timeline-phase-mini-card">
+      <p className="timeline-phase-mini-title">{phase}</p>
+      <p className="timeline-phase-mini-subtitle">
         {done}/{total} completed
       </p>
     </div>
@@ -102,17 +72,15 @@ function TimelineProgressChart({
       role="img"
       aria-label={`Timeline Progress Bar: ${completed} of ${total} milestones completed (${pct}%). Data table available via toggle.`}
     >
-      <div style={PROGRESS_TRACK_STYLE}>
+      <div className="timeline-progress-track">
         <div
+          className="timeline-progress-fill"
           style={{
-            height: '100%',
             width: `${pct}%`,
-            background: 'var(--accent-emerald)',
-            transition: 'width 0.3s ease',
           }}
         />
       </div>
-      <div style={PHASE_GRID_STYLE}>
+      <div className="timeline-phase-grid">
         {ORDERED_PHASES.map((ph) => {
           const data = phaseCounts[ph] ?? { total: 0, done: 0 };
           return <PhaseMiniCard key={ph} phase={ph} done={data.done} total={data.total} />;
@@ -133,11 +101,11 @@ function TimelinePhaseRow({
 }): React.JSX.Element {
   const isAllDone = total > 0 && done === total;
   return (
-    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-      <td style={{ padding: '6px 8px', textTransform: 'capitalize', fontWeight: 600 }}>{phase}</td>
-      <td style={{ padding: '6px 8px' }}>{done}</td>
-      <td style={{ padding: '6px 8px' }}>{total}</td>
-      <td style={{ padding: '6px 8px' }}>
+    <tr className="timeline-table-row">
+      <td className="timeline-table-cell-bold">{phase}</td>
+      <td className="timeline-table-cell">{done}</td>
+      <td className="timeline-table-cell">{total}</td>
+      <td className="timeline-table-cell">
         {total === 0 ? 'No tasks' : isAllDone ? 'Completed' : 'In Progress'}
       </td>
     </tr>
@@ -147,11 +115,9 @@ function TimelinePhaseRow({
 function TimelineProgressTableHead(): React.JSX.Element {
   return (
     <thead>
-      <tr
-        style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
-      >
+      <tr className="timeline-table-head-row">
         {TABLE_HEADER_COLS.map((col) => (
-          <th key={col} scope="col" style={{ padding: '6px 8px' }}>
+          <th key={col} scope="col" className="timeline-table-th">
             {col}
           </th>
         ))}
@@ -166,15 +132,8 @@ function TimelineProgressTable({
   readonly phaseCounts: Record<TimelinePhase, PhaseStats>;
 }): React.JSX.Element {
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table
-        style={{
-          width: '100%',
-          borderCollapse: 'collapse',
-          textAlign: 'left',
-          fontSize: '0.85rem',
-        }}
-      >
+    <div className="table-container">
+      <table className="timeline-progress-table">
         <caption className="sr-only">Milestone Phase Completion Breakdown</caption>
         <TimelineProgressTableHead />
         <tbody>
@@ -202,17 +161,8 @@ function TimelineProgressHeader({
   readonly onToggle: () => void;
 }): React.JSX.Element {
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '10px',
-        flexWrap: 'wrap',
-        gap: '8px',
-      }}
-    >
-      <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>
+    <div className="timeline-progress-header">
+      <span className="timeline-progress-title">
         Schedule Progress & Phase Completion ({completed}/{total} Milestones · {pct}%)
       </span>
       <Button
@@ -239,7 +189,7 @@ export function TimelineProgressSummary({
   const phaseCounts = calculatePhaseCounts(items);
 
   return (
-    <div style={SUMMARY_CARD_STYLE}>
+    <div className="timeline-summary-card">
       <TimelineProgressHeader
         completed={completed}
         total={total}

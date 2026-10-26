@@ -88,7 +88,7 @@ function TimelineItemsList({
     );
   }
   return (
-    <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+    <ul className="timeline-item-list">
       {itemsToRender.map((item) => (
         <TimelineItemRow key={item.id} item={item} onToggle={onToggle} />
       ))}

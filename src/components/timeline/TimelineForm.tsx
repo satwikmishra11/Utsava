@@ -28,12 +28,7 @@ export function useTimelineForm(onAdd: (title: string, time: string) => void) {
 function TimelineFormError({ error }: { readonly error: string }): React.JSX.Element | null {
   if (!error) return null;
   return (
-    <p
-      id="timeline-form-error"
-      role="alert"
-      aria-live="assertive"
-      style={{ color: 'var(--accent-rose)', fontSize: '0.8rem', marginTop: '4px' }}
-    >
+    <p id="timeline-form-error" role="alert" aria-live="assertive" className="timeline-form-error">
       {error}
     </p>
   );
@@ -88,30 +83,21 @@ function TimelineTimeInput({
       <input
         id="timeline-item-time"
         type="time"
-        className="input"
+        className="input timeline-time-input"
         value={time}
         onChange={(e) => setTime(e.target.value)}
-        style={{ width: '130px' }}
         required
       />
     </div>
   );
 }
 
-const FORM_STYLE: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: '1fr auto auto',
-  gap: '12px',
-  alignItems: 'flex-start',
-  marginBottom: '20px',
-};
-
 export function TimelineForm({ onAdd }: TimelineFormProps): React.JSX.Element {
   const { title, setTitle, time, setTime, error, setError, handleSubmit } = useTimelineForm(onAdd);
   const clearError = () => setError('');
 
   return (
-    <form onSubmit={handleSubmit} noValidate style={FORM_STYLE}>
+    <form onSubmit={handleSubmit} noValidate className="timeline-add-form">
       <TimelineTitleInput title={title} setTitle={setTitle} error={error} clearError={clearError} />
       <TimelineTimeInput time={time} setTime={setTime} />
       <Button

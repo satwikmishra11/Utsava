@@ -12,17 +12,8 @@ export function BudgetPlannerHeader({
   isLoadingAI = false,
 }: BudgetPlannerHeaderProps): React.JSX.Element {
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '20px',
-        flexWrap: 'wrap',
-        gap: '12px',
-      }}
-    >
-      <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>Event Budget & Cost Allocation</h2>
+    <div className="budget-header">
+      <h2 className="budget-title">Event Budget & Cost Allocation</h2>
       {onRegenerateAI && (
         <Button
           onClick={onRegenerateAI}

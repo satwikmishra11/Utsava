@@ -10,13 +10,6 @@ export interface BudgetSummaryKpisProps {
   readonly isOver: boolean;
 }
 
-const KPI_GRID_STYLE: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-  gap: '16px',
-  marginBottom: '24px',
-};
-
 function KpiCard({
   label,
   children,
@@ -25,14 +18,8 @@ function KpiCard({
   readonly children: React.ReactNode;
 }): React.JSX.Element {
   return (
-    <div
-      style={{
-        padding: '16px',
-        background: 'var(--bg-secondary)',
-        borderRadius: 'var(--radius-sm)',
-      }}
-    >
-      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{label}</span>
+    <div className="budget-kpi-card">
+      <span className="budget-kpi-label">{label}</span>
       {children}
     </div>
   );
@@ -40,12 +27,12 @@ function KpiCard({
 
 function KpiValueDisplay({
   value,
-  color,
+  className,
 }: {
   readonly value: string;
-  readonly color?: string;
+  readonly className?: string;
 }): React.JSX.Element {
-  return <p style={{ fontSize: '1.4rem', fontWeight: 700, marginTop: '4px', color }}>{value}</p>;
+  return <p className={`budget-kpi-value ${className ?? ''}`.trim()}>{value}</p>;
 }
 
 function BudgetStatusDisplay({
@@ -57,19 +44,9 @@ function BudgetStatusDisplay({
   readonly rem: number;
   readonly currency: string;
 }): React.JSX.Element {
-  const color = isOver ? 'var(--accent-rose)' : 'var(--accent-emerald)';
+  const statusClass = isOver ? 'text-accent-rose' : 'text-accent-emerald';
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        marginTop: '6px',
-        fontWeight: 700,
-        fontSize: '1.05rem',
-        color,
-      }}
-    >
+    <div className={`budget-status-display ${statusClass}`}>
       {isOver ? (
         <>
           <AlertTriangle size={18} aria-hidden="true" />
@@ -102,20 +79,20 @@ export function BudgetSummaryKpis({
     {
       label: 'Committed Expenses',
       value: `${currency} ${actual.toLocaleString()}`,
-      color: isOver ? 'var(--accent-rose)' : 'var(--text-primary)',
+      className: isOver ? 'text-accent-rose' : 'text-primary-color',
     },
     {
       label: 'Paid to Date',
       value: `${currency} ${paid.toLocaleString()}`,
-      color: 'var(--accent-emerald)',
+      className: 'text-accent-emerald',
     },
   ];
 
   return (
-    <div style={KPI_GRID_STYLE}>
-      {cards.map(({ label, value, color }) => (
+    <div className="budget-kpi-grid">
+      {cards.map(({ label, value, className }) => (
         <KpiCard key={label} label={label}>
-          <KpiValueDisplay value={value} color={color} />
+          <KpiValueDisplay value={value} className={className} />
         </KpiCard>
       ))}
       <KpiCard label="Budget Status (Dual Coded)">

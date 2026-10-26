@@ -10,22 +10,6 @@ export interface BudgetCategoryBreakdownProps {
   readonly totalBudget: number;
 }
 
-const TRACK_STYLE: React.CSSProperties = {
-  height: '8px',
-  width: '100%',
-  background: 'var(--bg-surface)',
-  borderRadius: '4px',
-  overflow: 'hidden',
-};
-
-const CARD_CONTAINER_STYLE: React.CSSProperties = {
-  background: 'var(--bg-secondary)',
-  border: '1px solid var(--border-subtle)',
-  borderRadius: 'var(--radius-sm)',
-  padding: '16px',
-  marginBottom: '24px',
-};
-
 const CAT_TABLE_COLS = ['Category', 'Estimated Cost', '% of Budget'];
 
 function BudgetCategoryChartItem({
@@ -41,22 +25,15 @@ function BudgetCategoryChartItem({
 }): React.JSX.Element {
   const pct = percentOf(amt, totalBudget, { max: 100 });
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-        <span style={{ textTransform: 'capitalize', fontWeight: 600 }}>{cat}</span>
-        <span style={{ color: 'var(--text-secondary)' }}>
+    <div className="budget-chart-item">
+      <div className="budget-chart-item-header">
+        <span className="budget-cat-name">{cat}</span>
+        <span className="text-secondary-color">
           {currency} {amt.toLocaleString()} ({pct}%)
         </span>
       </div>
-      <div style={TRACK_STYLE}>
-        <div
-          style={{
-            height: '100%',
-            width: `${pct}%`,
-            background: 'var(--accent-gold)',
-            transition: 'width 0.3s ease',
-          }}
-        />
+      <div className="budget-progress-track">
+        <div className="budget-progress-fill" style={{ width: `${pct}%` }} />
       </div>
     </div>
   );
@@ -75,7 +52,7 @@ function BudgetCategoryChart({
     <div
       role="img"
       aria-label="Category Budget Breakdown Chart. Accessible data table alternative available via toggle."
-      style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
+      className="budget-chart-list"
     >
       {entries.map(([cat, amt]) => (
         <BudgetCategoryChartItem
@@ -102,12 +79,12 @@ function BudgetCategoryTableRow({
   readonly totalBudget: number;
 }): React.JSX.Element {
   return (
-    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-      <td style={{ padding: '8px', textTransform: 'capitalize', fontWeight: 600 }}>{cat}</td>
-      <td style={{ padding: '8px' }}>
+    <tr className="budget-table-row">
+      <td className="budget-cat-td-bold">{cat}</td>
+      <td className="budget-cat-td">
         {currency} {amt.toLocaleString()}
       </td>
-      <td style={{ padding: '8px' }}>{percentOf(amt, totalBudget)}%</td>
+      <td className="budget-cat-td">{percentOf(amt, totalBudget)}%</td>
     </tr>
   );
 }
@@ -115,11 +92,9 @@ function BudgetCategoryTableRow({
 function BudgetCategoryTableHead(): React.JSX.Element {
   return (
     <thead>
-      <tr
-        style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
-      >
+      <tr className="budget-table-head-row">
         {CAT_TABLE_COLS.map((col) => (
-          <th key={col} scope="col" style={{ padding: '8px' }}>
+          <th key={col} scope="col" className="budget-cat-th">
             {col}
           </th>
         ))}
@@ -138,15 +113,8 @@ function BudgetCategoryTable({
   readonly totalBudget: number;
 }): React.JSX.Element {
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table
-        style={{
-          width: '100%',
-          borderCollapse: 'collapse',
-          textAlign: 'left',
-          fontSize: '0.875rem',
-        }}
-      >
+    <div className="table-container">
+      <table className="budget-breakdown-table">
         <caption className="sr-only">Budget Category Allocation Breakdown</caption>
         <BudgetCategoryTableHead />
         <tbody>
@@ -181,17 +149,8 @@ function BudgetCategoryHeader({
   readonly onToggle: () => void;
 }): React.JSX.Element {
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '12px',
-        flexWrap: 'wrap',
-        gap: '8px',
-      }}
-    >
-      <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>Category Spending Allocation</span>
+    <div className="budget-category-header">
+      <span className="budget-category-title">Category Spending Allocation</span>
       <Button
         variant="secondary"
         size="sm"
@@ -216,7 +175,7 @@ export function BudgetCategoryBreakdown({
   const isChart = viewMode === 'chart';
 
   return (
-    <div style={CARD_CONTAINER_STYLE}>
+    <div className="budget-card-container">
       <BudgetCategoryHeader
         isChart={isChart}
         onToggle={() => setViewMode((m) => (m === 'chart' ? 'table' : 'chart'))}

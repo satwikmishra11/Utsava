@@ -12,10 +12,8 @@ export interface TimelineGeneratorHeaderProps {
 function TimelineHeaderTitle(): React.JSX.Element {
   return (
     <div>
-      <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>Run of Show & Timeline Milestones</h2>
-      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-        Acyclic milestone scheduling with dependency resolution.
-      </p>
+      <h2 className="timeline-title">Run of Show & Timeline Milestones</h2>
+      <p className="timeline-subtitle">Acyclic milestone scheduling with dependency resolution.</p>
     </div>
   );
 }
@@ -32,7 +30,7 @@ function TimelineHeaderActions({
   readonly isLoadingAI?: boolean;
 }): React.JSX.Element {
   return (
-    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+    <div className="timeline-header-actions">
       <Button
         onClick={onViewModeToggle}
         variant="secondary"
@@ -64,16 +62,7 @@ export function TimelineGeneratorHeader({
   isLoadingAI = false,
 }: TimelineGeneratorHeaderProps): React.JSX.Element {
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '20px',
-        flexWrap: 'wrap',
-        gap: '12px',
-      }}
-    >
+    <div className="timeline-header">
       <TimelineHeaderTitle />
       <TimelineHeaderActions
         viewMode={viewMode}

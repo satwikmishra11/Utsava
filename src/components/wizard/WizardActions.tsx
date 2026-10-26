@@ -9,14 +9,7 @@ export interface WizardActionsProps {
 
 export function WizardActions({ step, onBack }: WizardActionsProps): React.JSX.Element {
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: '12px',
-      }}
-    >
+    <div className="wizard-actions">
       {step > 1 ? (
         <Button
           type="button"

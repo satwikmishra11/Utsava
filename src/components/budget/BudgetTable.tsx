@@ -14,11 +14,9 @@ const TABLE_HEADERS = ['Expense', 'Category', 'Estimated', 'Status', 'Actions'];
 function BudgetTableHead(): React.JSX.Element {
   return (
     <thead>
-      <tr
-        style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
-      >
+      <tr className="budget-table-head-row">
         {TABLE_HEADERS.map((h) => (
-          <th key={h} style={{ padding: '12px 8px' }} scope="col">
+          <th key={h} className="budget-table-th" scope="col">
             {h}
           </th>
         ))}
@@ -34,15 +32,8 @@ export function BudgetTable({
   onRemove,
 }: BudgetTableProps): React.JSX.Element {
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table
-        style={{
-          width: '100%',
-          borderCollapse: 'collapse',
-          textAlign: 'left',
-          fontSize: '0.925rem',
-        }}
-      >
+    <div className="table-container">
+      <table className="budget-table">
         <caption className="sr-only">Budget Expenses List</caption>
         <BudgetTableHead />
         <tbody>
