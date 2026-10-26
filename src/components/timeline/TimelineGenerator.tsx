@@ -28,27 +28,83 @@ export interface TimelineGeneratorProps {
   readonly onDismissSuggestions?: () => void;
 }
 
+function createTimelineItem(title: string, time: string): TimelineItem {
+  return {
+    id: `time-${Date.now()}`,
+    phase: 'ceremony',
+    title,
+    time,
+    durationMinutes: 60,
+    completed: false,
+  };
+}
+
+function TimelineAlertSection({
+  isLoadingAI,
+  hasSuggestions,
+  suggestions,
+  onAccept,
+  onDismiss,
+}: {
+  readonly isLoadingAI: boolean;
+  readonly hasSuggestions: boolean;
+  readonly suggestions?: readonly GeneratedTimelineTask[] | null;
+  readonly onAccept?: () => void;
+  readonly onDismiss?: () => void;
+}): React.JSX.Element | null {
+  return (
+    <>
+      {isLoadingAI && <CardSkeleton />}
+      {hasSuggestions && suggestions && onAccept && onDismiss && (
+        <TimelineSuggestionsAlert
+          suggestions={suggestions}
+          onAccept={onAccept}
+          onDismiss={onDismiss}
+        />
+      )}
+    </>
+  );
+}
+
+function TimelineItemsList({
+  items,
+  itemsToRender,
+  onToggle,
+  onRegenerateAI,
+}: {
+  readonly items: readonly TimelineItem[];
+  readonly itemsToRender: readonly TimelineItem[];
+  readonly onToggle: (id: string) => void;
+  readonly onRegenerateAI?: () => void;
+}): React.JSX.Element {
+  if (items.length === 0) {
+    return (
+      <EmptyState
+        title="No Milestones Scheduled"
+        description="Schedule key event milestones or click 'Regenerate AI Timeline' to back-schedule automatically."
+        actionLabel={onRegenerateAI ? 'Auto-Schedule AI Timeline' : undefined}
+        onAction={onRegenerateAI}
+      />
+    );
+  }
+  return (
+    <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      {itemsToRender.map((item) => (
+        <TimelineItemRow key={item.id} item={item} onToggle={onToggle} />
+      ))}
+    </ul>
+  );
+}
+
 export function TimelineGenerator(props: TimelineGeneratorProps): React.JSX.Element {
-  const {
-    items,
-    onAddItem,
-    onToggleComplete,
-    onRegenerateAI,
-    isLoadingAI = false,
-    pendingSuggestions,
-    onAcceptSuggestions,
-    onDismissSuggestions,
-  } = props;
+  const { items, onAddItem, onToggleComplete, onRegenerateAI, isLoadingAI = false } = props;
   const [phaseFilter, setPhaseFilter] = useState<TimelinePhase | 'all'>('all');
   const [viewMode, setViewMode] = useState<'all' | 'upcoming'>('all');
   const conflicts = findTimelineConflicts(items);
   const displayed = phaseFilter === 'all' ? items : filterTimelineByPhase(items, phaseFilter);
   const itemsToRender = viewMode === 'upcoming' ? items.filter((i) => !i.completed) : displayed;
   const hasSuggestions = Boolean(
-    pendingSuggestions &&
-    pendingSuggestions.length > 0 &&
-    onAcceptSuggestions &&
-    onDismissSuggestions
+    props.pendingSuggestions?.length && props.onAcceptSuggestions && props.onDismissSuggestions
   );
 
   return (
@@ -63,40 +119,20 @@ export function TimelineGenerator(props: TimelineGeneratorProps): React.JSX.Elem
       <TimelineProgressSummary items={items} />
       <UpcomingTasksPanel items={items} onToggle={onToggleComplete} />
       <TimelineConflictBanner count={conflicts.length} />
-      {isLoadingAI && <CardSkeleton />}
-      {hasSuggestions && pendingSuggestions && onAcceptSuggestions && onDismissSuggestions && (
-        <TimelineSuggestionsAlert
-          suggestions={pendingSuggestions}
-          onAccept={onAcceptSuggestions}
-          onDismiss={onDismissSuggestions}
-        />
-      )}
-      <TimelineForm
-        onAdd={(title, time) =>
-          onAddItem({
-            id: `time-${Date.now()}`,
-            phase: 'ceremony',
-            title,
-            time,
-            durationMinutes: 60,
-            completed: false,
-          })
-        }
+      <TimelineAlertSection
+        isLoadingAI={isLoadingAI}
+        hasSuggestions={hasSuggestions}
+        suggestions={props.pendingSuggestions}
+        onAccept={props.onAcceptSuggestions}
+        onDismiss={props.onDismissSuggestions}
       />
-      {items.length === 0 ? (
-        <EmptyState
-          title="No Milestones Scheduled"
-          description="Schedule key event milestones or click 'Regenerate AI Timeline' to back-schedule automatically."
-          actionLabel={onRegenerateAI ? 'Auto-Schedule AI Timeline' : undefined}
-          onAction={onRegenerateAI}
-        />
-      ) : (
-        <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {itemsToRender.map((item) => (
-            <TimelineItemRow key={item.id} item={item} onToggle={onToggleComplete} />
-          ))}
-        </ul>
-      )}
+      <TimelineForm onAdd={(title, time) => onAddItem(createTimelineItem(title, time))} />
+      <TimelineItemsList
+        items={items}
+        itemsToRender={itemsToRender}
+        onToggle={onToggleComplete}
+        onRegenerateAI={onRegenerateAI}
+      />
     </section>
   );
 }

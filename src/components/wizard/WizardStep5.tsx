@@ -26,6 +26,14 @@ export interface WizardStep5Props {
   readonly setAccessibility: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
+function toggleListItem(
+  list: readonly string[],
+  setFn: React.Dispatch<React.SetStateAction<string[]>>,
+  item: string
+): void {
+  setFn(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
+}
+
 function ToggleButtonGroup({
   title,
   ariaLabel,
@@ -73,14 +81,6 @@ export function WizardStep5({
   accessibility,
   setAccessibility,
 }: WizardStep5Props): React.JSX.Element {
-  const toggle = (
-    list: readonly string[],
-    setFn: React.Dispatch<React.SetStateAction<string[]>>,
-    item: string
-  ) => {
-    setFn(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
-  };
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       <Input
@@ -95,14 +95,14 @@ export function WizardStep5({
         ariaLabel="Dietary restrictions"
         options={DIETARY_OPTIONS}
         selected={dietary}
-        onToggle={(d) => toggle(dietary, setDietary, d)}
+        onToggle={(d) => toggleListItem(dietary, setDietary, d)}
       />
       <ToggleButtonGroup
         title="Accessibility Needs"
         ariaLabel="Accessibility options"
         options={ACCESSIBILITY_OPTIONS}
         selected={accessibility}
-        onToggle={(a) => toggle(accessibility, setAccessibility, a)}
+        onToggle={(a) => toggleListItem(accessibility, setAccessibility, a)}
       />
     </div>
   );

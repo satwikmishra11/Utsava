@@ -10,7 +10,9 @@ export interface WizardStepContentProps {
   readonly wizard: ReturnType<typeof useOnboardingWizard>;
 }
 
-export function WizardStepContent({ wizard }: WizardStepContentProps): React.JSX.Element | null {
+function renderEarlySteps(
+  wizard: ReturnType<typeof useOnboardingWizard>
+): React.JSX.Element | null {
   const { step, error } = wizard;
   if (step === 1) {
     return <WizardStep1 value={wizard.eventType} onChange={wizard.handleEventTypeChange} />;
@@ -29,6 +31,13 @@ export function WizardStepContent({ wizard }: WizardStepContentProps): React.JSX
       />
     );
   }
+  return null;
+}
+
+export function WizardStepContent({ wizard }: WizardStepContentProps): React.JSX.Element | null {
+  const { step, error } = wizard;
+  if (step <= 2) return renderEarlySteps(wizard);
+
   if (step === 3) {
     const isInvalid = Number(wizard.guestCount) <= 0 || isNaN(Number(wizard.guestCount));
     return (
