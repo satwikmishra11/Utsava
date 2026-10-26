@@ -7,6 +7,36 @@ import { Plus } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useVendorForm } from './useVendorForm';
 
+const FORM_STYLE: React.CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr)) auto',
+  gap: '12px',
+  marginBottom: '24px',
+};
+
+function VendorCategorySelect({
+  value,
+  onChange,
+}: {
+  readonly value: BudgetCategory;
+  readonly onChange: (c: BudgetCategory) => void;
+}): React.JSX.Element {
+  return (
+    <select
+      className="select"
+      value={value}
+      onChange={(e) => onChange(e.target.value as BudgetCategory)}
+      aria-label="Vendor category"
+    >
+      {ALL_BUDGET_CATEGORIES.map((c) => (
+        <option key={c} value={c}>
+          {c}
+        </option>
+      ))}
+    </select>
+  );
+}
+
 export function VendorForm({
   onAdd,
 }: {
@@ -16,15 +46,7 @@ export function VendorForm({
     useVendorForm(onAdd);
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr)) auto',
-        gap: '12px',
-        marginBottom: '24px',
-      }}
-    >
+    <form onSubmit={handleSubmit} style={FORM_STYLE}>
       <input
         className="input"
         placeholder="Vendor business name"
@@ -33,18 +55,7 @@ export function VendorForm({
         aria-label="Vendor business name"
         required
       />
-      <select
-        className="select"
-        value={category}
-        onChange={(e) => setCategory(e.target.value as BudgetCategory)}
-        aria-label="Vendor category"
-      >
-        {ALL_BUDGET_CATEGORIES.map((c) => (
-          <option key={c} value={c}>
-            {c}
-          </option>
-        ))}
-      </select>
+      <VendorCategorySelect value={category} onChange={setCategory} />
       <input
         className="input"
         type="number"

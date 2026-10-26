@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import { BudgetCategory, VendorItem } from '@/domain/types';
+import { GeneratedVendorItem } from '@/services/ai';
 import { calculateVendorTotalCommitment } from '@/domain/vendors';
 import { CardSkeleton } from '../ui/Skeleton';
 import { VendorChecklistProps } from './types';
@@ -8,6 +10,32 @@ import { VendorChecklistHeader } from './VendorChecklistHeader';
 import { VendorSuggestionsAlert } from './VendorSuggestionsAlert';
 import { VendorForm } from './VendorForm';
 import { VendorBoardGrid } from './VendorBoardGrid';
+
+function createVendorItem(name: string, category: BudgetCategory, amount: string): VendorItem {
+  return {
+    id: `v-${Date.now()}`,
+    category,
+    name,
+    status: 'shortlisted',
+    quotedAmount: Number(amount) || 0,
+    deliverables: ['Contract Review'],
+  };
+}
+
+function VendorAlertSection({
+  suggestions,
+  onAccept,
+  onDismiss,
+}: {
+  readonly suggestions?: readonly GeneratedVendorItem[] | null;
+  readonly onAccept?: () => void;
+  readonly onDismiss?: () => void;
+}): React.JSX.Element | null {
+  if (!suggestions?.length || !onAccept || !onDismiss) return null;
+  return (
+    <VendorSuggestionsAlert suggestions={suggestions} onAccept={onAccept} onDismiss={onDismiss} />
+  );
+}
 
 export function VendorChecklist(props: VendorChecklistProps): React.JSX.Element {
   const {
@@ -17,9 +45,6 @@ export function VendorChecklist(props: VendorChecklistProps): React.JSX.Element 
     onUpdateStatus,
     onRegenerateAI,
     isLoadingAI = false,
-    pendingSuggestions,
-    onAcceptSuggestions,
-    onDismissSuggestions,
   } = props;
   const totalCommitment = calculateVendorTotalCommitment(vendors);
 
@@ -32,28 +57,12 @@ export function VendorChecklist(props: VendorChecklistProps): React.JSX.Element 
         isLoadingAI={isLoadingAI}
       />
       {isLoadingAI && <CardSkeleton />}
-      {pendingSuggestions &&
-        pendingSuggestions.length > 0 &&
-        onAcceptSuggestions &&
-        onDismissSuggestions && (
-          <VendorSuggestionsAlert
-            suggestions={pendingSuggestions}
-            onAccept={onAcceptSuggestions}
-            onDismiss={onDismissSuggestions}
-          />
-        )}
-      <VendorForm
-        onAdd={(name, cat, amount) =>
-          onAddVendor({
-            id: `v-${Date.now()}`,
-            category: cat,
-            name,
-            status: 'shortlisted',
-            quotedAmount: Number(amount) || 0,
-            deliverables: ['Contract Review'],
-          })
-        }
+      <VendorAlertSection
+        suggestions={props.pendingSuggestions}
+        onAccept={props.onAcceptSuggestions}
+        onDismiss={props.onDismissSuggestions}
       />
+      <VendorForm onAdd={(name, cat, amt) => onAddVendor(createVendorItem(name, cat, amt))} />
       <VendorBoardGrid
         vendors={vendors}
         currency={currency}

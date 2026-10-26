@@ -5,6 +5,23 @@ import { IdeaRecommendation } from '@/domain/types';
 import { Plus, Check } from 'lucide-react';
 import { Button } from '../ui/Button';
 
+const TAG_STYLE: React.CSSProperties = {
+  background: 'var(--bg-surface-elevated)',
+  color: 'var(--text-muted)',
+};
+
+function IdeaCardTags({ tags }: { readonly tags: readonly string[] }): React.JSX.Element {
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px' }}>
+      {tags.map((tag) => (
+        <span key={tag} className="badge" style={TAG_STYLE}>
+          #{tag}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function IdeaCardDetails({ idea }: { readonly idea: IdeaRecommendation }): React.JSX.Element {
   return (
     <>
@@ -32,17 +49,7 @@ function IdeaCardDetails({ idea }: { readonly idea: IdeaRecommendation }): React
           Tradition: {idea.culturalContext}
         </p>
       )}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px' }}>
-        {idea.tags.map((tag) => (
-          <span
-            key={tag}
-            className="badge"
-            style={{ background: 'var(--bg-surface-elevated)', color: 'var(--text-muted)' }}
-          >
-            #{tag}
-          </span>
-        ))}
-      </div>
+      <IdeaCardTags tags={idea.tags} />
     </>
   );
 }
