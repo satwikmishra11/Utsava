@@ -1,3 +1,8 @@
+/**
+ * Supplies curated vendor hiring checklists tailored to specific event verticals,
+ * establishing recommended lead times and critical procurement deliverables.
+ */
+
 import { BudgetCategory, EventType } from './schemas';
 
 export interface VendorTemplateItem {
