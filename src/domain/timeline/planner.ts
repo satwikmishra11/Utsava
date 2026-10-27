@@ -1,3 +1,8 @@
+/**
+ * Coordinates automated schedule creation, compressing lead times proportionally
+ * and generating human-readable rationale when events must be planned on short notice.
+ */
+
 import { TaskTemplate, ScheduledTask, backScheduleTimeline } from './scheduler';
 
 export type TimelineTaskFlag = 'compressed' | 'overdue';

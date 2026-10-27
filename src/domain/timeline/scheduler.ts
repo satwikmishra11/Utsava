@@ -1,3 +1,8 @@
+/**
+ * Schedules milestones backwards from event dates using UTC calendar math,
+ * preventing off-by-one errors and flagging tasks that fall past due.
+ */
+
 import { detectCycles } from './cycles';
 
 export interface TaskTemplate {

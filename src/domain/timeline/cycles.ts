@@ -1,3 +1,8 @@
+/**
+ * Performs cycle detection via depth-first graph traversal, safeguarding the timeline
+ * against deadlocks where event tasks circularly depend upon one another.
+ */
+
 export interface DependencyTask {
   readonly id: string;
   readonly dependsOn: readonly string[];

@@ -1,3 +1,8 @@
+/**
+ * Immutable temporal operations for converting, sorting, and sequencing milestone
+ * times without mutating existing schedule state or causing timezone drifts.
+ */
+
 import { TimelineItem, TimelinePhase } from '../types';
 
 export function timeStringToMinutes(time: string): number {

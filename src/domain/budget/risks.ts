@@ -1,3 +1,8 @@
+/**
+ * Identifies unpaid vendor commitment ratios against total budget to protect cash flow
+ * and preemptively warn event hosts of imminent liquidity bottlenecks.
+ */
+
 import { BudgetSummary, VendorItem } from '../types';
 import { Vendor, VendorStatus } from '../schemas';
 import { UNPAID_COMMITMENTS_RISK_THRESHOLD } from '@/lib/constants';
