@@ -131,13 +131,9 @@ function DevTokenRecordsList({
   );
 }
 
-export function DevTokenPanel(): React.JSX.Element | null {
+function DevTokenPanelContent(): React.JSX.Element {
   const [isOpen, setIsOpen] = useState(false);
   const { records, summary } = useDevTokenPanel();
-
-  if (process.env.NODE_ENV === 'production' && !isOpen) {
-    return null;
-  }
 
   return (
     <aside aria-label="Developer Token Usage Panel" className="dev-token-aside">
@@ -154,4 +150,12 @@ export function DevTokenPanel(): React.JSX.Element | null {
       )}
     </aside>
   );
+}
+
+export function DevTokenPanel(): React.JSX.Element | null {
+  if (process.env.NODE_ENV !== 'development') {
+    return null;
+  }
+
+  return <DevTokenPanelContent />;
 }

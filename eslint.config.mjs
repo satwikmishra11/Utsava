@@ -41,6 +41,53 @@ const eslintConfig = [
       'max-lines-per-function': 'off',
     },
   },
+  {
+    files: ['src/domain/**/*.{ts,tsx}'],
+    ignores: ['src/domain/**/__tests__/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                '@/services',
+                '@/services/**',
+                '../services/**',
+                '../../services/**',
+                '@/components',
+                '@/components/**',
+                '../components/**',
+                '../../components/**',
+                '@/app',
+                '@/app/**',
+                '../app/**',
+                '../../app/**',
+              ],
+              message: 'Domain layer cannot import from services, components, or app layers.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/services/**/*.{ts,tsx}'],
+    ignores: ['src/services/**/__tests__/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@/components', '@/components/**', '../components/**', '../../components/**'],
+              message: 'Services layer cannot import from components layer.',
+            },
+          ],
+        },
+      ],
+    },
+  },
 ];
 
 export default eslintConfig;

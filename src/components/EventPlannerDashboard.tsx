@@ -70,7 +70,7 @@ export function EventPlannerDashboard(): React.JSX.Element {
         />
       )}
       <ToastNotification message={planState.toastMessage} />
-      <DevTokenPanel />
+      {process.env.NODE_ENV === 'development' && <DevTokenPanel />}
     </>
   );
 }
