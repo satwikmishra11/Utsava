@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { VendorItem, VendorStatus } from '@/domain/types';
+import { VendorItem } from '@/domain/types';
+import { VendorStatus } from '@/domain/schemas';
 import { EmptyState } from '../ui/EmptyState';
 import { VendorBoardColumn } from './VendorBoardColumn';
 

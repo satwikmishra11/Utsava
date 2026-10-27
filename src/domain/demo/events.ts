@@ -1,4 +1,5 @@
-import { EventPlan, EventType } from '../types';
+import { EventPlan } from '../types';
+import { EventType } from '../schemas';
 import { DEMO_INDIAN_WEDDING } from './wedding';
 import { DEMO_CHILD_BIRTHDAY } from './birthday';
 import { DEMO_COMMUNITY_FUNDRAISER } from './community';

@@ -1,4 +1,5 @@
-import { VendorItem, VendorStatus } from '@/domain/types';
+import { VendorItem } from '@/domain/types';
+import { VendorStatus } from '@/domain/schemas';
 import { GeneratedVendorItem } from '@/services/ai';
 
 export interface VendorChecklistProps {

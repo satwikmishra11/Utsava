@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { VendorItem, VendorStatus } from '@/domain/types';
+import { VendorItem } from '@/domain/types';
+import { VendorStatus } from '@/domain/schemas';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { STATUS_TITLES } from './types';

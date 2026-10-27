@@ -1,4 +1,5 @@
-import { VendorItem, VendorStatus } from './types';
+import { VendorItem } from './types';
+import { VendorStatus } from './schemas';
 
 export function filterVendorsByStatus(
   vendors: readonly VendorItem[],

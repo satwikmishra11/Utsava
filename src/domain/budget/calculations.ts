@@ -1,4 +1,5 @@
-import { BudgetItem, BudgetSummary, CategoryAllocation, BudgetCategory } from '../types';
+import { BudgetSummary, CategoryAllocation } from '../types';
+import { BudgetItem, BudgetCategory } from '../schemas';
 
 export const ALL_BUDGET_CATEGORIES: readonly BudgetCategory[] = [
   'venue',

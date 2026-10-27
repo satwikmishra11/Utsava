@@ -1,4 +1,5 @@
-import { EventPlan, TimelineItem, VendorItem, BudgetItem } from '@/domain/types';
+import { EventPlan, TimelineItem, VendorItem } from '@/domain/types';
+import { BudgetItem } from '@/domain/schemas';
 import { ToolCall, ToolCallSchema } from './types';
 
 function applyAddTask(

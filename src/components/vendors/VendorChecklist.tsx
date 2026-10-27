@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { BudgetCategory, VendorItem } from '@/domain/types';
+import { VendorItem } from '@/domain/types';
+import { BudgetCategory } from '@/domain/schemas';
 import { GeneratedVendorItem } from '@/services/ai';
 import { calculateVendorTotalCommitment } from '@/domain/vendors';
 import { CardSkeleton } from '../ui/Skeleton';

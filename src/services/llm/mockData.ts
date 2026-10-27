@@ -1,4 +1,5 @@
-import { IdeaRecommendation, TimelineItem, EventType } from '../../domain/types';
+import { IdeaRecommendation, TimelineItem } from '../../domain/types';
+import { EventType } from '../../domain/schemas';
 
 export function createMockStream(text: string): ReadableStream<Uint8Array> {
   const encoder = new TextEncoder();

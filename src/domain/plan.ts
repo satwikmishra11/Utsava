@@ -1,4 +1,5 @@
-import { EventPlan, EventType, TimelineItem } from './types';
+import { EventPlan, TimelineItem } from './types';
+import { EventType } from './schemas';
 import { planTimeline, TaskTemplate, DEFAULT_TIMELINE_TEMPLATES } from './timeline';
 
 export interface WizardPlanInput {

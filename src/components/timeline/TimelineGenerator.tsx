@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { TimelineItem, TimelinePhase, EventType } from '@/domain/types';
+import { TimelineItem, TimelinePhase } from '@/domain/types';
+import { EventType } from '@/domain/schemas';
 import { findTimelineConflicts, filterTimelineByPhase } from '@/domain/timeline';
 import { GeneratedTimelineTask } from '@/services/ai';
 import { CardSkeleton } from '../ui/Skeleton';
