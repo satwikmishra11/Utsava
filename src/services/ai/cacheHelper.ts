@@ -1,3 +1,8 @@
+/**
+ * Normalizes input structures and computes deterministic 64-bit murmur-style hashes
+ * ensuring semantic duplicates hit the generation cache regardless of key order.
+ */
+
 function hashString(str: string): string {
   let h1 = 0xdeadbeef;
   let h2 = 0x41c6ce57;
