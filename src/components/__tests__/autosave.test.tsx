@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useDebouncedAutosave } from '../useAutosave';
-import { INITIAL_PLAN } from '../useEventPlan';
+import { useDebouncedAutosave, INITIAL_PLAN } from '../plan';
 import { EventPlan } from '@/domain/types';
 
 describe('Debounced Autosave & Optimistic UI Suite', () => {

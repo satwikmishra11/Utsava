@@ -1,6 +1,6 @@
 import { BudgetCategory } from '@/domain/schemas';
-import { adviseBudgetSplit } from '@/domain/budgetAdvisor';
-import { planTimeline, DEFAULT_TIMELINE_TEMPLATES } from '@/domain/timelineLogic';
+import { adviseBudgetSplit } from '@/domain/budget';
+import { planTimeline, DEFAULT_TIMELINE_TEMPLATES } from '@/domain/timeline';
 import { getVendorChecklistTemplates } from '@/domain/vendorTemplates';
 import { buildMockIdeas } from '../llm/mockData';
 import {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { OnboardingWizard } from '../OnboardingWizard';
+import { OnboardingWizard } from '../wizard';
 
 describe('OnboardingWizard Component Tests', () => {
   it('does not render when isOpen is false', () => {

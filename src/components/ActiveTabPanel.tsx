@@ -3,20 +3,19 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
 import { TabId } from './NavigationTabs';
-import { BudgetPlanner } from './BudgetPlanner';
+import { BudgetPlanner } from './budget';
 import { CardSkeleton } from './ui/Skeleton';
-import { useEventPlan } from './useEventPlan';
+import { useEventPlan } from './plan';
 
-const TimelineGenerator = dynamic(
-  () => import('./TimelineGenerator').then((m) => m.TimelineGenerator),
-  { loading: () => <CardSkeleton /> }
-);
-
-const VendorChecklist = dynamic(() => import('./VendorChecklist').then((m) => m.VendorChecklist), {
+const TimelineGenerator = dynamic(() => import('./timeline').then((m) => m.TimelineGenerator), {
   loading: () => <CardSkeleton />,
 });
 
-const IdeaGenerator = dynamic(() => import('./IdeaGenerator').then((m) => m.IdeaGenerator), {
+const VendorChecklist = dynamic(() => import('./vendors').then((m) => m.VendorChecklist), {
+  loading: () => <CardSkeleton />,
+});
+
+const IdeaGenerator = dynamic(() => import('./ideas').then((m) => m.IdeaGenerator), {
   loading: () => <CardSkeleton />,
 });
 

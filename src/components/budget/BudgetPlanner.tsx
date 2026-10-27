@@ -2,8 +2,7 @@
 
 import React from 'react';
 import { BudgetItem, BudgetCategory } from '@/domain/types';
-import { calculateBudgetSummary } from '@/domain/budget';
-import { OverspendAnalysis } from '@/domain/budgetLogic';
+import { calculateBudgetSummary, OverspendAnalysis } from '@/domain/budget';
 import { GeneratedBudgetItem } from '@/services/ai';
 import { CardSkeleton } from '../ui/Skeleton';
 import { EmptyState } from '../ui/EmptyState';

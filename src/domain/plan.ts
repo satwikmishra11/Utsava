@@ -1,5 +1,5 @@
 import { EventPlan, EventType, TimelineItem } from './types';
-import { planTimeline, TaskTemplate, DEFAULT_TIMELINE_TEMPLATES } from './timelineLogic';
+import { planTimeline, TaskTemplate, DEFAULT_TIMELINE_TEMPLATES } from './timeline';
 
 export interface WizardPlanInput {
   readonly title: string;

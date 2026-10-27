@@ -5,13 +5,12 @@ import dynamic from 'next/dynamic';
 import { Header } from './Header';
 import { NavigationTabs, TabId } from './NavigationTabs';
 import { ActiveTabPanel } from './ActiveTabPanel';
-import { useEventPlan } from './useEventPlan';
+import { useEventPlan } from './plan';
 import { Z_INDEX_TOAST } from '@/lib/constants';
 
-const OnboardingWizard = dynamic(
-  () => import('./OnboardingWizard').then((m) => m.OnboardingWizard),
-  { ssr: false }
-);
+const OnboardingWizard = dynamic(() => import('./wizard').then((m) => m.OnboardingWizard), {
+  ssr: false,
+});
 
 const DevTokenPanel = dynamic(() => import('./DevTokenPanel').then((m) => m.DevTokenPanel), {
   ssr: false,

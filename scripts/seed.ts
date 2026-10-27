@@ -5,7 +5,7 @@ import {
   DEMO_INDIAN_WEDDING,
   DEMO_CHILD_BIRTHDAY,
   DEMO_COMMUNITY_FUNDRAISER,
-} from '../src/domain/demoEvents';
+} from '../src/domain/demo';
 import { EventPlan } from '../src/domain/types';
 import { EventPreferences } from '../src/domain/schemas';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { OverspendAnalysis } from '@/domain/budgetLogic';
+import { OverspendAnalysis } from '@/domain/budget';
 import { AlertTriangle } from 'lucide-react';
 
 export interface BudgetOverspendAlertProps {

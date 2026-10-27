@@ -1,6 +1,6 @@
 import { EventPlan } from './types';
-import { adviseBudgetSplit } from './budgetAdvisor';
-import { planTimeline, DEFAULT_TIMELINE_TEMPLATES, computeDaysBetween } from './timelineLogic';
+import { adviseBudgetSplit } from './budget';
+import { planTimeline, DEFAULT_TIMELINE_TEMPLATES, computeDaysBetween } from './timeline';
 
 export interface PlanReasonsResult {
   readonly budgetReasons: readonly string[];

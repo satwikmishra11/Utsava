@@ -1,9 +1,9 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { BudgetPlanner } from '../BudgetPlanner';
+import { BudgetPlanner } from '../budget';
 import { BudgetItem } from '@/domain/types';
-import { detectOverspend } from '@/domain/budgetLogic';
+import { detectOverspend } from '@/domain/budget';
 
 describe('BudgetPlanner Component Tests', () => {
   const sampleItems: BudgetItem[] = [

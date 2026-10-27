@@ -2,12 +2,12 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import axe from 'axe-core';
-import { OnboardingWizard, WizardData } from '../OnboardingWizard';
-import { BudgetPlanner } from '../BudgetPlanner';
-import { TimelineGenerator } from '../TimelineGenerator';
-import { VendorChecklist } from '../VendorChecklist';
-import { IdeaGenerator } from '../IdeaGenerator';
-import { detectOverspend } from '@/domain/budgetLogic';
+import { OnboardingWizard, WizardData } from '../wizard';
+import { BudgetPlanner } from '../budget';
+import { TimelineGenerator } from '../timeline';
+import { VendorChecklist } from '../vendors';
+import { IdeaGenerator } from '../ideas';
+import { detectOverspend } from '@/domain/budget';
 import { EventPlan } from '@/domain/types';
 
 const MOCK_PLAN: EventPlan = {

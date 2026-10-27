@@ -4,7 +4,7 @@ import {
   allocateBudget,
   rebalanceBudget,
   detectOverspend,
-} from '../budgetLogic';
+} from '../budget';
 import { BudgetItem } from '../schemas';
 
 describe('Budget Logic Pure Functions', () => {

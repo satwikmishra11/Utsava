@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useEventPlan } from '../useEventPlan';
+import { useEventPlan } from '../plan';
 
 describe('useEventPlan applyPlanAction (Step 3d)', () => {
   it('applies add_budget_item action to event plan', () => {

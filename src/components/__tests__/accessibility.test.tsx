@@ -3,9 +3,9 @@ import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import axe from 'axe-core';
 import { NavigationTabs, TabId } from '../NavigationTabs';
-import { BudgetPlanner } from '../BudgetPlanner';
-import { TimelineGenerator } from '../TimelineGenerator';
-import { VendorChecklist } from '../VendorChecklist';
+import { BudgetPlanner } from '../budget';
+import { TimelineGenerator } from '../timeline';
+import { VendorChecklist } from '../vendors';
 
 describe('UI Accessibility & Interaction (WCAG 2.2 AA)', () => {
   it('NavigationTabs has no axe violations and supports keyboard navigation', async () => {

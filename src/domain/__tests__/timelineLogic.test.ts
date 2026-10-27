@@ -7,7 +7,7 @@ import {
   computeDaysBetween,
   TaskTemplate,
   DEFAULT_TIMELINE_TEMPLATES,
-} from '../timelineLogic';
+} from '../timeline';
 
 describe('Timeline Logic Pure Functions', () => {
   it('accurately subtracts days across month and year boundaries', () => {

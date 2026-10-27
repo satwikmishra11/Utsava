@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { OnboardingWizard } from '../OnboardingWizard';
+import { OnboardingWizard } from '../wizard';
 
 describe('OnboardingWizard Accessibility Needs Collection', () => {
   it('collects both toggle options and custom typed accessibility accommodations', () => {

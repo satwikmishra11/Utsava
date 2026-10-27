@@ -4,18 +4,16 @@ import { useState } from 'react';
 import { EventPlan, EventType } from '@/domain/types';
 import { invalidateCapabilityCache } from '@/services/ai';
 import { useDebouncedAutosave } from './useAutosave';
-import { detectOverspend } from '@/domain/budgetLogic';
-import { WizardData } from './OnboardingWizard';
+import { detectOverspend } from '@/domain/budget';
+import { WizardData } from '../wizard';
 import { TOAST_DURATION_MS } from '@/lib/constants';
-import { DEMO_INDIAN_WEDDING, getDemoEventByType } from '@/domain/demoEvents';
+import { DEMO_INDIAN_WEDDING, getDemoEventByType } from '@/domain/demo';
 import { createPlanFromWizard } from '@/domain/plan';
-import {
-  useBudgetAiSync,
-  useTimelineAiSync,
-  useVendorAiSync,
-  useIdeaAiSync,
-  useItemMutations,
-} from './plan';
+import { useBudgetAiSync } from './useBudgetAiSync';
+import { useTimelineAiSync } from './useTimelineAiSync';
+import { useVendorAiSync } from './useVendorAiSync';
+import { useIdeaAiSync } from './useIdeaAiSync';
+import { useItemMutations } from './useItemMutations';
 
 export const INITIAL_PLAN: EventPlan = DEMO_INDIAN_WEDDING;
 

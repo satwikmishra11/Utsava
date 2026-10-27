@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createPlanFromWizard, createPlanWithTimeline } from '../plan';
-import { DEFAULT_TIMELINE_TEMPLATES } from '../timelineLogic';
+import { DEFAULT_TIMELINE_TEMPLATES } from '../timeline';
 
 describe('createPlanFromWizard', () => {
   it('creates an EventPlan with empty collections and matches input properties', () => {

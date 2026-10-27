@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { adviseBudgetSplit } from '../budgetAdvisor';
+import { adviseBudgetSplit } from '../budget';
 
 describe('Budget Advisor Domain Engine (src/domain/budgetAdvisor.ts)', () => {
   it('shifts points to catering when per-guest cost is low for INR wedding', () => {
