@@ -1,5 +1,6 @@
 /**
- * Cache service for repeated AI generations with TTL support and input invalidation
+ * High-performance TTL generation cache eliminating duplicate LLM invocations,
+ * optimizing response latency and preventing redundant token expenditures.
  */
 
 interface CacheEntry<T> {
