@@ -1,3 +1,8 @@
+/**
+ * Pure financial calculations guaranteeing exact sum invariance, category rollups,
+ * and remaining budget variance across all celebration budget line items.
+ */
+
 import { BudgetSummary, CategoryAllocation } from '../types';
 import { BudgetItem, BudgetCategory } from '../schemas';
 

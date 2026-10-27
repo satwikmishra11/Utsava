@@ -1,5 +1,11 @@
+/**
+ * Provides deterministic budget allocation shifts based on guest count, timeline constraints,
+ * and accessibility needs, ensuring explainable financial plans when LLM providers are offline.
+ */
+
 import { z } from 'zod';
 import { BudgetCategory, EventTypeSchema } from '../schemas';
+
 import { DEFAULT_BUDGET_PERCENTAGES } from './overspend';
 import {
   PER_GUEST_BUDGET_RANGES_INR,
