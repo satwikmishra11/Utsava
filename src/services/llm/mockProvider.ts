@@ -1,3 +1,8 @@
+/**
+ * Deterministic offline LLM provider allowing zero-API-key local development,
+ * rapid unit testing, and instant demo execution without external network latency.
+ */
+
 import { z } from 'zod';
 import { LLMProvider, LLMOptions } from './types';
 
