@@ -86,3 +86,10 @@ Enforced via ESLint `no-restricted-imports` and automated architecture tests:
 2. **Service Decoupling**: Code in `src/services/` MUST NOT import from `src/components/`.
 3. **No Direct Component Shims**: Feature folders contain components directly; root-level shim re-exports are prohibited.
 4. **Single Source of Truth for Types**: Zod schemas in `src/domain/schemas.ts` are the canonical source. All domain models derive via `z.infer`.
+
+## Key Architectural Decisions
+
+1. **Pure Domain Fallback Engine**: If upstream LLM calls fail, time out, or encounter validation discrepancies, Utsava falls back to deterministic domain algorithms (`adviseBudgetSplit`, `planTimeline`, `getVendorChecklistTemplates`) that produce valid, explainable plans with zero user disruption.
+2. **Deriving Types from Runtime Schemas**: To eliminate drift between compile-time contracts and runtime data, TypeScript types are generated directly via `z.infer` on Zod schemas.
+3. **Factory Functions for Dependency Decoupling**: Modules with shared state (rate limiters, caches, LLM providers) expose factory functions (`createRateLimiter`, `createGenerationCache`, `createLLMProvider`) taking dependencies as arguments, alongside default application singletons.
+4. **Zero Client-Side Privilege Leakage**: Double-submit CSRF and HMAC-SHA256 session signatures are enforced server-side. No client is granted authority over entity primary keys or system prompts.

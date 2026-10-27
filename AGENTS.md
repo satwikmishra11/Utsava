@@ -2,7 +2,7 @@
 
 Utsava is a GenAI-powered event planning assistant for weddings, birthdays, and community events. Core capabilities: budget planner, timeline generator, vendor checklist, personalized idea studio, and a plan-acting chat assistant.
 
-## Judging Criteria & Principles
+## Core Architectural Principles
 
 1. **Code quality**: Strict TypeScript, small pure functions (<40 lines), layered architecture (`domain / services / api / components / lib`), no `any`, no dead code.
 2. **Security**: Validate all inputs with Zod, never expose API keys client-side, rate-limit AI routes, defend against prompt injection, sanitize output.

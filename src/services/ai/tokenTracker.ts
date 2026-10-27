@@ -1,5 +1,6 @@
 /**
- * In-memory Token Usage Tracking service for AI requests
+ * Tracks AI token burn, cache effectiveness, and estimated costs in memory,
+ * providing real-time telemetry to developers and observability instrumentation.
  */
 
 export interface TokenUsageRecord {
