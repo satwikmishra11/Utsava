@@ -1,5 +1,11 @@
+/**
+ * Central orchestrator for generative planning capabilities (budget, timeline, ideas, chat),
+ * integrating input guardrails, generation caching, and automated domain fallbacks.
+ */
+
 import { getLLMProvider } from '../llm';
 import { LLMProvider } from '../llm/types';
+
 import { generationCache } from '../cacheService';
 import { createNormalizedHashKey } from './cacheHelper';
 import { checkScopeGuardrails } from './guardrails';

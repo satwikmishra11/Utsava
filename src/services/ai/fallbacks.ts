@@ -1,5 +1,11 @@
+/**
+ * Maps deterministic domain calculations into schema-compliant AI service responses,
+ * guaranteeing complete, error-free event plans even during full upstream LLM outages.
+ */
+
 import { BudgetCategory } from '@/domain/schemas';
 import { adviseBudgetSplit } from '@/domain/budget';
+
 import { planTimeline, DEFAULT_TIMELINE_TEMPLATES } from '@/domain/timeline';
 import { getVendorChecklistTemplates } from '@/domain/vendorTemplates';
 import { buildMockIdeas } from '../llm/mockData';

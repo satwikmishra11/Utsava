@@ -1,3 +1,8 @@
+/**
+ * Enforces conversational topic boundaries, intercepting off-topic inquiries (code, medical, finance)
+ * and prompt injection attempts before they reach the language model.
+ */
+
 import { detectPromptInjection } from '@/domain/security';
 
 const OUT_OF_SCOPE_PATTERNS: readonly RegExp[] = [
