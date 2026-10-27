@@ -1,9 +1,9 @@
 import { EventPlan, ActionProposal } from '@/domain/types';
 import { CONTINGENCY_RATIO_RECOMMENDED, FALLBACK_EXPENSE_ESTIMATE_VENDOR } from '@/lib/constants';
 
-export const BUDGET_ACTION_KEYWORDS = ['budget', 'cost', 'reserve'] as const;
-export const TIMELINE_ACTION_KEYWORDS = ['timeline', 'schedule', 'task'] as const;
-export const VENDOR_ACTION_KEYWORDS = ['vendor', 'cater', 'photo'] as const;
+const BUDGET_ACTION_KEYWORDS = ['budget', 'cost', 'reserve'] as const;
+const TIMELINE_ACTION_KEYWORDS = ['timeline', 'schedule', 'task'] as const;
+const VENDOR_ACTION_KEYWORDS = ['vendor', 'cater', 'photo'] as const;
 
 interface ActionProposalRule {
   readonly keywords: readonly string[];

@@ -1,7 +1,7 @@
 import React from 'react';
 import { TimelinePhase } from '@/domain/types';
 
-export const TIMELINE_PHASES: readonly (TimelinePhase | 'all')[] = [
+const TIMELINE_PHASES: readonly (TimelinePhase | 'all')[] = [
   'all',
   'preparation',
   'ceremony',

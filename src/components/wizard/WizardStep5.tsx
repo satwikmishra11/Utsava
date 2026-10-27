@@ -1,7 +1,7 @@
 import React from 'react';
 import { Input } from '../ui/Input';
 
-export const DIETARY_OPTIONS = [
+const DIETARY_OPTIONS = [
   'Vegetarian',
   'Vegan',
   'Halal',
@@ -10,7 +10,7 @@ export const DIETARY_OPTIONS = [
   'Gluten-Free',
 ] as const;
 
-export const ACCESSIBILITY_OPTIONS = [
+const ACCESSIBILITY_OPTIONS = [
   'Wheelchair Ramp',
   'ASL Interpreter',
   'Quiet Sensory Room',

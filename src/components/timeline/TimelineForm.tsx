@@ -6,7 +6,7 @@ export interface TimelineFormProps {
   readonly onAdd: (title: string, time: string) => void;
 }
 
-export function useTimelineForm(onAdd: (title: string, time: string) => void) {
+function useTimelineForm(onAdd: (title: string, time: string) => void) {
   const [title, setTitle] = useState('');
   const [time, setTime] = useState('14:00');
   const [error, setError] = useState('');

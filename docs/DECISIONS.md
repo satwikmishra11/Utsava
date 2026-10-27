@@ -173,7 +173,7 @@ Event planning requires an intuitive, accessible, and responsive user journey th
 1. **Design System Primitives (`src/components/ui/`)**:
    - `Button`: Accessible interactive button with variants (`primary`, `secondary`, `outline`, `ghost`, `danger`), sizes (`sm`, `md`, `lg`), loading spinner states, and left/right icon integration.
    - `Input`: Labelled text/number/date input with accessible error states (`aria-invalid`, `aria-describedby`), helper text, and WCAG color contrasts.
-   - `Card`: Glassmorphic elevated container with modular subcomponents (`CardHeader`, `CardTitle`, `CardContent`, `CardFooter`).
+   - `Card`: Glassmorphic elevated container component.
    - `Dialog`: Accessible modal container with `role="dialog"`, `aria-modal="true"`, focus containment, Escape key dismissal, and backdrop target detection.
    - `Tabs`: WAI-ARIA tablist container with arrow key navigation (`ArrowLeft`, `ArrowRight`, `Home`, `End`), `aria-selected`, and tabpanel associations.
    - `Skeleton` & `EmptyState`: Shimmer loading states and accessible empty/error banners with actionable recovery buttons.

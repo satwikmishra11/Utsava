@@ -18,7 +18,7 @@ import { useItemMutations } from './useItemMutations';
 
 export const INITIAL_PLAN: EventPlan = DEMO_INDIAN_WEDDING;
 
-export function usePlanExports(plan: EventPlan, showToast: (msg: string) => void) {
+function usePlanExports(plan: EventPlan, showToast: (msg: string) => void) {
   const handleExportICS = async () => {
     const { exportPlanToICS } = await import('@/lib/exportUtils');
     exportPlanToICS(plan);

@@ -5,8 +5,6 @@
 
 import { BudgetCategory, VendorStatus, EventType, BudgetItem } from './schemas';
 
-export type PaymentStatus = 'planned' | 'booked' | 'paid';
-
 export interface CategoryAllocation {
   readonly category: BudgetCategory;
   readonly allocated: number;
