@@ -1,5 +1,6 @@
 /**
- * CSRF Protection utilities for state-changing HTTP mutations
+ * Enforces double-submit header and origin verification on state-changing requests,
+ * defending event planners from unauthorized cross-site action execution.
  */
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
