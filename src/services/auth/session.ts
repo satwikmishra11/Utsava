@@ -1,3 +1,8 @@
+/**
+ * Stateless HMAC-SHA256 session token management via Web Crypto API,
+ * providing tamper-proof user authentication and IDOR access control without external session stores.
+ */
+
 import { env } from '@/lib/env';
 
 export interface SessionUser {

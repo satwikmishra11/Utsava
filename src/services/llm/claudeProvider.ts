@@ -1,5 +1,11 @@
+/**
+ * Production Anthropic Claude provider handling streaming chat generation and
+ * JSON structured extraction with temperature and token controls.
+ */
+
 import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
+
 import { LLMProvider, LLMOptions } from './types';
 
 export class ClaudeProvider implements LLMProvider {
