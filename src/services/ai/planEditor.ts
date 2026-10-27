@@ -1,5 +1,11 @@
+/**
+ * Applies assistant tool action calls immutably to event plans, generating secure UUIDs
+ * server-side so AI models can never tamper with database primary keys.
+ */
+
 import { EventPlan, TimelineItem, VendorItem } from '@/domain/types';
 import { BudgetItem } from '@/domain/schemas';
+
 import { ToolCall, ToolCallSchema } from './types';
 
 function applyAddTask(

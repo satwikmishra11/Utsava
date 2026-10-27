@@ -1,3 +1,8 @@
+/**
+ * Executes structured LLM generations with automatic corrective feedback loops,
+ * repairing schema deviations before safely degrading to deterministic fallbacks.
+ */
+
 import { z } from 'zod';
 import { LLMProvider, LLMOptions } from '../llm/types';
 
