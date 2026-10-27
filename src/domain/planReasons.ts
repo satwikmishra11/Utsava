@@ -1,5 +1,11 @@
+/**
+ * Extracts and compiles explainable rationale for budget shifts and schedule adjustments,
+ * giving event planners clear insights into automated system decisions.
+ */
+
 import { EventPlan } from './types';
 import { adviseBudgetSplit } from './budget';
+
 import { planTimeline, DEFAULT_TIMELINE_TEMPLATES, computeDaysBetween } from './timeline';
 
 export interface PlanReasonsResult {
