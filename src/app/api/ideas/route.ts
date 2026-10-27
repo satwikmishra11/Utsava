@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { GenerateIdeasRequestSchema } from '@/domain/schemas';
 import { enforceRateLimit, enforceCsrf, enforceFieldLength, jsonValidationError } from '../helpers';
 import { getSessionUser } from '@/services/auth/session';
-import { generateIdeas } from '@/services/aiService';
+import { generateIdeas } from '@/services/ai';
 
 const QuerySchema = z.object({}).strict();
 
@@ -31,6 +31,13 @@ export async function POST(req: NextRequest): Promise<Response> {
   const parsed = GenerateIdeasRequestSchema.safeParse(body);
   if (!parsed.success) return jsonValidationError(parsed.error.flatten());
 
-  const ideas = await generateIdeas(parsed.data);
-  return NextResponse.json({ ideas }, { status: 200 });
+  const result = await generateIdeas({
+    eventType: parsed.data.eventType,
+    guestCount: parsed.data.guestCount,
+    budgetBand: parsed.data.budgetTier,
+    culture: parsed.data.culturalContext,
+    dietary: [],
+    accessibilityNeeds: [],
+  });
+  return NextResponse.json({ ideas: result.data.ideas }, { status: 200 });
 }

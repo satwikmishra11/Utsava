@@ -6,9 +6,9 @@
 [![Lighthouse Performance](https://img.shields.io/badge/Lighthouse-96%20Mobile-gold.svg)](docs/PERFORMANCE.md)
 [![Vercel Deployment](https://img.shields.io/badge/Deploy-Live%20on%20Vercel-black.svg?logo=vercel)](https://utsava.vercel.app)
 
-> **Utsava** (_Sanskrit for "celebration" / "festival"_) is an intelligent, accessible, and culturally attuned event planning platform for life's most momentous gatherings — weddings, milestone birthdays, and community festivals.
+**Utsava** (_Sanskrit for "celebration" / "festival"_) is an intelligent, accessible, and culturally attuned event planning platform for life's most momentous gatherings — weddings, milestone birthdays, and community festivals.
 
-🌐 **Live Demo:** [https://utsava.vercel.app](https://utsava.vercel.app)  
+**Live Demo:** [https://utsava.vercel.app](https://utsava.vercel.app)  
 ⚡ **Demo Mode Active:** Works instantly out-of-the-box with **no API key required** (uses deterministic `MockProvider` and 3 pre-seeded realistic celebrations).
 
 ---
@@ -23,11 +23,11 @@
 
 Utsava is specifically tailored for three high-stakes celebration verticals where generic planning tools (spreadsheets, basic to-do apps) break down:
 
-| Vertical                              | Target Persona                                                                                                                              | Core Planning Breakdown Solved                                                                                                                                                                                          |
-| :------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 💍 **Indian Weddings**                | **Couples & Multigenerational Families** managing multi-day, high-touch celebrations with diverse dietary rituals and elder accommodations. | Unifies multi-day ritual run of shows (Haldi, Mehendi, Sangeet, Mandap, Bidaai) with percentage-based category splits, elder accessibility (step-free ramp logistics), and multi-diet catering (Jain, Halal, Pure Veg). |
-| 🎂 **Milestone Birthdays**            | **Parents & Hosts** organizing themed, age-appropriate gatherings with sensory and safety considerations.                                   | Paces day-of entertainment schedules with strict allergen tracking (peanut-free, dairy-free), sensory quiet zones, and accessible play spaces while preventing favor/cake budget creep.                                 |
-| 🎪 **Community Events & Fundraisers** | **Committee Organizers & Non-Profit Leads** balancing public venue logistics, permit deadlines, and donor accountability.                   | Coordinates municipal permit lead times, noise variances, stage accessibility (ADA ramps, ASL interpretation), volunteer shifts, and sponsor fundraising targets.                                                       |
+| Vertical                           | Target Persona                                                                                                                              | Core Planning Breakdown Solved                                                                                                                                                                                          |
+| :--------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Indian Weddings**                | **Couples & Multigenerational Families** managing multi-day, high-touch celebrations with diverse dietary rituals and elder accommodations. | Unifies multi-day ritual run of shows (Haldi, Mehendi, Sangeet, Mandap, Bidaai) with percentage-based category splits, elder accessibility (step-free ramp logistics), and multi-diet catering (Jain, Halal, Pure Veg). |
+| **Milestone Birthdays**            | **Parents & Hosts** organizing themed, age-appropriate gatherings with sensory and safety considerations.                                   | Paces day-of entertainment schedules with strict allergen tracking (peanut-free, dairy-free), sensory quiet zones, and accessible play spaces while preventing favor/cake budget creep.                                 |
+| **Community Events & Fundraisers** | **Committee Organizers & Non-Profit Leads** balancing public venue logistics, permit deadlines, and donor accountability.                   | Coordinates municipal permit lead times, noise variances, stage accessibility (ADA ramps, ASL interpretation), volunteer shifts, and sponsor fundraising targets.                                                       |
 
 ---
 
@@ -238,9 +238,9 @@ Utsava includes a built-in **Demo Mode** enabled by default:
 
 - **No external API key needed**: Runs entirely on the deterministic `MockProvider`.
 - **Pre-Seeded Celebrations**: Instantly switch between:
-  1. 💍 **Aarav & Meera's Grand Royal Wedding** (₹65,000 | 350 guests)
-  2. 🎂 **Anya's 7th Magical Rainforest Safari** (₹3,500 | 45 guests)
-  3. 🎪 **Oakridge Harmony Park Revitalization Gala** (₹20,000 | 500 guests)
+  1. **Aarav & Meera's Grand Royal Wedding** (₹65,000 | 350 guests)
+  2. **Anya's 7th Magical Rainforest Safari** (₹3,500 | 45 guests)
+  3. **Oakridge Harmony Park Revitalization Gala** (₹20,000 | 500 guests)
 - **Full Interactivity**: You can regenerate AI budgets, back-schedule timelines, explore vendor checklists, and chat with the AI assistant with real-time tool proposals.
 
 ---
@@ -308,11 +308,11 @@ npm run build
 
 Detailed architectural and conformance documentation:
 
-- 📋 [**How this maps to the Judging Criteria**](docs/JUDGING_CRITERIA.md): Comprehensive evidence guide with code links for all 6 evaluation criteria.
-- 🏛️ [**Architecture Decisions Log (ADRs)**](docs/DECISIONS.md): ADR 001 through ADR 012 detailing design trade-offs.
-- 🛡️ [**Security Architecture & Threat Model**](docs/SECURITY.md): STRIDE-lite analysis, prompt injection defense, CSRF, and IDOR prevention.
-- ♿ [**Accessibility Conformance Report**](docs/ACCESSIBILITY.md): WCAG 2.2 AA matrix, axe-core automated audits, and screen reader verification.
-- ⚡ [**Performance Optimization Report**](docs/PERFORMANCE.md): Mobile Lighthouse 96/100, 116 KB JS bundle, and N+1 query elimination benchmarks.
+- [**How this maps to the Judging Criteria**](docs/JUDGING_CRITERIA.md): Comprehensive evidence guide with code links for all 6 evaluation criteria.
+- [**Architecture Decisions Log (ADRs)**](docs/DECISIONS.md): ADR 001 through ADR 012 detailing design trade-offs.
+- [**Security Architecture & Threat Model**](docs/SECURITY.md): STRIDE-lite analysis, prompt injection defense, CSRF, and IDOR prevention.
+- [**Accessibility Conformance Report**](docs/ACCESSIBILITY.md): WCAG 2.2 AA matrix, axe-core automated audits, and screen reader verification.
+- [**Performance Optimization Report**](docs/PERFORMANCE.md): Mobile Lighthouse 96/100, 116 KB JS bundle, and N+1 query elimination benchmarks.
 
 ---
 

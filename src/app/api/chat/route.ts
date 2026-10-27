@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { ChatRequestSchema } from '@/domain/schemas';
 import { enforceRateLimit, enforceCsrf, enforceFieldLength, jsonValidationError } from '../helpers';
 import { getSessionUser } from '@/services/auth/session';
-import { chatWithPlanAssistant } from '@/services/aiService';
+import { executeChatAssistant } from '@/services/ai';
 
 const QuerySchema = z.object({}).strict();
 
@@ -31,13 +31,13 @@ export async function POST(req: NextRequest): Promise<Response> {
   const parsed = ChatRequestSchema.safeParse(body);
   if (!parsed.success) return jsonValidationError(parsed.error.flatten());
 
-  const stream = await chatWithPlanAssistant(
-    parsed.data.message,
-    parsed.data.eventPlan,
-    parsed.data.chatHistory
-  );
+  const chatResult = await executeChatAssistant({
+    message: parsed.data.message,
+    eventPlan: parsed.data.eventPlan,
+    chatHistory: parsed.data.chatHistory,
+  });
 
-  return new Response(stream, {
+  return new Response(chatResult.stream, {
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
       'Transfer-Encoding': 'chunked',

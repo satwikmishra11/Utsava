@@ -6,7 +6,7 @@ import {
   DEMO_COMMUNITY_FUNDRAISER,
   getDemoEventByType,
   getDemoEventById,
-} from '../demoEvents';
+} from '../demo';
 
 describe('demoEvents domain tests', () => {
   it('contains exactly 3 preconfigured demo events', () => {
