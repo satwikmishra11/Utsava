@@ -1,3 +1,8 @@
+/**
+ * Manages vendor procurement lifecycles, tracking contracted commitments
+ * and deliverable completions without leaking financial calculation side-effects.
+ */
+
 import { VendorItem } from './types';
 import { VendorStatus } from './schemas';
 
