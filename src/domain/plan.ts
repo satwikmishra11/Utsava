@@ -1,5 +1,11 @@
+/**
+ * Constructs initialized, fully hydrated EventPlan entities from wizard input,
+ * synthesizing baseline budget allocations, timelines, and vendor requirements.
+ */
+
 import { EventPlan, TimelineItem } from './types';
 import { EventType } from './schemas';
+
 import { planTimeline, TaskTemplate, DEFAULT_TIMELINE_TEMPLATES } from './timeline';
 
 export interface WizardPlanInput {
