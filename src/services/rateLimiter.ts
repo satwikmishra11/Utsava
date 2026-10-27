@@ -1,5 +1,6 @@
 /**
- * In-memory sliding-window rate limiter for AI routes
+ * In-memory sliding-window rate limiter protecting generative AI routes from exhaustion,
+ * enforcing fair per-tenant resource limits while allowing burst flexibility.
  */
 
 export interface RateLimitResult {
