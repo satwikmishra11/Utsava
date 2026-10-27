@@ -1,5 +1,6 @@
 /**
- * Security utilities for prompt injection defense, input sanitization, and output encoding
+ * Defends against prompt injection attacks, delimiter escapes, and system override attempts,
+ * establishing a secure isolation boundary between untrusted user inputs and LLM instructions.
  */
 
 const INJECTION_PATTERNS: readonly RegExp[] = [
