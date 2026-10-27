@@ -1,5 +1,6 @@
 /**
- * Mathematical utility functions for domain calculations, scaling, and safe rounding.
+ * Safe arithmetic, clamped percentage allocation, and bounded rounding utilities
+ * preventing divide-by-zero crashes and currency fractional artifacts.
  */
 
 export interface PercentOfOptions {
