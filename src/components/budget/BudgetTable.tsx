@@ -1,5 +1,5 @@
 import React from 'react';
-import { BudgetItem } from '@/domain/types';
+import { BudgetItem } from '@/domain/schemas';
 import { BudgetTableRow } from './BudgetTableRow';
 
 export interface BudgetTableProps {

@@ -1,5 +1,7 @@
 import { EventType } from '@/domain/schemas';
 
+export type WizardStep = 1 | 2 | 3 | 4 | 5;
+
 export interface WizardData {
   readonly eventType: EventType;
   readonly title: string;

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { BudgetItem, BudgetCategory } from '@/domain/types';
+import { BudgetItem, BudgetCategory } from '@/domain/schemas';
 import { calculateBudgetSummary, OverspendAnalysis } from '@/domain/budget';
 import { GeneratedBudgetItem } from '@/services/ai';
 import { CardSkeleton } from '../ui/Skeleton';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BudgetItem } from '@/domain/types';
+import { BudgetItem } from '@/domain/schemas';
 import { Trash2, CheckCircle2, Clock } from 'lucide-react';
 
 export interface BudgetTableRowProps {

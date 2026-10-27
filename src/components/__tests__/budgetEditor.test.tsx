@@ -2,7 +2,7 @@ import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BudgetPlanner } from '../budget';
-import { BudgetItem } from '@/domain/types';
+import { BudgetItem } from '@/domain/schemas';
 import { detectOverspend } from '@/domain/budget';
 
 describe('BudgetPlanner Component Tests', () => {

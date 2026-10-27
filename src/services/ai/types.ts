@@ -9,28 +9,16 @@ import {
 export const PersonalizationContextSchema = z.object({
   eventType: EventTypeSchema,
   culture: z.string().max(100).optional(),
-  budgetBand: z.enum(['budget', 'moderate', 'luxury']).default('moderate'),
+  budgetBand: z.enum(['budget', 'moderate', 'luxury']).optional(),
   totalBudget: z.number().nonnegative().optional(),
-  currency: z.string().min(1).max(5).default('INR'),
+  currency: z.string().min(1).max(5).optional(),
   guestCount: z.number().int().positive(),
-  dietary: z.array(z.string().max(60)).default([]),
-  accessibilityNeeds: z.array(z.string().max(100)).default([]),
+  dietary: z.array(z.string().max(60)).readonly().optional(),
+  accessibilityNeeds: z.array(z.string().max(100)).readonly().optional(),
   location: z.string().max(200).optional(),
   eventDate: z.string().optional(),
 });
-
-export interface PersonalizationContext {
-  readonly eventType: import('@/domain/schemas').EventType;
-  readonly culture?: string;
-  readonly budgetBand?: 'budget' | 'moderate' | 'luxury';
-  readonly totalBudget?: number;
-  readonly currency?: string;
-  readonly guestCount: number;
-  readonly dietary?: readonly string[];
-  readonly accessibilityNeeds?: readonly string[];
-  readonly location?: string;
-  readonly eventDate?: string;
-}
+export type PersonalizationContext = z.infer<typeof PersonalizationContextSchema>;
 
 export const GeneratedBudgetItemSchema = z.object({
   category: BudgetCategorySchema,

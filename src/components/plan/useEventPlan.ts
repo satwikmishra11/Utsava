@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { EventPlan, EventType } from '@/domain/types';
+import { EventPlan } from '@/domain/types';
+import { EventType } from '@/domain/schemas';
 import { invalidateCapabilityCache } from '@/services/ai';
 import { useDebouncedAutosave } from './useAutosave';
 import { detectOverspend } from '@/domain/budget';

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BudgetItem } from '@/domain/types';
+import { BudgetItem } from '@/domain/schemas';
 import { percentOf } from '@/domain/math';
 import { BarChart3, Table as TableIcon } from 'lucide-react';
 import { Button } from '../ui/Button';

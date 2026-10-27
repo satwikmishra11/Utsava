@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { EventPlan, BudgetItem } from '@/domain/types';
+import { EventPlan } from '@/domain/types';
+import { BudgetItem } from '@/domain/schemas';
 import { generateBudgetPlan, GeneratedBudgetItem } from '@/services/ai';
 
 export function useBudgetAiSync(

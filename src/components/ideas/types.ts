@@ -1,4 +1,5 @@
-import { IdeaRecommendation, IdeaCategory, EventType } from '@/domain/types';
+import { IdeaRecommendation, IdeaCategory } from '@/domain/types';
+import { EventType } from '@/domain/schemas';
 
 export interface IdeaGeneratorProps {
   readonly eventType: EventType;

@@ -3,23 +3,12 @@
  * Strict TypeScript without 'any'
  */
 
-export type {
-  EventType,
-  BudgetCategory,
-  EventPreferences,
-  Event,
-  BudgetItem,
-  TimelineTaskStatus,
-  TimelineTask,
-  VendorStatus,
-  Vendor,
-  IdeaSet,
-} from './schemas';
+import { BudgetCategory, VendorStatus, EventType, BudgetItem } from './schemas';
 
 export type PaymentStatus = 'planned' | 'booked' | 'paid';
 
 export interface CategoryAllocation {
-  readonly category: import('./schemas').BudgetCategory;
+  readonly category: BudgetCategory;
   readonly allocated: number;
   readonly actual: number;
   readonly percentage: number;
@@ -55,11 +44,11 @@ export interface TimelineItem {
 
 export interface VendorItem {
   readonly id: string;
-  readonly category: import('./schemas').BudgetCategory;
+  readonly category: BudgetCategory;
   readonly name: string;
   readonly contactEmail?: string;
   readonly contactPhone?: string;
-  readonly status: import('./schemas').VendorStatus;
+  readonly status: VendorStatus;
   readonly quotedAmount: number;
   readonly notes?: string;
   readonly deliverables: readonly string[];
@@ -79,7 +68,7 @@ export interface IdeaRecommendation {
 
 export interface AddBudgetItemPayload {
   readonly name: string;
-  readonly category: import('./schemas').BudgetCategory;
+  readonly category: BudgetCategory;
   readonly estimatedCost: number;
 }
 
@@ -90,7 +79,7 @@ export interface AddTimelineItemPayload {
 }
 
 export interface AddVendorItemPayload {
-  readonly category: import('./schemas').BudgetCategory;
+  readonly category: BudgetCategory;
   readonly role: string;
   readonly estimatedCost: number;
 }
@@ -152,7 +141,7 @@ export interface ChatMessage {
 export interface EventPlanSummary {
   readonly id: string;
   readonly title: string;
-  readonly eventType: import('./schemas').EventType;
+  readonly eventType: EventType;
   readonly date: string;
   readonly guestCount: number;
   readonly totalBudget: number;
@@ -163,7 +152,7 @@ export interface EventPlanSummary {
 }
 
 export interface EventPlan extends EventPlanSummary {
-  readonly budgetItems: readonly import('./schemas').BudgetItem[];
+  readonly budgetItems: readonly BudgetItem[];
   readonly timelineItems: readonly TimelineItem[];
   readonly vendors: readonly VendorItem[];
   readonly ideas: readonly IdeaRecommendation[];

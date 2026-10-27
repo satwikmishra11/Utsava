@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { EventPlan, EventType } from '@/domain/types';
+import { EventPlan } from '@/domain/types';
+import { EventType } from '@/domain/schemas';
 import {
   Sparkles,
   Calendar,

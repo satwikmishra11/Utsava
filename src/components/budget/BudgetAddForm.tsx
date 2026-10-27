@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BudgetCategory } from '@/domain/types';
+import { BudgetCategory } from '@/domain/schemas';
 import { ALL_BUDGET_CATEGORIES } from '@/domain/budget';
 import { Plus } from 'lucide-react';
 

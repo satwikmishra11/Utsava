@@ -1,14 +1,12 @@
 import {
   EventPlan,
-  BudgetItem,
   TimelineItem,
   VendorItem,
   IdeaRecommendation,
-  VendorStatus,
-  BudgetCategory,
   PlanAction,
   PlanActionType,
 } from '@/domain/types';
+import { BudgetItem, VendorStatus, BudgetCategory } from '@/domain/schemas';
 import { FALLBACK_EXPENSE_ESTIMATE, FALLBACK_EXPENSE_ESTIMATE_VENDOR } from '@/lib/constants';
 
 interface PlanActionApplierMutations {
