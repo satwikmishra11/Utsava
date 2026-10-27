@@ -49,4 +49,8 @@ export class RateLimiter {
   }
 }
 
-export const aiRateLimiter = new RateLimiter(60000, 10);
+export function createRateLimiter(windowMs: number = 60000, maxRequests: number = 10): RateLimiter {
+  return new RateLimiter(windowMs, maxRequests);
+}
+
+export const aiRateLimiter = createRateLimiter(60000, 10);

@@ -6,12 +6,24 @@ export * from './types';
 export * from './mockProvider';
 export * from './claudeProvider';
 
-export function getLLMProvider(providerName?: string): LLMProvider {
-  const selected = providerName ?? process.env.LLM_PROVIDER ?? 'mock';
+export interface LLMProviderOptions {
+  readonly providerName?: string;
+  readonly apiKey?: string;
+}
 
-  if (selected === 'claude' && process.env.ANTHROPIC_API_KEY) {
-    return new ClaudeProvider();
+export function createLLMProvider(options: LLMProviderOptions = {}): LLMProvider {
+  const selected = options.providerName ?? process.env.LLM_PROVIDER ?? 'mock';
+  const apiKey = options.apiKey ?? process.env.ANTHROPIC_API_KEY;
+
+  if (selected === 'claude' && apiKey) {
+    return new ClaudeProvider(apiKey);
   }
 
   return new MockProvider();
 }
+
+export function getLLMProvider(providerName?: string): LLMProvider {
+  return createLLMProvider({ providerName });
+}
+
+export const defaultLLMProvider: LLMProvider = getLLMProvider();

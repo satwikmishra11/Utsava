@@ -98,4 +98,11 @@ export class GenerationCache {
   }
 }
 
-export const generationCache = new GenerationCache(600000); // 10 min TTL
+export function createGenerationCache(
+  defaultTtlMs: number = 600000,
+  maxCapacity: number = 500
+): GenerationCache {
+  return new GenerationCache(defaultTtlMs, maxCapacity);
+}
+
+export const generationCache = createGenerationCache(600000); // 10 min TTL
