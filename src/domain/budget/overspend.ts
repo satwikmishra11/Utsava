@@ -1,3 +1,8 @@
+/**
+ * Establishes baseline expenditure ratios per celebration vertical and evaluates
+ * variance tolerances to flag overspending before contracts are committed.
+ */
+
 import { BudgetCategory, EventType, BudgetItem } from '../schemas';
 
 export const DEFAULT_BUDGET_PERCENTAGES: Record<EventType, Record<BudgetCategory, number>> = {
