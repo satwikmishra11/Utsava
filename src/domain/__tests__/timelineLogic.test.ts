@@ -7,7 +7,9 @@ import {
   computeDaysBetween,
   TaskTemplate,
   DEFAULT_TIMELINE_TEMPLATES,
+  calculateRunOfShowMetrics,
 } from '../timeline';
+import { TimelineItem } from '../types';
 
 describe('Timeline Logic Pure Functions', () => {
   it('accurately subtracts days across month and year boundaries', () => {
@@ -274,5 +276,40 @@ describe('planTimeline Context-Aware Scheduler', () => {
     expect(() => planTimeline('2026-11-20', cycleTasks, '2026-10-26')).toThrowError(
       /Cyclic dependency detected/
     );
+  });
+
+  it('calculates run-of-show metrics and duration summaries', () => {
+    const items: TimelineItem[] = [
+      {
+        id: '1',
+        phase: 'preparation',
+        title: 'Setup',
+        time: '09:00',
+        durationMinutes: 60,
+        completed: true,
+      },
+      {
+        id: '2',
+        phase: 'ceremony',
+        title: 'Ceremony',
+        time: '10:00',
+        durationMinutes: 90,
+        completed: false,
+      },
+      {
+        id: '3',
+        phase: 'reception',
+        title: 'Lunch',
+        time: '12:00',
+        durationMinutes: 120,
+        completed: false,
+      },
+    ];
+    const metrics = calculateRunOfShowMetrics(items);
+    expect(metrics.totalCount).toBe(3);
+    expect(metrics.completedCount).toBe(1);
+    expect(metrics.completionPercentage).toBe(33);
+    expect(metrics.totalDurationMinutes).toBe(270);
+    expect(metrics.formattedTotalRuntime).toBe('4h 30m');
   });
 });

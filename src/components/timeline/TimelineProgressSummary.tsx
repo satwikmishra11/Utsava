@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TimelineItem, TimelinePhase } from '@/domain/types';
-import { percentOf } from '@/domain/math';
+import { calculateRunOfShowMetrics } from '@/domain/timeline';
 import { BarChart3, Table as TableIcon } from 'lucide-react';
 import { Button } from '../ui/Button';
 
@@ -151,19 +151,21 @@ function TimelineProgressHeader({
   completed,
   total,
   pct,
+  runtime,
   viewMode,
   onToggle,
 }: {
   readonly completed: number;
   readonly total: number;
   readonly pct: number;
+  readonly runtime: string;
   readonly viewMode: 'chart' | 'table';
   readonly onToggle: () => void;
 }): React.JSX.Element {
   return (
     <div className="timeline-progress-header">
       <span className="timeline-progress-title">
-        Schedule Progress & Phase Completion ({completed}/{total} Milestones · {pct}%)
+        Run of Show ({completed}/{total} Milestones · {pct}%) · Total Runtime: {runtime}
       </span>
       <Button
         variant="secondary"
@@ -183,25 +185,24 @@ export function TimelineProgressSummary({
   const [viewMode, setViewMode] = useState<'chart' | 'table'>('chart');
   if (items.length === 0) return null;
 
-  const total = items.length;
-  const completed = items.filter((i) => i.completed).length;
-  const pct = percentOf(completed, total);
+  const metrics = calculateRunOfShowMetrics(items);
   const phaseCounts = calculatePhaseCounts(items);
 
   return (
     <div className="timeline-summary-card">
       <TimelineProgressHeader
-        completed={completed}
-        total={total}
-        pct={pct}
+        completed={metrics.completedCount}
+        total={metrics.totalCount}
+        pct={metrics.completionPercentage}
+        runtime={metrics.formattedTotalRuntime}
         viewMode={viewMode}
         onToggle={() => setViewMode((m) => (m === 'chart' ? 'table' : 'chart'))}
       />
       {viewMode === 'chart' ? (
         <TimelineProgressChart
-          pct={pct}
-          completed={completed}
-          total={total}
+          pct={metrics.completionPercentage}
+          completed={metrics.completedCount}
+          total={metrics.totalCount}
           phaseCounts={phaseCounts}
         />
       ) : (

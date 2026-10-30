@@ -404,6 +404,48 @@ Utsava requires a robust, layered, and deterministic testing strategy that verif
 
 ---
 
+## ADR 013: Professional Event Producer Features — Multi-Format CSV Exports, Per-Guest Financial Metrics, Live Multi-Field Filters, and Executive Client Briefing Hub
+
+- **Date:** 2026-10-30
+- **Status:** Accepted
+
+### Context & Problem Statement
+
+Professional event coordinators, banquet directors, and stage managers require deep operational tooling beyond basic task checklists. Specifically:
+
+1. **Spreadsheet Compatibility**: Professional planners live in Microsoft Excel and Google Sheets; they need RFC 4180-compliant CSV exports of itemized budgets, vendor contact rosters, and run-of-show cue sheets.
+2. **Per-Head Financial Metrics**: Catering and venue budgeting are assessed on a "cost-per-guest" basis against targeted budget ceilings.
+3. **Operational Filtering & Search**: Large-scale galas and multi-day weddings generate dozens of line items; planners require live search and category filtering with dynamic counts across budget, timeline, and vendor boards.
+4. **Client Briefing & Backup Portability**: Coordinators need a single-view Executive Brief to review event parameters, print client run sheets, copy plain-text summaries to clipboards, and import/export offline JSON event backups.
+
+### Decision
+
+1. **Domain Pure Functions**:
+   - `calculatePerGuestCost(summary, guestCount)` in `src/domain/budget/calculations.ts` computes target, estimated, actual, and variance per attendee.
+   - `calculateRunOfShowMetrics(items)` in `src/domain/timeline/operations.ts` computes total duration in minutes, formatted hours/minutes runtime, milestone count, and completion rate.
+   - `calculateVendorFinancials(vendors)` in `src/domain/vendors.ts` calculates total quoted, contracted booked, paid to date, outstanding balance due, and status counts.
+2. **Tabular & Backup Data Service (`src/lib/exportUtils.ts`)**:
+   - Implemented `exportBudgetToCSV`, `exportTimelineToCSV`, and `exportVendorsToCSV` with full CSV quotation escaping and summary rollup rows.
+   - Added `exportPlanToJSON` and `parsePlanFromJSON` for offline event file backup and restoration.
+   - Added `generateEventBriefText` for one-click plain text brief copying.
+3. **Accessible UI Controls & Live Filtering**:
+   - Integrated live text search and category dropdown filters across `BudgetTable`, `TimelineGenerator`, and `VendorChecklist` with active count announcements (`Showing X of Y items`).
+   - Added "Cost Per Guest" KPI card to `BudgetSummaryKpis`.
+   - Added "Total Runtime" and completion rate indicators to `TimelineProgressSummary`.
+   - Added outstanding balance and commitment trackers to `VendorChecklistHeader`.
+4. **Accessible Event Brief Modal (`src/components/EventBriefDialog.tsx`)**:
+   - WCAG 2.2 AA compliant modal with focus trap, backdrop dismissal, keyboard escape, and semantic sections.
+   - Direct export action triggers for PDF print, clipboard copy, batch CSV download, and JSON backup/restore.
+
+### Consequences
+
+- Event coordinators can export full event schedules directly to spreadsheets for catering and audio-visual crew distribution.
+- Zero new external runtime dependencies; uses Web Standard APIs (`Blob`, `URL.createObjectURL`, `window.print`).
+- All new pure domain functions and components strictly adhere to `< 40` lines per function and `< 300` lines per file.
+- Comprehensive unit tests added across domain, lib, and component layers, maintaining 100% test pass rate with zero axe-core accessibility violations.
+
+---
+
 ## Code Quality Evidence
 
 - **Functions over 40 lines**: 0 (enforced via ESLint `max-lines-per-function` max 40, skipBlankLines, skipComments; turned off for `__tests__` and `e2e` only)

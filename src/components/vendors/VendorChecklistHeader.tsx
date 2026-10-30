@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Download } from 'lucide-react';
 import { Button } from '../ui/Button';
 
 const HEADER_STYLE: React.CSSProperties = {
@@ -13,37 +13,60 @@ const HEADER_STYLE: React.CSSProperties = {
   gap: '12px',
 };
 
+export interface VendorChecklistHeaderProps {
+  readonly currency: string;
+  readonly totalCommitment: number;
+  readonly totalPaid?: number;
+  readonly balanceDue?: number;
+  readonly onRegenerateAI?: () => void;
+  readonly onExportCSV?: () => void;
+  readonly isLoadingAI?: boolean;
+}
+
 function VendorHeaderTitle({
   currency,
   totalCommitment,
+  totalPaid = 0,
+  balanceDue = 0,
 }: {
   readonly currency: string;
   readonly totalCommitment: number;
+  readonly totalPaid?: number;
+  readonly balanceDue?: number;
 }): React.JSX.Element {
   return (
     <div>
       <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>Vendor Procurement Board</h2>
       <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-        Committed quotes: {currency} {totalCommitment.toLocaleString()}
+        Committed: {currency} {totalCommitment.toLocaleString()} · Paid: {currency}{' '}
+        {totalPaid.toLocaleString()} · Balance Due: {currency} {balanceDue.toLocaleString()}
       </p>
     </div>
   );
 }
 
-export function VendorChecklistHeader({
-  currency,
-  totalCommitment,
+function VendorHeaderActions({
   onRegenerateAI,
+  onExportCSV,
   isLoadingAI,
 }: {
-  readonly currency: string;
-  readonly totalCommitment: number;
   readonly onRegenerateAI?: () => void;
+  readonly onExportCSV?: () => void;
   readonly isLoadingAI?: boolean;
 }): React.JSX.Element {
   return (
-    <div style={HEADER_STYLE}>
-      <VendorHeaderTitle currency={currency} totalCommitment={totalCommitment} />
+    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+      {onExportCSV && (
+        <Button
+          onClick={onExportCSV}
+          variant="secondary"
+          size="sm"
+          leftIcon={<Download size={15} />}
+          id="btn-export-vendors-csv"
+        >
+          Export CSV
+        </Button>
+      )}
       {onRegenerateAI && (
         <Button
           onClick={onRegenerateAI}
@@ -56,6 +79,24 @@ export function VendorChecklistHeader({
           Regenerate Vendors
         </Button>
       )}
+    </div>
+  );
+}
+
+export function VendorChecklistHeader(props: VendorChecklistHeaderProps): React.JSX.Element {
+  return (
+    <div style={HEADER_STYLE}>
+      <VendorHeaderTitle
+        currency={props.currency}
+        totalCommitment={props.totalCommitment}
+        totalPaid={props.totalPaid}
+        balanceDue={props.balanceDue}
+      />
+      <VendorHeaderActions
+        onRegenerateAI={props.onRegenerateAI}
+        onExportCSV={props.onExportCSV}
+        isLoadingAI={props.isLoadingAI}
+      />
     </div>
   );
 }

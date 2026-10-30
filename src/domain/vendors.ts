@@ -45,3 +45,45 @@ export function getPendingVendorDeliverables(
       deliverables: v.deliverables,
     }));
 }
+
+export interface VendorFinancials {
+  readonly totalQuoted: number;
+  readonly totalBooked: number;
+  readonly totalPaid: number;
+  readonly balanceDue: number;
+  readonly statusCounts: {
+    readonly shortlisted: number;
+    readonly booked: number;
+    readonly paid: number;
+  };
+}
+
+export function calculateVendorFinancials(vendors: readonly VendorItem[]): VendorFinancials {
+  let totalQuoted = 0;
+  let totalBooked = 0;
+  let totalPaid = 0;
+  let shortlisted = 0;
+  let booked = 0;
+  let paid = 0;
+
+  for (const v of vendors) {
+    totalQuoted += v.quotedAmount;
+    if (v.status === 'shortlisted') shortlisted += 1;
+    if (v.status === 'booked') {
+      booked += 1;
+      totalBooked += v.quotedAmount;
+    }
+    if (v.status === 'paid') {
+      paid += 1;
+      totalPaid += v.quotedAmount;
+    }
+  }
+
+  return {
+    totalQuoted: Math.round(totalQuoted * 100) / 100,
+    totalBooked: Math.round(totalBooked * 100) / 100,
+    totalPaid: Math.round(totalPaid * 100) / 100,
+    balanceDue: Math.round(Math.max(0, totalBooked) * 100) / 100,
+    statusCounts: { shortlisted, booked, paid },
+  };
+}

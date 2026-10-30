@@ -88,3 +88,23 @@ export function updateBudgetItem(
 export function removeBudgetItem(items: readonly BudgetItem[], id: string): readonly BudgetItem[] {
   return items.filter((item) => item.id !== id);
 }
+
+export interface PerGuestCostSummary {
+  readonly budgetPerGuest: number;
+  readonly estimatedPerGuest: number;
+  readonly actualPerGuest: number;
+  readonly variancePerGuest: number;
+}
+
+export function calculatePerGuestCost(
+  summary: BudgetSummary,
+  guestCount: number
+): PerGuestCostSummary {
+  const safeCount = Math.max(1, guestCount);
+  return {
+    budgetPerGuest: Math.round((summary.totalBudget / safeCount) * 100) / 100,
+    estimatedPerGuest: Math.round((summary.totalEstimated / safeCount) * 100) / 100,
+    actualPerGuest: Math.round((summary.totalActual / safeCount) * 100) / 100,
+    variancePerGuest: Math.round((summary.variance / safeCount) * 100) / 100,
+  };
+}

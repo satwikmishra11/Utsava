@@ -24,6 +24,7 @@ export interface TimelineGeneratorProps {
   readonly onToggleComplete: (id: string) => void;
   readonly onBulkReplaceTimeline: (items: readonly TimelineItem[]) => void;
   readonly onRegenerateAI?: () => void;
+  readonly onExportCSV?: () => void;
   readonly isLoadingAI?: boolean;
   readonly pendingSuggestions?: readonly GeneratedTimelineTask[] | null;
   readonly onAcceptSuggestions?: () => void;
@@ -100,34 +101,76 @@ function TimelineItemsList({
   );
 }
 
-function useTimelineViewState(items: readonly TimelineItem[]) {
-  const [phaseFilter, setPhaseFilter] = useState<TimelinePhase | 'all'>('all');
-  const [viewMode, setViewMode] = useState<'all' | 'upcoming'>('all');
-  const conflicts = findTimelineConflicts(items);
-  const displayed = phaseFilter === 'all' ? items : filterTimelineByPhase(items, phaseFilter);
-  const itemsToRender = viewMode === 'upcoming' ? items.filter((i) => !i.completed) : displayed;
-  return { phaseFilter, setPhaseFilter, viewMode, setViewMode, conflicts, itemsToRender };
+function filterMilestones(
+  items: readonly TimelineItem[],
+  phase: TimelinePhase | 'all',
+  viewMode: 'all' | 'upcoming',
+  query: string
+): readonly TimelineItem[] {
+  const byPhase = phase === 'all' ? items : filterTimelineByPhase(items, phase);
+  const byMode = viewMode === 'upcoming' ? byPhase.filter((i) => !i.completed) : byPhase;
+  const q = query.toLowerCase().trim();
+  if (!q) return byMode;
+  return byMode.filter((it) => {
+    const text = `${it.title} ${it.assignedTo ?? ''} ${it.location ?? ''}`.toLowerCase();
+    return text.includes(q);
+  });
 }
 
-function TimelineTopSection(props: {
-  readonly viewMode: 'all' | 'upcoming';
-  readonly onViewModeToggle: () => void;
-  readonly onRegenerateAI?: () => void;
-  readonly isLoadingAI: boolean;
-  readonly budgetReasons?: readonly string[];
-  readonly timelineReasons?: readonly string[];
-  readonly currentPhase: TimelinePhase | 'all';
-  readonly onSelectPhase: (phase: TimelinePhase | 'all') => void;
-  readonly items: readonly TimelineItem[];
-  readonly onToggle: (id: string) => void;
-  readonly conflictCount: number;
+function TimelineSearchFilter({
+  searchQuery,
+  onSearchChange,
+  resultCount,
+  totalCount,
+}: {
+  readonly searchQuery: string;
+  readonly onSearchChange: (q: string) => void;
+  readonly resultCount: number;
+  readonly totalCount: number;
 }): React.JSX.Element {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        margin: '12px 0',
+        flexWrap: 'wrap',
+        gap: '8px',
+      }}
+    >
+      <label htmlFor="timeline-search" className="sr-only">
+        Filter Milestones by Title, Assignee, or Location
+      </label>
+      <input
+        id="timeline-search"
+        type="search"
+        className="input"
+        placeholder="Filter milestones (title, assignee, location)..."
+        value={searchQuery}
+        onChange={(e) => onSearchChange(e.target.value)}
+        style={{ width: '100%', maxWidth: '340px', padding: '6px 12px', fontSize: '0.875rem' }}
+      />
+      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+        Showing {resultCount} of {totalCount} milestones
+      </span>
+    </div>
+  );
+}
+
+interface TimelineTopSectionProps {
+  readonly props: TimelineGeneratorProps;
+  readonly filters: ReturnType<typeof useTimelineFilters>;
+}
+
+function TimelineTopSection({ props, filters }: TimelineTopSectionProps): React.JSX.Element {
   return (
     <>
       <TimelineGeneratorHeader
-        viewMode={props.viewMode}
-        onViewModeToggle={props.onViewModeToggle}
+        viewMode={filters.viewMode}
+        onViewModeToggle={() => filters.setViewMode((v) => (v === 'all' ? 'upcoming' : 'all'))}
         onRegenerateAI={props.onRegenerateAI}
+        onExportCSV={props.onExportCSV}
         isLoadingAI={props.isLoadingAI}
       />
       <WhyThisPlanDisclosure
@@ -135,49 +178,63 @@ function TimelineTopSection(props: {
         budgetReasons={props.budgetReasons}
         timelineReasons={props.timelineReasons}
       />
-      <TimelinePhaseFilter currentPhase={props.currentPhase} onSelectPhase={props.onSelectPhase} />
+      <TimelinePhaseFilter
+        currentPhase={filters.phaseFilter}
+        onSelectPhase={filters.setPhaseFilter}
+      />
       <TimelineProgressSummary items={props.items} />
-      <UpcomingTasksPanel items={props.items} onToggle={props.onToggle} />
-      <TimelineConflictBanner count={props.conflictCount} />
+      <UpcomingTasksPanel items={props.items} onToggle={props.onToggleComplete} />
+      <TimelineConflictBanner count={filters.conflicts.length} />
     </>
   );
 }
 
+function useTimelineFilters(items: readonly TimelineItem[]) {
+  const [phaseFilter, setPhaseFilter] = useState<TimelinePhase | 'all'>('all');
+  const [viewMode, setViewMode] = useState<'all' | 'upcoming'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const conflicts = findTimelineConflicts(items);
+  const itemsToRender = filterMilestones(items, phaseFilter, viewMode, searchQuery);
+  return {
+    phaseFilter,
+    setPhaseFilter,
+    viewMode,
+    setViewMode,
+    searchQuery,
+    setSearchQuery,
+    conflicts,
+    itemsToRender,
+  };
+}
+
 export function TimelineGenerator(props: TimelineGeneratorProps): React.JSX.Element {
-  const { items, onAddItem, onToggleComplete, onRegenerateAI, isLoadingAI = false } = props;
-  const viewState = useTimelineViewState(items);
+  const f = useTimelineFilters(props.items);
   const hasSuggestions = Boolean(
     props.pendingSuggestions?.length && props.onAcceptSuggestions && props.onDismissSuggestions
   );
 
   return (
     <section id="panel-timeline" role="tabpanel" aria-labelledby="tab-timeline" className="card">
-      <TimelineTopSection
-        viewMode={viewState.viewMode}
-        onViewModeToggle={() => viewState.setViewMode((v) => (v === 'all' ? 'upcoming' : 'all'))}
-        onRegenerateAI={onRegenerateAI}
-        isLoadingAI={isLoadingAI}
-        budgetReasons={props.budgetReasons}
-        timelineReasons={props.timelineReasons}
-        currentPhase={viewState.phaseFilter}
-        onSelectPhase={viewState.setPhaseFilter}
-        items={items}
-        onToggle={onToggleComplete}
-        conflictCount={viewState.conflicts.length}
+      <TimelineTopSection props={props} filters={f} />
+      <TimelineSearchFilter
+        searchQuery={f.searchQuery}
+        onSearchChange={f.setSearchQuery}
+        resultCount={f.itemsToRender.length}
+        totalCount={props.items.length}
       />
       <TimelineAlertSection
-        isLoadingAI={isLoadingAI}
+        isLoadingAI={props.isLoadingAI ?? false}
         hasSuggestions={hasSuggestions}
         suggestions={props.pendingSuggestions}
         onAccept={props.onAcceptSuggestions}
         onDismiss={props.onDismissSuggestions}
       />
-      <TimelineForm onAdd={(title, time) => onAddItem(createTimelineItem(title, time))} />
+      <TimelineForm onAdd={(title, time) => props.onAddItem(createTimelineItem(title, time))} />
       <TimelineItemsList
-        items={items}
-        itemsToRender={viewState.itemsToRender}
-        onToggle={onToggleComplete}
-        onRegenerateAI={onRegenerateAI}
+        items={props.items}
+        itemsToRender={f.itemsToRender}
+        onToggle={props.onToggleComplete}
+        onRegenerateAI={props.onRegenerateAI}
       />
     </section>
   );

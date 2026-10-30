@@ -5,6 +5,7 @@ import {
   updateVendorStatus,
   addVendorItem,
   getPendingVendorDeliverables,
+  calculateVendorFinancials,
 } from '../vendors';
 import { VendorItem } from '../types';
 
@@ -73,5 +74,18 @@ describe('Vendor Domain Functions', () => {
     expect(deliverables).toHaveLength(1);
     expect(deliverables[0]?.vendorName).toBe('Lens & Light Studios');
     expect(deliverables[0]?.deliverables).toHaveLength(3);
+  });
+
+  it('calculates full vendor financials and status counts', () => {
+    const fin = calculateVendorFinancials(sampleVendors);
+    expect(fin.totalQuoted).toBe(7700);
+    expect(fin.totalBooked).toBe(2500);
+    expect(fin.totalPaid).toBe(4000);
+    expect(fin.balanceDue).toBe(2500);
+    expect(fin.statusCounts).toEqual({
+      shortlisted: 1,
+      booked: 1,
+      paid: 1,
+    });
   });
 });

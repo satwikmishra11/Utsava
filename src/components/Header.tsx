@@ -11,6 +11,7 @@ import {
   Share2,
   Printer,
   CalendarPlus,
+  FileText,
 } from 'lucide-react';
 import { Button } from './ui/Button';
 import { ThemeToggle } from './ThemeToggle';
@@ -19,6 +20,7 @@ export interface HeaderProps {
   readonly plan: EventPlan;
   readonly onEventTypeChange: (type: EventType) => void;
   readonly onOpenWizard: () => void;
+  readonly onOpenBrief?: () => void;
   readonly onExportICS: () => void;
   readonly onExportPDF: () => void;
   readonly onShareLink: () => void;
@@ -26,6 +28,7 @@ export interface HeaderProps {
 }
 
 const META_ACTIONS = [
+  { id: 'btn-open-brief', label: 'Event Brief', icon: FileText, actionKey: 'brief' as const },
   { id: 'btn-export-ics', label: 'Export ICS', icon: CalendarPlus, actionKey: 'ics' as const },
   { id: 'btn-export-pdf', label: 'Print / PDF', icon: Printer, actionKey: 'pdf' as const },
   { id: 'btn-share-link', label: 'Share Link', icon: Share2, actionKey: 'share' as const },
@@ -139,21 +142,29 @@ function HeaderMetaDetails({
 }
 
 function HeaderMetaActions({
+  onOpenBrief,
   onExportICS,
   onExportPDF,
   onShareLink,
 }: {
+  readonly onOpenBrief?: () => void;
   readonly onExportICS: () => void;
   readonly onExportPDF: () => void;
   readonly onShareLink: () => void;
 }): React.JSX.Element {
-  const handlers = { ics: onExportICS, pdf: onExportPDF, share: onShareLink };
+  const handlers = {
+    brief: onOpenBrief ?? (() => {}),
+    ics: onExportICS,
+    pdf: onExportPDF,
+    share: onShareLink,
+  };
+  const actions = onOpenBrief ? META_ACTIONS : META_ACTIONS.filter((a) => a.actionKey !== 'brief');
   return (
     <div className="header-meta-actions">
-      {META_ACTIONS.map(({ id, label, icon: Icon, actionKey }) => (
+      {actions.map(({ id, label, icon: Icon, actionKey }) => (
         <Button
           key={id}
-          variant="outline"
+          variant={actionKey === 'brief' ? 'primary' : 'outline'}
           size="sm"
           onClick={handlers[actionKey]}
           leftIcon={<Icon size={14} />}
@@ -166,14 +177,9 @@ function HeaderMetaActions({
   );
 }
 
-function HeaderMeta({
-  plan,
-  onExportICS,
-  onExportPDF,
-  onShareLink,
-  saveStatus,
-}: {
+function HeaderMeta(props: {
   readonly plan: EventPlan;
+  readonly onOpenBrief?: () => void;
   readonly onExportICS: () => void;
   readonly onExportPDF: () => void;
   readonly onShareLink: () => void;
@@ -181,11 +187,12 @@ function HeaderMeta({
 }): React.JSX.Element {
   return (
     <div className="header-meta">
-      <HeaderMetaDetails plan={plan} saveStatus={saveStatus} />
+      <HeaderMetaDetails plan={props.plan} saveStatus={props.saveStatus} />
       <HeaderMetaActions
-        onExportICS={onExportICS}
-        onExportPDF={onExportPDF}
-        onShareLink={onShareLink}
+        onOpenBrief={props.onOpenBrief}
+        onExportICS={props.onExportICS}
+        onExportPDF={props.onExportPDF}
+        onShareLink={props.onShareLink}
       />
     </div>
   );
@@ -204,6 +211,7 @@ export function Header(props: HeaderProps): React.JSX.Element {
       </div>
       <HeaderMeta
         plan={props.plan}
+        onOpenBrief={props.onOpenBrief}
         onExportICS={props.onExportICS}
         onExportPDF={props.onExportPDF}
         onShareLink={props.onShareLink}

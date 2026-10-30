@@ -40,6 +40,7 @@ function BudgetTab({
   return (
     <BudgetPlanner
       totalBudget={plan.totalBudget}
+      guestCount={plan.guestCount}
       currency={plan.currency}
       items={plan.budgetItems}
       budgetReasons={reasons.budgetReasons}
@@ -48,6 +49,7 @@ function BudgetTab({
       onRemoveItem={planState.removeBudgetItem}
       onUpdateStatus={planState.updateBudgetStatus}
       onRegenerateAI={() => planState.regenerateBudget(plan)}
+      onExportCSV={planState.handleExportBudgetCSV}
       isLoadingAI={planState.loading.budget}
       pendingSuggestions={planState.pendingBudget}
       onAcceptSuggestions={planState.acceptBudgetSuggestions}
@@ -74,6 +76,7 @@ function TimelineTab({
       onToggleComplete={planState.toggleTimeline}
       onBulkReplaceTimeline={planState.replaceTimeline}
       onRegenerateAI={() => planState.regenerateTimeline(plan)}
+      onExportCSV={planState.handleExportTimelineCSV}
       isLoadingAI={planState.loading.timeline}
       pendingSuggestions={planState.pendingTimeline}
       onAcceptSuggestions={planState.acceptTimelineSuggestions}
@@ -95,6 +98,7 @@ function VendorsTab({
       onAddVendor={planState.addVendor}
       onUpdateStatus={planState.updateVendorStatus}
       onRegenerateAI={() => planState.regenerateVendors(plan)}
+      onExportCSV={planState.handleExportVendorsCSV}
       isLoadingAI={planState.loading.vendors}
       pendingSuggestions={planState.pendingVendors}
       onAcceptSuggestions={planState.acceptVendorSuggestions}

@@ -8,6 +8,7 @@ export interface VendorChecklistProps {
   readonly onAddVendor: (vendor: VendorItem) => void;
   readonly onUpdateStatus: (id: string, status: VendorStatus) => void;
   readonly onRegenerateAI?: () => void;
+  readonly onExportCSV?: () => void;
   readonly isLoadingAI?: boolean;
   readonly pendingSuggestions?: readonly GeneratedVendorItem[] | null;
   readonly onAcceptSuggestions?: () => void;

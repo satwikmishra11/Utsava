@@ -12,6 +12,13 @@ const OnboardingWizard = dynamic(() => import('./wizard').then((m) => m.Onboardi
   ssr: false,
 });
 
+const EventBriefDialog = dynamic(
+  () => import('./EventBriefDialog').then((m) => m.EventBriefDialog),
+  {
+    ssr: false,
+  }
+);
+
 const DevTokenPanel = dynamic(() => import('./DevTokenPanel').then((m) => m.DevTokenPanel), {
   ssr: false,
 });
@@ -48,6 +55,7 @@ function ToastNotification({
 export function EventPlannerDashboard(): React.JSX.Element {
   const planState = useEventPlan();
   const [activeTab, setActiveTab] = useState<TabId>('budget');
+  const [isBriefOpen, setIsBriefOpen] = useState(false);
 
   return (
     <>
@@ -55,6 +63,7 @@ export function EventPlannerDashboard(): React.JSX.Element {
         plan={planState.plan}
         onEventTypeChange={planState.switchEventType}
         onOpenWizard={() => planState.setIsWizardOpen(true)}
+        onOpenBrief={() => setIsBriefOpen(true)}
         onExportICS={planState.handleExportICS}
         onExportPDF={planState.handleExportPDF}
         onShareLink={planState.handleShareLink}
@@ -67,6 +76,15 @@ export function EventPlannerDashboard(): React.JSX.Element {
           isOpen={planState.isWizardOpen}
           onClose={() => planState.setIsWizardOpen(false)}
           onComplete={planState.completeWizard}
+        />
+      )}
+      {isBriefOpen && (
+        <EventBriefDialog
+          isOpen={isBriefOpen}
+          onClose={() => setIsBriefOpen(false)}
+          plan={planState.plan}
+          onImportJSON={planState.handleImportJSON}
+          showToast={planState.showToast}
         />
       )}
       <ToastNotification message={planState.toastMessage} />

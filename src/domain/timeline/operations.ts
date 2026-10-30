@@ -73,3 +73,29 @@ export function filterTimelineByPhase(
 ): readonly TimelineItem[] {
   return items.filter((item) => item.phase === phase);
 }
+
+export interface RunOfShowMetrics {
+  readonly totalDurationMinutes: number;
+  readonly completedCount: number;
+  readonly totalCount: number;
+  readonly completionPercentage: number;
+  readonly formattedTotalRuntime: string;
+}
+
+export function calculateRunOfShowMetrics(items: readonly TimelineItem[]): RunOfShowMetrics {
+  const totalCount = items.length;
+  const completedCount = items.filter((i) => i.completed).length;
+  const totalDurationMinutes = items.reduce((sum, i) => sum + (i.durationMinutes || 0), 0);
+  const completionPercentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const hours = Math.floor(totalDurationMinutes / 60);
+  const mins = totalDurationMinutes % 60;
+  const formattedTotalRuntime = `${hours}h ${mins}m`;
+
+  return {
+    totalDurationMinutes,
+    completedCount,
+    totalCount,
+    completionPercentage,
+    formattedTotalRuntime,
+  };
+}

@@ -1,11 +1,12 @@
 import React from 'react';
-import { ListFilter, Sparkles } from 'lucide-react';
+import { ListFilter, Sparkles, Download } from 'lucide-react';
 import { Button } from '../ui/Button';
 
 export interface TimelineGeneratorHeaderProps {
   readonly viewMode: 'all' | 'upcoming';
   readonly onViewModeToggle: () => void;
   readonly onRegenerateAI?: () => void;
+  readonly onExportCSV?: () => void;
   readonly isLoadingAI?: boolean;
 }
 
@@ -18,15 +19,39 @@ function TimelineHeaderTitle(): React.JSX.Element {
   );
 }
 
+function TimelineRegenerateButton({
+  onRegenerateAI,
+  isLoadingAI,
+}: {
+  readonly onRegenerateAI?: () => void;
+  readonly isLoadingAI?: boolean;
+}): React.JSX.Element | null {
+  if (!onRegenerateAI) return null;
+  return (
+    <Button
+      onClick={onRegenerateAI}
+      isLoading={isLoadingAI}
+      variant="outline"
+      size="sm"
+      leftIcon={<Sparkles size={16} />}
+      id="btn-regenerate-timeline"
+    >
+      Regenerate AI Timeline
+    </Button>
+  );
+}
+
 function TimelineHeaderActions({
   viewMode,
   onViewModeToggle,
   onRegenerateAI,
+  onExportCSV,
   isLoadingAI,
 }: {
   readonly viewMode: 'all' | 'upcoming';
   readonly onViewModeToggle: () => void;
   readonly onRegenerateAI?: () => void;
+  readonly onExportCSV?: () => void;
   readonly isLoadingAI?: boolean;
 }): React.JSX.Element {
   return (
@@ -39,36 +64,32 @@ function TimelineHeaderActions({
       >
         {viewMode === 'all' ? 'Upcoming Only' : 'Full Schedule'}
       </Button>
-      {onRegenerateAI && (
+      {onExportCSV && (
         <Button
-          onClick={onRegenerateAI}
-          isLoading={isLoadingAI}
-          variant="outline"
+          onClick={onExportCSV}
+          variant="secondary"
           size="sm"
-          leftIcon={<Sparkles size={16} />}
-          id="btn-regenerate-timeline"
+          leftIcon={<Download size={15} />}
+          id="btn-export-timeline-csv"
         >
-          Regenerate AI Timeline
+          Export CSV
         </Button>
       )}
+      <TimelineRegenerateButton onRegenerateAI={onRegenerateAI} isLoadingAI={isLoadingAI} />
     </div>
   );
 }
 
-export function TimelineGeneratorHeader({
-  viewMode,
-  onViewModeToggle,
-  onRegenerateAI,
-  isLoadingAI = false,
-}: TimelineGeneratorHeaderProps): React.JSX.Element {
+export function TimelineGeneratorHeader(props: TimelineGeneratorHeaderProps): React.JSX.Element {
   return (
     <div className="timeline-header">
       <TimelineHeaderTitle />
       <TimelineHeaderActions
-        viewMode={viewMode}
-        onViewModeToggle={onViewModeToggle}
-        onRegenerateAI={onRegenerateAI}
-        isLoadingAI={isLoadingAI}
+        viewMode={props.viewMode}
+        onViewModeToggle={props.onViewModeToggle}
+        onRegenerateAI={props.onRegenerateAI}
+        onExportCSV={props.onExportCSV}
+        isLoadingAI={props.isLoadingAI}
       />
     </div>
   );

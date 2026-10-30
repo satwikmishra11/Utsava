@@ -4,6 +4,8 @@ import {
   allocateBudget,
   rebalanceBudget,
   detectOverspend,
+  calculateBudgetSummary,
+  calculatePerGuestCost,
 } from '../budget';
 import { BudgetItem } from '../schemas';
 
@@ -77,5 +79,26 @@ describe('Budget Logic Pure Functions', () => {
     expect(analysis.isOverspent).toBe(false);
     expect(analysis.variance).toBe(6000);
     expect(analysis.overspentPercentage).toBe(0);
+  });
+
+  it('calculates cost per guest metrics accurately', () => {
+    const items: BudgetItem[] = [
+      { id: '1', eventId: 'e', category: 'venue', estimated: 20000, actual: 20000 },
+      { id: '2', eventId: 'e', category: 'catering', estimated: 10000, actual: 10000 },
+    ];
+    const summary = calculateBudgetSummary(50000, items);
+    const perGuest = calculatePerGuestCost(summary, 100);
+
+    expect(perGuest.budgetPerGuest).toBe(500);
+    expect(perGuest.estimatedPerGuest).toBe(300);
+    expect(perGuest.actualPerGuest).toBe(300);
+    expect(perGuest.variancePerGuest).toBe(200);
+  });
+
+  it('safely handles zero or negative guest counts by defaulting divisor to 1', () => {
+    const summary = calculateBudgetSummary(5000, []);
+    const perGuest = calculatePerGuestCost(summary, 0);
+
+    expect(perGuest.budgetPerGuest).toBe(5000);
   });
 });

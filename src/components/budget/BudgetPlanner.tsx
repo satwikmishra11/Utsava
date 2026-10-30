@@ -19,10 +19,12 @@ export interface BudgetPlannerProps {
   readonly totalBudget: number;
   readonly currency: string;
   readonly items: readonly BudgetItem[];
+  readonly guestCount?: number;
   readonly onAddItem: (item: BudgetItem) => void;
   readonly onRemoveItem: (id: string) => void;
   readonly onUpdateStatus: (id: string) => void;
   readonly onRegenerateAI?: () => void;
+  readonly onExportCSV?: () => void;
   readonly isLoadingAI?: boolean;
   readonly pendingSuggestions?: readonly GeneratedBudgetItem[] | null;
   readonly onAcceptSuggestions?: () => void;
@@ -113,6 +115,7 @@ function BudgetPlannerOverview({
   currency,
   isOver,
   overspendAnalysis,
+  guestCount,
 }: {
   readonly totalBudget: number;
   readonly summary: ReturnType<typeof calculateBudgetSummary>;
@@ -120,6 +123,7 @@ function BudgetPlannerOverview({
   readonly currency: string;
   readonly isOver: boolean;
   readonly overspendAnalysis?: OverspendAnalysis;
+  readonly guestCount?: number;
 }): React.JSX.Element {
   return (
     <>
@@ -130,6 +134,7 @@ function BudgetPlannerOverview({
         rem={summary.remainingBudget}
         currency={currency}
         isOver={isOver}
+        guestCount={guestCount}
       />
       <BudgetCategoryBreakdown items={items} currency={currency} totalBudget={totalBudget} />
       <BudgetOverspendAlert
@@ -142,10 +147,11 @@ function BudgetPlannerOverview({
   );
 }
 
-function BudgetPlannerMainSection(props: {
+interface BudgetPlannerMainSectionProps {
   readonly budgetReasons?: readonly string[];
   readonly timelineReasons?: readonly string[];
   readonly totalBudget: number;
+  readonly guestCount?: number;
   readonly summary: ReturnType<typeof calculateBudgetSummary>;
   readonly items: readonly BudgetItem[];
   readonly currency: string;
@@ -155,7 +161,9 @@ function BudgetPlannerMainSection(props: {
   readonly onUpdateStatus: (id: string) => void;
   readonly onRemoveItem: (id: string) => void;
   readonly onRegenerateAI?: () => void;
-}): React.JSX.Element {
+}
+
+function BudgetPlannerMainSection(props: BudgetPlannerMainSectionProps): React.JSX.Element {
   return (
     <>
       <WhyThisPlanDisclosure
@@ -165,6 +173,7 @@ function BudgetPlannerMainSection(props: {
       />
       <BudgetPlannerOverview
         totalBudget={props.totalBudget}
+        guestCount={props.guestCount}
         summary={props.summary}
         items={props.items}
         currency={props.currency}
@@ -192,11 +201,16 @@ export function BudgetPlanner(props: BudgetPlannerProps): React.JSX.Element {
 
   return (
     <section id="panel-budget" role="tabpanel" aria-labelledby="tab-budget" className="card">
-      <BudgetPlannerHeader onRegenerateAI={props.onRegenerateAI} isLoadingAI={props.isLoadingAI} />
+      <BudgetPlannerHeader
+        onRegenerateAI={props.onRegenerateAI}
+        onExportCSV={props.onExportCSV}
+        isLoadingAI={props.isLoadingAI}
+      />
       <BudgetPlannerMainSection
         budgetReasons={props.budgetReasons}
         timelineReasons={props.timelineReasons}
         totalBudget={props.totalBudget}
+        guestCount={props.guestCount}
         summary={summary}
         items={props.items}
         currency={props.currency}

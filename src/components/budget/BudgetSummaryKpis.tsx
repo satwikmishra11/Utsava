@@ -8,6 +8,7 @@ export interface BudgetSummaryKpisProps {
   readonly rem: number;
   readonly currency: string;
   readonly isOver: boolean;
+  readonly guestCount?: number;
 }
 
 function KpiCard({
@@ -66,15 +67,17 @@ function BudgetStatusDisplay({
   );
 }
 
-export function BudgetSummaryKpis({
-  total,
-  actual,
-  paid,
-  rem,
-  currency,
-  isOver,
-}: BudgetSummaryKpisProps): React.JSX.Element {
-  const cards = [
+function createBudgetCards(props: {
+  readonly total: number;
+  readonly actual: number;
+  readonly paid: number;
+  readonly currency: string;
+  readonly isOver: boolean;
+  readonly guestCount?: number;
+}) {
+  const { total, actual, paid, currency, isOver, guestCount } = props;
+  const perGuest = guestCount && guestCount > 0 ? Math.round(actual / guestCount) : 0;
+  return [
     { label: 'Total Target Budget', value: `${currency} ${total.toLocaleString()}` },
     {
       label: 'Committed Expenses',
@@ -86,7 +89,21 @@ export function BudgetSummaryKpis({
       value: `${currency} ${paid.toLocaleString()}`,
       className: 'text-accent-emerald',
     },
+    ...(guestCount && guestCount > 0
+      ? [
+          {
+            label: 'Cost Per Guest',
+            value: `${currency} ${perGuest.toLocaleString()} / head`,
+            className: 'text-accent-gold',
+          },
+        ]
+      : []),
   ];
+}
+
+export function BudgetSummaryKpis(props: BudgetSummaryKpisProps): React.JSX.Element {
+  const cards = createBudgetCards(props);
+  const { isOver, rem, currency } = props;
 
   return (
     <div className="budget-kpi-grid">

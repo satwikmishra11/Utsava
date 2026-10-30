@@ -18,7 +18,55 @@ import { useItemMutations } from './useItemMutations';
 
 export const INITIAL_PLAN: EventPlan = DEMO_INDIAN_WEDDING;
 
-function usePlanExports(plan: EventPlan, showToast: (msg: string) => void) {
+function useCsvExports(plan: EventPlan, showToast: (msg: string) => void) {
+  const handleExportBudgetCSV = async () => {
+    const { exportBudgetToCSV } = await import('@/lib/exportUtils');
+    exportBudgetToCSV(plan);
+    showToast('Downloaded budget spreadsheet (.csv).');
+  };
+  const handleExportTimelineCSV = async () => {
+    const { exportTimelineToCSV } = await import('@/lib/exportUtils');
+    exportTimelineToCSV(plan);
+    showToast('Downloaded run-of-show schedule (.csv).');
+  };
+  const handleExportVendorsCSV = async () => {
+    const { exportVendorsToCSV } = await import('@/lib/exportUtils');
+    exportVendorsToCSV(plan);
+    showToast('Downloaded vendor directory (.csv).');
+  };
+  return { handleExportBudgetCSV, handleExportTimelineCSV, handleExportVendorsCSV };
+}
+
+function useBackupExports(
+  plan: EventPlan,
+  setPlan: (p: EventPlan) => void,
+  showToast: (msg: string) => void
+) {
+  const handleExportJSON = async () => {
+    const { exportPlanToJSON } = await import('@/lib/exportUtils');
+    exportPlanToJSON(plan);
+    showToast('Exported complete event backup (.json).');
+  };
+  const handleImportJSON = async (jsonString: string) => {
+    try {
+      const { parsePlanFromJSON } = await import('@/lib/exportUtils');
+      const restored = parsePlanFromJSON(jsonString);
+      setPlan(restored);
+      showToast(`Restored event: ${restored.title}`);
+    } catch {
+      showToast('Failed to import JSON: Invalid plan structure.');
+    }
+  };
+  return { handleExportJSON, handleImportJSON };
+}
+
+function usePlanExports(
+  plan: EventPlan,
+  setPlan: (p: EventPlan) => void,
+  showToast: (msg: string) => void
+) {
+  const csvExports = useCsvExports(plan, showToast);
+  const backupExports = useBackupExports(plan, setPlan, showToast);
   const handleExportICS = async () => {
     const { exportPlanToICS } = await import('@/lib/exportUtils');
     exportPlanToICS(plan);
@@ -34,7 +82,14 @@ function usePlanExports(plan: EventPlan, showToast: (msg: string) => void) {
     const success = await copyToClipboard(link);
     showToast(success ? 'Shareable link copied to clipboard!' : 'Unable to copy link.');
   };
-  return { handleExportICS, handleExportPDF, handleShareLink };
+
+  return {
+    handleExportICS,
+    handleExportPDF,
+    handleShareLink,
+    ...backupExports,
+    ...csvExports,
+  };
 }
 
 function assembleAiSyncProps(
@@ -113,7 +168,7 @@ export function useEventPlan() {
   const vendorAi = useVendorAiSync(plan, setPlan, showToast);
   const ideaAi = useIdeaAiSync(plan, setPlan, showToast);
   const mutations = useItemMutations(setPlan, plan, showToast);
-  const exports = usePlanExports(plan, showToast);
+  const exports = usePlanExports(plan, setPlan, showToast);
   const autosave = useDebouncedAutosave(plan);
   const wizard = useWizardFlow(setPlan, showToast, budgetAi, timelineAi, vendorAi, ideaAi);
 
@@ -122,6 +177,7 @@ export function useEventPlan() {
     setPlan,
     ...wizard,
     toastMessage,
+    showToast,
     ...assembleAiSyncProps(budgetAi, timelineAi, vendorAi, ideaAi),
     overspendAnalysis: detectOverspend(plan.totalBudget, plan.budgetItems),
     saveStatus: autosave.saveStatus,
