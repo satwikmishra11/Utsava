@@ -1,4 +1,5 @@
 import { EventPlan } from '@/domain/types';
+import { PlanImportSchema } from '@/domain/schemas';
 
 function formatIcsDate(dateStr: string): string {
   const clean = dateStr.replace(/-/g, '');
@@ -184,40 +185,18 @@ export function exportPlanToJSON(plan: EventPlan): void {
   triggerDownload(json, `utsava-${plan.eventType}-plan.json`, 'application/json');
 }
 
-function extractArray<T>(val: unknown): readonly T[] {
-  return Array.isArray(val) ? (val as T[]) : [];
-}
-
-function extractString(val: unknown, fallback: string): string {
-  return typeof val === 'string' && val.length > 0 ? val : fallback;
-}
-
-function extractNumber(val: unknown, fallback: number): number {
-  return typeof val === 'number' && !Number.isNaN(val) ? val : fallback;
-}
-
 export function parsePlanFromJSON(jsonStr: string): EventPlan {
-  const data = JSON.parse(jsonStr) as Record<string, unknown>;
-  if (!data || typeof data !== 'object') throw new Error('Invalid JSON format');
-  if (typeof data.title !== 'string' || typeof data.eventType !== 'string') {
-    throw new Error('Missing required event plan properties');
+  let raw: unknown;
+  try {
+    raw = JSON.parse(jsonStr);
+  } catch {
+    throw new Error('Invalid JSON format');
   }
-  return {
-    id: extractString(data.id, `evt-${Date.now()}`),
-    title: data.title,
-    eventType: data.eventType as EventPlan['eventType'],
-    date: extractString(data.date, new Date().toISOString().slice(0, 10)),
-    guestCount: extractNumber(data.guestCount, 100),
-    totalBudget: extractNumber(data.totalBudget, 10000),
-    currency: extractString(data.currency, 'INR'),
-    culturalContext: typeof data.culturalContext === 'string' ? data.culturalContext : undefined,
-    dietary: extractArray<string>(data.dietary),
-    accessibilityNeeds: extractArray<string>(data.accessibilityNeeds),
-    budgetItems: extractArray(data.budgetItems),
-    timelineItems: extractArray(data.timelineItems),
-    vendors: extractArray(data.vendors),
-    ideas: extractArray(data.ideas),
-  };
+  const parsed = PlanImportSchema.safeParse(raw);
+  if (!parsed.success) {
+    throw new Error(`Missing required event plan properties: ${parsed.error.message}`);
+  }
+  return parsed.data as EventPlan;
 }
 
 export function generateEventBriefText(plan: EventPlan): string {

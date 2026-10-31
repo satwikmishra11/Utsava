@@ -171,3 +171,78 @@ export const GenerateTimelineRequestSchema = z.object({
   accessibilityNeeds: z.array(z.string().max(100)).default([]),
 });
 export type GenerateTimelineRequest = z.infer<typeof GenerateTimelineRequestSchema>;
+
+export const PlanImportSchema = z.object({
+  id: z.string().default(() => `evt-${Date.now()}`),
+  title: z.string().min(1, 'Title is required'),
+  eventType: EventTypeSchema,
+  date: z.string().default(() => new Date().toISOString().slice(0, 10)),
+  guestCount: z.number().int().positive().default(100),
+  totalBudget: z.number().nonnegative().default(10000),
+  currency: z.string().default('INR'),
+  culturalContext: z.string().optional(),
+  dietary: z.array(z.string()).default([]),
+  accessibilityNeeds: z.array(z.string()).default([]),
+  budgetItems: z
+    .array(
+      z.object({
+        id: z.string(),
+        eventId: z.string().default('evt-default'),
+        category: BudgetCategorySchema,
+        estimated: z.number().nonnegative(),
+        actual: z.number().nonnegative().default(0),
+        vendorId: z.string().optional(),
+        notes: z.string().optional(),
+      })
+    )
+    .default([]),
+  timelineItems: z
+    .array(
+      z.object({
+        id: z.string(),
+        phase: z.enum(['preparation', 'ceremony', 'reception', 'teardown']),
+        title: z.string(),
+        time: z.string(),
+        durationMinutes: z.number(),
+        completed: z.boolean().default(false),
+        assignedTo: z.string().optional(),
+        location: z.string().optional(),
+        notes: z.string().optional(),
+        flags: z.array(z.enum(['compressed', 'overdue'])).optional(),
+        isCompressed: z.boolean().optional(),
+        isOverdue: z.boolean().optional(),
+      })
+    )
+    .default([]),
+  vendors: z
+    .array(
+      z.object({
+        id: z.string(),
+        category: BudgetCategorySchema,
+        name: z.string(),
+        quotedAmount: z.number().nonnegative(),
+        status: VendorStatusSchema,
+        contactEmail: z.string().optional(),
+        contactPhone: z.string().optional(),
+        deliverables: z.array(z.string()).default([]),
+        notes: z.string().optional(),
+      })
+    )
+    .default([]),
+  ideas: z
+    .array(
+      z.object({
+        id: z.string(),
+        category: z.enum(['theme', 'decor', 'entertainment', 'food_beverage', 'cultural']),
+        title: z.string(),
+        description: z.string(),
+        estimatedCostTier: z.enum(['low', 'medium', 'high']),
+        culturalContext: z.string().optional(),
+        tags: z.array(z.string()).default([]),
+      })
+    )
+    .default([]),
+  budgetReasons: z.array(z.string()).optional(),
+  timelineReasons: z.array(z.string()).optional(),
+});
+export type PlanImport = z.infer<typeof PlanImportSchema>;
