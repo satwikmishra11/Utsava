@@ -50,27 +50,6 @@ function ProtocolTableHeader(): React.JSX.Element {
   );
 }
 
-function ProtocolTableHeader(): React.JSX.Element {
-  return (
-    <thead>
-      <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
-        <th scope="col" style={{ padding: '6px' }}>
-          Risk Scenario
-        </th>
-        <th scope="col" style={{ padding: '6px' }}>
-          Trigger Condition
-        </th>
-        <th scope="col" style={{ padding: '6px' }}>
-          Plan B Action
-        </th>
-        <th scope="col" style={{ padding: '6px' }}>
-          Lead
-        </th>
-      </tr>
-    </thead>
-  );
-}
-
 function ContingencyProtocolTable({
   protocols,
 }: {
@@ -139,27 +118,6 @@ function EmergencyContactRow({
         </a>
       </td>
     </tr>
-  );
-}
-
-function CallSheetTableHeader(): React.JSX.Element {
-  return (
-    <thead>
-      <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
-        <th scope="col" style={{ padding: '6px' }}>
-          Vendor & Category
-        </th>
-        <th scope="col" style={{ padding: '6px' }}>
-          Milestone / Call Time
-        </th>
-        <th scope="col" style={{ padding: '6px' }}>
-          Emergency Phone
-        </th>
-        <th scope="col" style={{ padding: '6px' }}>
-          Email
-        </th>
-      </tr>
-    </thead>
   );
 }
 
