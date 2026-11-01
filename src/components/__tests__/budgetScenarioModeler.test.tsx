@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
+import axe from 'axe-core';
 import { BudgetScenarioModeler } from '../budget/BudgetScenarioModeler';
 import { BudgetItem } from '@/domain/schemas';
 
@@ -40,8 +41,8 @@ describe('BudgetScenarioModeler UI Component', () => {
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
-  it('expands on click and displays KPI cards, simulator slider, and scenario table', () => {
-    render(
+  it('expands on click and displays KPI cards, simulator slider, and scenario table with zero axe violations', async () => {
+    const { container } = render(
       <BudgetScenarioModeler
         totalBudget={40000}
         guestCount={100}
@@ -63,6 +64,9 @@ describe('BudgetScenarioModeler UI Component', () => {
     expect(screen.getByText('Intimate (-25%)')).toBeInTheDocument();
     expect(screen.getByText('Baseline (Current)')).toBeInTheDocument();
     expect(screen.getByText('Expanded (+25%)')).toBeInTheDocument();
+
+    const results = await axe.run(container);
+    expect(results.violations).toEqual([]);
   });
 
   it('allows adjusting the custom guest count simulator slider', () => {

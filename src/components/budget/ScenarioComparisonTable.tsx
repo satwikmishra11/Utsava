@@ -100,7 +100,11 @@ export function ScenarioComparisonTable({
 }): React.JSX.Element {
   return (
     <div style={{ overflowX: 'auto', marginTop: '14px' }}>
-      <table className="table" style={{ width: '100%', fontSize: '0.85rem' }}>
+      <table
+        className="table"
+        style={{ width: '100%', fontSize: '0.85rem' }}
+        aria-label="Budget scenario comparison"
+      >
         <ScenarioTableHeader />
         <tbody>
           {scenarios.map((s) => (

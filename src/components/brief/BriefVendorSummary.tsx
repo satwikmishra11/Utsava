@@ -43,7 +43,10 @@ function VendorSummaryTable({
 }): React.JSX.Element {
   return (
     <div style={TABLE_CONTAINER_STYLE}>
-      <table style={{ width: '100%', fontSize: '0.85rem', borderCollapse: 'collapse' }}>
+      <table
+        aria-label="Vendor procurement directory"
+        style={{ width: '100%', fontSize: '0.85rem', borderCollapse: 'collapse' }}
+      >
         <thead>
           <tr
             style={{

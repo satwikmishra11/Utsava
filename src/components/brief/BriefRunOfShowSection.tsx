@@ -27,7 +27,10 @@ function RunOfShowRow({ item }: { readonly item: TimelineItem }): React.JSX.Elem
 function RunOfShowTable({ items }: { readonly items: readonly TimelineItem[] }): React.JSX.Element {
   return (
     <div style={TABLE_CONTAINER_STYLE}>
-      <table style={{ width: '100%', fontSize: '0.85rem', borderCollapse: 'collapse' }}>
+      <table
+        aria-label="Run of show master schedule"
+        style={{ width: '100%', fontSize: '0.85rem', borderCollapse: 'collapse' }}
+      >
         <thead>
           <tr
             style={{

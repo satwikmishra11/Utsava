@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
+import axe from 'axe-core';
 import { VendorPaymentSchedule } from '../vendors/VendorPaymentSchedule';
 import { VendorItem } from '@/domain/types';
 
@@ -35,8 +36,8 @@ describe('VendorPaymentSchedule UI Component', () => {
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
-  it('expands schedule and displays cash flow KPI metrics and milestone table', () => {
-    render(<VendorPaymentSchedule vendors={MOCK_VENDORS} currency="INR" />);
+  it('expands schedule and displays cash flow KPI metrics and milestone table with zero axe violations', async () => {
+    const { container } = render(<VendorPaymentSchedule vendors={MOCK_VENDORS} currency="INR" />);
 
     const toggleBtn = screen.getByRole('button', {
       name: /vendor payment schedule & cash flow milestones/i,
@@ -53,5 +54,8 @@ describe('VendorPaymentSchedule UI Component', () => {
     expect(screen.getAllByText('Pixel Perfect')).toHaveLength(3);
     expect(screen.getAllByText(/Settled/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Due in 14d/i).length).toBeGreaterThan(0);
+
+    const results = await axe.run(container);
+    expect(results.violations).toEqual([]);
   });
 });

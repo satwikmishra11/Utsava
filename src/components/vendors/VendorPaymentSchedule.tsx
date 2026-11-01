@@ -200,7 +200,11 @@ function MilestoneTable({
 
   return (
     <div style={{ overflowX: 'auto', marginTop: '12px' }}>
-      <table className="table" style={{ width: '100%', fontSize: '0.85rem' }}>
+      <table
+        className="table"
+        style={{ width: '100%', fontSize: '0.85rem' }}
+        aria-label="Vendor milestone payment schedule"
+      >
         <MilestoneTableHeader />
         <tbody>
           {milestones.map((m) => (

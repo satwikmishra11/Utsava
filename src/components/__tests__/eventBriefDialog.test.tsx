@@ -120,8 +120,8 @@ describe('EventBriefDialog Component & Accessibility', () => {
     expect(screen.queryByText(/Event Master Brief/i)).not.toBeInTheDocument();
   });
 
-  it('toggles Day-Of contingency protocols and emergency call sheet', () => {
-    render(
+  it('toggles Day-Of contingency protocols and emergency call sheet with zero axe violations', async () => {
+    const { container } = render(
       <EventBriefDialog
         isOpen={true}
         onClose={vi.fn()}
@@ -140,5 +140,8 @@ describe('EventBriefDialog Component & Accessibility', () => {
     expect(contingencyBtn).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByText(/Operational Risk & Plan B Protocols/i)).toBeInTheDocument();
     expect(screen.getByText(/Day-Of Vendor Emergency Call Sheet/i)).toBeInTheDocument();
+
+    const results = await axe.run(container);
+    expect(results.violations).toEqual([]);
   });
 });

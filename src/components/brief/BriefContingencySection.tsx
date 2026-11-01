@@ -67,7 +67,11 @@ function ContingencyProtocolTable({
       >
         Operational Risk & Plan B Protocols
       </h4>
-      <table className="table" style={{ width: '100%', fontSize: '0.8rem' }}>
+      <table
+        className="table"
+        style={{ width: '100%', fontSize: '0.8rem' }}
+        aria-label="Operational risk and plan B protocols"
+      >
         <ProtocolTableHeader />
         <tbody>
           {protocols.map((p) => (
@@ -159,7 +163,11 @@ function EmergencyCallSheetTable({
       >
         Day-Of Vendor Emergency Call Sheet
       </h4>
-      <table className="table" style={{ width: '100%', fontSize: '0.8rem' }}>
+      <table
+        className="table"
+        style={{ width: '100%', fontSize: '0.8rem' }}
+        aria-label="Day-of vendor emergency call sheet"
+      >
         <CallSheetTableHeader />
         <tbody>
           {contacts.map((c) => (
