@@ -212,6 +212,18 @@ function formatContingencyBriefLines(plan: EventPlan): readonly string[] {
   ];
 }
 
+function formatContingencyBriefLines(plan: EventPlan): readonly string[] {
+  const protocols = getContingencyProtocols(plan.eventType);
+  return [
+    '',
+    `--- CONTINGENCY PROTOCOLS (${protocols.length} active) ---`,
+    ...protocols.map(
+      (p) =>
+        `[${p.severity.toUpperCase()}] ${p.title} -> ${p.mitigationAction} (Lead: ${p.designatedLead})`
+    ),
+  ];
+}
+
 export function generateEventBriefText(plan: EventPlan): string {
   const totalEst = plan.budgetItems.reduce((acc, i) => acc + i.estimated, 0);
   const totalAct = plan.budgetItems.reduce((acc, i) => acc + i.actual, 0);
