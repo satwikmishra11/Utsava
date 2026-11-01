@@ -6,4 +6,6 @@ export * from './BudgetTableRow';
 export * from './BudgetTable';
 export * from './BudgetOverspendAlert';
 export * from './BudgetPlannerHeader';
+export * from './BudgetScenarioModeler';
+export * from './ScenarioComparisonTable';
 export * from './BudgetPlanner';

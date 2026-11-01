@@ -5,5 +5,6 @@ export * from './VendorBoardColumn';
 export * from './useVendorForm';
 export * from './VendorForm';
 export * from './VendorChecklistHeader';
+export * from './VendorPaymentSchedule';
 export * from './VendorBoardGrid';
 export * from './VendorChecklist';

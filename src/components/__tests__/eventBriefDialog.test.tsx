@@ -119,4 +119,26 @@ describe('EventBriefDialog Component & Accessibility', () => {
 
     expect(screen.queryByText(/Event Master Brief/i)).not.toBeInTheDocument();
   });
+
+  it('toggles Day-Of contingency protocols and emergency call sheet', () => {
+    render(
+      <EventBriefDialog
+        isOpen={true}
+        onClose={vi.fn()}
+        plan={SAMPLE_PLAN}
+        onImportJSON={vi.fn()}
+        showToast={vi.fn()}
+      />
+    );
+
+    const contingencyBtn = screen.getByRole('button', {
+      name: /day-of contingency protocols & emergency call sheet/i,
+    });
+    expect(contingencyBtn).toHaveAttribute('aria-expanded', 'false');
+
+    fireEvent.click(contingencyBtn);
+    expect(contingencyBtn).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText(/Operational Risk & Plan B Protocols/i)).toBeInTheDocument();
+    expect(screen.getByText(/Day-Of Vendor Emergency Call Sheet/i)).toBeInTheDocument();
+  });
 });

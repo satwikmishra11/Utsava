@@ -13,6 +13,7 @@ import { BudgetOverspendAlert } from './BudgetOverspendAlert';
 import { BudgetSuggestionsAlert } from './BudgetSuggestionsAlert';
 import { BudgetAddForm } from './BudgetAddForm';
 import { BudgetTable } from './BudgetTable';
+import { BudgetScenarioModeler } from './BudgetScenarioModeler';
 import { WhyThisPlanDisclosure } from '../plan';
 
 export interface BudgetPlannerProps {
@@ -179,6 +180,12 @@ function BudgetPlannerMainSection(props: BudgetPlannerMainSectionProps): React.J
         currency={props.currency}
         isOver={props.isOver}
         overspendAnalysis={props.overspendAnalysis}
+      />
+      <BudgetScenarioModeler
+        totalBudget={props.totalBudget}
+        guestCount={props.guestCount ?? 100}
+        currency={props.currency}
+        items={props.items}
       />
       <BudgetAddForm onAdd={(n, cat, c) => props.onAddItem(createBudgetItem(n, cat, c))} />
       <BudgetItemsView

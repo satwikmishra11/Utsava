@@ -12,6 +12,7 @@ import { VendorChecklistHeader } from './VendorChecklistHeader';
 import { VendorSuggestionsAlert } from './VendorSuggestionsAlert';
 import { VendorForm } from './VendorForm';
 import { VendorBoardGrid } from './VendorBoardGrid';
+import { VendorPaymentSchedule } from './VendorPaymentSchedule';
 
 function createVendorItem(name: string, category: BudgetCategory, amount: string): VendorItem {
   return {
@@ -188,6 +189,7 @@ export function VendorChecklist(props: VendorChecklistProps): React.JSX.Element 
         resultCount={filtered.length}
         totalCount={props.vendors.length}
       />
+      <VendorPaymentSchedule vendors={props.vendors} currency={props.currency} />
       <VendorBoardGrid
         vendors={filtered}
         currency={props.currency}

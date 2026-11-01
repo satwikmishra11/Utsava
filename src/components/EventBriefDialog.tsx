@@ -8,6 +8,7 @@ import {
   BriefFinancialSnapshot,
   BriefRunOfShowSection,
   BriefVendorSummary,
+  BriefContingencySection,
   BriefActionButtons,
 } from './brief';
 
@@ -32,6 +33,7 @@ export function EventBriefDialog(props: EventBriefDialogProps): React.JSX.Elemen
         <BriefFinancialSnapshot plan={props.plan} />
         <BriefRunOfShowSection plan={props.plan} />
         <BriefVendorSummary plan={props.plan} />
+        <BriefContingencySection plan={props.plan} />
         <BriefActionButtons
           plan={props.plan}
           showToast={props.showToast}

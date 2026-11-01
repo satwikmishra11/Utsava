@@ -1,5 +1,6 @@
 import { EventPlan } from '@/domain/types';
 import { PlanImportSchema } from '@/domain/schemas';
+import { getContingencyProtocols } from '@/domain/contingency';
 
 function formatIcsDate(dateStr: string): string {
   const clean = dateStr.replace(/-/g, '');
@@ -199,6 +200,18 @@ export function parsePlanFromJSON(jsonStr: string): EventPlan {
   return parsed.data as EventPlan;
 }
 
+function formatContingencyBriefLines(plan: EventPlan): readonly string[] {
+  const protocols = getContingencyProtocols(plan.eventType);
+  return [
+    '',
+    `--- CONTINGENCY PROTOCOLS (${protocols.length} active) ---`,
+    ...protocols.map(
+      (p) =>
+        `[${p.severity.toUpperCase()}] ${p.title} -> ${p.mitigationAction} (Lead: ${p.designatedLead})`
+    ),
+  ];
+}
+
 export function generateEventBriefText(plan: EventPlan): string {
   const totalEst = plan.budgetItems.reduce((acc, i) => acc + i.estimated, 0);
   const totalAct = plan.budgetItems.reduce((acc, i) => acc + i.actual, 0);
@@ -220,6 +233,7 @@ export function generateEventBriefText(plan: EventPlan): string {
       (v) =>
         `${v.name} [${v.category}] - ${v.status.toUpperCase()} (${plan.currency} ${v.quotedAmount.toLocaleString()})`
     ),
+    ...formatContingencyBriefLines(plan),
   ].filter(Boolean);
 
   return lines.join('\n');

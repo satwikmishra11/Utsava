@@ -446,6 +446,36 @@ Professional event coordinators, banquet directors, and stage managers require d
 
 ---
 
+## ADR 016: Professional Event Production & Financial Modeling Suite
+
+### Context
+
+Professional celebration managers and event directors encounter three core operational challenges during live planning:
+
+1. **Financial Sensitivity to Guest Turnout**: Planners need to stress-test budget feasibility when guest counts fluctuate (-25% to +25%), isolating fixed overheads (venue, photography) from marginal per-guest variable expenses (catering, favors).
+2. **Vendor Cash Flow & Milestone Reconciliation**: Vendor contracts require structured installment disbursements (initial deposit, 14-day pre-event milestone, and day-of settlement balance) rather than simple binary "booked/paid" flags.
+3. **Operational Risk & Contingency Protocols**: Live celebrations face sudden contingencies (weather disruptions, sound circuit overloads, dietary segregation requirements, and key party transit delays) requiring pre-rehearsed Plan B mitigation protocols and an immediate emergency call sheet.
+
+### Decision
+
+Implemented a modular production suite spanning domain calculations and accessible UI components:
+
+- `src/domain/budget/scenario.ts`: Deterministic sensitivity modeling separating fixed from variable expenses, calculating marginal cost per extra attendee and maximum sustainable guest capacity before deficit.
+- `src/domain/vendorMilestones.ts`: Automated 3-stage milestone payment schedule generator (30% retainer, 50% mid-way checkpoint, 20% day-of settlement) with cash flow rollups for imminent liabilities (14d).
+- `src/domain/contingency.ts`: Event-day contingency protocol matrix with vertical-specific rules (weddings, birthdays, galas) and an automated Day-Of Vendor Emergency Call Sheet.
+- `src/components/budget/BudgetScenarioModeler.tsx`: Accessible interactive sensitivity slider and 3-scenario comparison table within `BudgetPlanner`.
+- `src/components/vendors/VendorPaymentSchedule.tsx`: Collapsible cash flow disbursement schedule with settlement badges in `VendorChecklist`.
+- `src/components/brief/BriefContingencySection.tsx`: Integrated Plan B protocols and click-to-call (`tel:`) emergency roster in `EventBriefDialog`.
+
+### Consequences
+
+- Hosts and producers gain institutional-grade financial modeling and on-site operational readiness.
+- Strict layered architecture preserved: pure domain calculations completely decoupled from UI presentation.
+- All new functions strictly adhere to `< 40` lines and all source files remain below `300` lines.
+- Complete unit and accessibility test coverage with 0 ESLint warnings and strict TypeScript verification.
+
+---
+
 ## Code Quality Evidence
 
 - **Functions over 40 lines**: 0 (enforced via ESLint `max-lines-per-function` max 40, skipBlankLines, skipComments; turned off for `__tests__` and `e2e` only)
