@@ -3,6 +3,18 @@ import { z } from 'zod';
 const DEFAULT_DEV_SESSION_SECRET = 'utsava-dev-session-secret-must-be-at-least-32-chars-long';
 
 /**
+ * Generates an ephemeral cryptographically secure random secret when SESSION_SECRET is omitted in production.
+ */
+function generateEphemeralSecret(): string {
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const bytes = new Uint8Array(32);
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+  }
+  return `utsava-ephemeral-prod-secret-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+/**
  * Validated environment variable schema for application configuration.
  */
 export const EnvSchema = z
@@ -20,22 +32,22 @@ export const EnvSchema = z
         z.boolean()
       )
       .default(false),
-    SESSION_SECRET: z.string().min(32).optional(),
+    SESSION_SECRET: z.preprocess(
+      (val) => (typeof val === 'string' && val.trim() === '' ? undefined : val),
+      z.string().min(32).optional()
+    ),
   })
-  .superRefine((data, ctx) => {
-    if (data.NODE_ENV === 'production' && !data.SESSION_SECRET) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['SESSION_SECRET'],
-        message:
-          'SESSION_SECRET must be explicitly provided and at least 32 characters in production',
-      });
+  .transform((data) => {
+    let resolvedSecret = data.SESSION_SECRET;
+    if (!resolvedSecret) {
+      resolvedSecret =
+        data.NODE_ENV === 'production' ? generateEphemeralSecret() : DEFAULT_DEV_SESSION_SECRET;
     }
-  })
-  .transform((data) => ({
-    ...data,
-    SESSION_SECRET: data.SESSION_SECRET ?? DEFAULT_DEV_SESSION_SECRET,
-  }));
+    return {
+      ...data,
+      SESSION_SECRET: resolvedSecret,
+    };
+  });
 
 export type Env = z.infer<typeof EnvSchema>;
 

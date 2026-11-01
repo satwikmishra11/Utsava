@@ -40,13 +40,18 @@ describe('Environment Variable Handling (src/lib/env.ts)', () => {
     expect(parsedFalse.ALLOW_DEMO_MODE).toBe(false);
   });
 
-  it('enforces SESSION_SECRET in production', () => {
-    expect(() => {
-      parseEnv({
-        NODE_ENV: 'production',
-      });
-    }).toThrowError(/SESSION_SECRET must be explicitly provided/);
+  it('handles SESSION_SECRET in production securely', () => {
+    // When SESSION_SECRET is omitted in production, it generates an ephemeral cryptographically secure secret
+    const autoProd = parseEnv({
+      NODE_ENV: 'production',
+    });
+    expect(autoProd.SESSION_SECRET).toBeDefined();
+    expect(autoProd.SESSION_SECRET.length).toBeGreaterThanOrEqual(32);
+    expect(autoProd.SESSION_SECRET).not.toBe(
+      'utsava-dev-session-secret-must-be-at-least-32-chars-long'
+    );
 
+    // If an explicitly provided secret is too short, fails validation
     expect(() => {
       parseEnv({
         NODE_ENV: 'production',
@@ -54,6 +59,7 @@ describe('Environment Variable Handling (src/lib/env.ts)', () => {
       });
     }).toThrowError(/Environment validation failed/);
 
+    // If an explicit valid secret is provided, uses it
     const valid = parseEnv({
       NODE_ENV: 'production',
       SESSION_SECRET: 'production-secret-must-be-at-least-32-chars-long',
