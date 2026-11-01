@@ -6,6 +6,8 @@ import { enforceRateLimit, enforceCsrf, enforceFieldLength, jsonValidationError 
 import { getSessionUser } from '@/services/auth/session';
 import { generateTimeline, GeneratedTimelineTask, PersonalizationContext } from '@/services/ai';
 
+export const maxDuration = 60;
+
 const QuerySchema = z.object({}).strict();
 
 function resolveCulture(data: GenerateTimelineRequest): string | undefined {
@@ -83,6 +85,10 @@ export async function POST(req: NextRequest): Promise<Response> {
     {
       timelineItems,
       tasks: result.data.tasks,
+      meta: {
+        provider: result.provider ?? 'mock',
+        source: result.source,
+      },
     },
     { status: 200 }
   );

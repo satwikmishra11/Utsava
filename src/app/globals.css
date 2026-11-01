@@ -1340,6 +1340,58 @@ body {
   font-weight: 700;
 }
 
+.header-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--accent-emerald);
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.header-badge-skeleton {
+  display: inline-block;
+  border-radius: 9999px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.provenance-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.provenance-badge-ai {
+  background: var(--badge-emerald-bg);
+  color: var(--badge-emerald-text);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.provenance-badge-fallback {
+  background: var(--badge-gold-bg);
+  color: var(--badge-gold-text);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+}
+
+.provenance-icon {
+  flex-shrink: 0;
+}
+
+.provenance-text {
+  display: inline-block;
+}
+
 .header-subtitle {
   color: var(--text-secondary);
   margin-top: 4px;

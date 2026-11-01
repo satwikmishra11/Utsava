@@ -1,12 +1,14 @@
 import React from 'react';
 import { GeneratedBudgetItem } from '@/services/ai';
 import { AiSuggestionsBanner } from '../ui/AiSuggestionsBanner';
+import { ProvenanceSource } from '../ui/ProvenanceBadge';
 
 export interface BudgetSuggestionsAlertProps {
   readonly suggestions: readonly GeneratedBudgetItem[];
   readonly currency: string;
   readonly onAccept: () => void;
   readonly onDismiss: () => void;
+  readonly source?: ProvenanceSource;
 }
 
 export function BudgetSuggestionsAlert({
@@ -14,6 +16,7 @@ export function BudgetSuggestionsAlert({
   currency,
   onAccept,
   onDismiss,
+  source = 'llm',
 }: BudgetSuggestionsAlertProps): React.JSX.Element {
   const sum = suggestions.reduce((acc, s) => acc + s.estimated, 0);
   return (
@@ -26,6 +29,7 @@ export function BudgetSuggestionsAlert({
       dismissId="btn-dismiss-budget-ai"
       onAccept={onAccept}
       onDismiss={onDismiss}
+      source={source}
     />
   );
 }

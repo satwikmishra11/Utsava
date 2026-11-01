@@ -1,6 +1,7 @@
 import React from 'react';
 import { Check, X } from 'lucide-react';
 import { Button } from './Button';
+import { ProvenanceBadge, ProvenanceSource } from './ProvenanceBadge';
 
 export interface AiSuggestionsBannerProps {
   readonly title: React.ReactNode;
@@ -11,6 +12,7 @@ export interface AiSuggestionsBannerProps {
   readonly dismissId: string;
   readonly onAccept: () => void;
   readonly onDismiss: () => void;
+  readonly source?: ProvenanceSource;
 }
 
 function AiBannerActions({
@@ -61,12 +63,16 @@ export function AiSuggestionsBanner({
   dismissId,
   onAccept,
   onDismiss,
+  source = 'llm',
 }: AiSuggestionsBannerProps): React.JSX.Element {
   return (
     <div className="ai-banner">
       <div className="ai-banner-content">
         <div>
-          <span className="ai-banner-title">{title}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <span className="ai-banner-title">{title}</span>
+            <ProvenanceBadge source={source} />
+          </div>
           <p className="ai-banner-description">{description}</p>
         </div>
         <AiBannerActions

@@ -24,7 +24,7 @@ src/
 | `src/domain/timeline/`         | Task scheduling, dependency cycle detection, milestone sorting, and lead-time compression | Pure mathematical and temporal operations                                               |
 | `src/domain/security.ts`       | Prompt injection detection, HTML entity sanitization, and secure instruction envelopes    | Defends against delimiter hijacking and system prompt override attacks                  |
 | `src/domain/demo/`             | Golden seed datasets for Indian Wedding, Birthday, and Community Gala celebrations        | Offline demonstration without API dependencies                                          |
-| `src/services/llm/`            | Swappable LLM provider abstractions (`ClaudeProvider`, `MockProvider`)                    | Common interface for streaming and structured prompt completion                         |
+| `src/services/llm/`            | Swappable LLM provider abstractions (`GeminiProvider`, `ClaudeProvider`, `MockProvider`)  | Common interface for streaming and structured prompt completion                         |
 | `src/services/ai/`             | Structured prompt builders, generation caching, token telemetry, and self-healing retries | Automatically falls back to deterministic domain engines on validation failure          |
 | `src/services/rateLimiter.ts`  | Sliding-window in-memory rate limiting by client IP and session user ID                   | Prevents resource exhaustion on AI generation routes                                    |
 | `src/services/cacheService.ts` | Deterministic key-value generation cache with TTL and normalization                       | Prevents duplicate LLM token burn on identical planning requests                        |
@@ -56,26 +56,29 @@ User Action (Wizard / Chat / Regenerate)
       └── NO
             │
             ▼
-[5] Provider Selection: LLM_PROVIDER ('claude' vs 'mock')
-      ├── 'mock' ──> Execute Pure Domain Engine (budgetAdvisor / planTimeline)
-      └── 'claude'
+[5] Fail-Loud Provider Selection: LLM_PROVIDER ('auto' | 'gemini' | 'claude' | 'mock')
+      ├── 'gemini' (Default Live) ──> Google Gemini 2.5 Flash via @google/genai SDK
+      ├── 'claude' (Secondary)    ──> Anthropic Claude 3.5 Sonnet
+      └── 'mock' (Opt-In Demo)    ──> Deterministic MockProvider (requires ALLOW_DEMO_MODE=true)
             │
             ▼
-[6] Primary Generation: Claude 3.5 Sonnet Structured Request
+[6] Primary Generation: Structured JSON Request with Schema Validation
       │
-      ├── Success (Zod Valid) ──> Cache Result & Return Response
-      └── Parse Error / Timeout
+      ├── Success (Zod Valid) ──> Source: 'llm', Cache Result & Return Response
+      └── Parse Error / Timeout / Quota Exhaustion
             │
             ▼
 [7] Self-Healing Retry: Corrective Prompt with Specific Zod Errors
       │
-      ├── Success (Zod Valid) ──> Cache Result & Return Response
-      └── Failure
+      ├── Success (Zod Valid) ──> Source: 'retry', Cache Result & Return Response
+      └── Failure / Quota Limit
             │
             ▼
-[8] Deterministic Fallback: Pure Domain Engine executes fallback
+[8] Deterministic Fallback & Visible Provenance:
       │
-      └── Result Normalized, Cached, and Returned Safely to User
+      ├── Pure Domain Engine generates valid heuristic plan
+      ├── Tagged with source: 'fallback' and provider metadata
+      └── UI renders screen-reader announced ProvenanceBadge chip ("Rule-based fallback")
 ```
 
 ## Architectural Boundaries

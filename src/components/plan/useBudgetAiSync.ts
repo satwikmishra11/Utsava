@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { EventPlan } from '@/domain/types';
 import { BudgetItem } from '@/domain/schemas';
 import { generateBudgetPlan, GeneratedBudgetItem } from '@/services/ai';
+import { ProvenanceSource } from '../ui/ProvenanceBadge';
 
 export function useBudgetAiSync(
   plan: EventPlan,
@@ -10,6 +11,7 @@ export function useBudgetAiSync(
 ) {
   const [loading, setLoading] = useState(false);
   const [pending, setPending] = useState<readonly GeneratedBudgetItem[] | null>(null);
+  const [source, setSource] = useState<ProvenanceSource>('llm');
 
   const regenerate = async (target: EventPlan = plan) => {
     setLoading(true);
@@ -24,6 +26,7 @@ export function useBudgetAiSync(
       eventDate: target.date,
     });
     setPending(res.data.items);
+    setSource(res.source ?? 'llm');
     setLoading(false);
   };
 
@@ -42,5 +45,5 @@ export function useBudgetAiSync(
     showToast('Applied AI Budget Allocation to your plan.');
   };
 
-  return { loading, pending, setPending, regenerate, accept };
+  return { loading, pending, setPending, source, setSource, regenerate, accept };
 }

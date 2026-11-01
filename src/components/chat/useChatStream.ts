@@ -80,7 +80,13 @@ function handleStreamError(
   const msg = err instanceof Error ? err.message : 'An error occurred while connecting to AI.';
   setMessages((prev) => [
     ...prev,
-    { id: `err-${Date.now()}`, role: 'assistant', content: `⚠️ ${msg}`, timestamp: Date.now() },
+    {
+      id: `err-${Date.now()}`,
+      role: 'assistant',
+      content: `⚠️ ${msg}`,
+      timestamp: Date.now(),
+      meta: { source: 'fallback' },
+    },
   ]);
   setLiveAnnouncement(`Error: ${msg}`);
 }
@@ -108,10 +114,17 @@ async function postChatMessage(
   if (!res.ok) throw new Error((await res.json()).error || 'Server error');
   const reader = res.body?.getReader();
   if (!reader) return;
+  const aiProvider = res.headers?.get?.('x-ai-provider') || 'mock';
   const assistantId = `assistant-${Date.now()}`;
   setMessages((prev) => [
     ...prev,
-    { id: assistantId, role: 'assistant', content: '', timestamp: Date.now() },
+    {
+      id: assistantId,
+      role: 'assistant',
+      content: '',
+      timestamp: Date.now(),
+      meta: { provider: aiProvider, source: 'llm' },
+    },
   ]);
   await processAssistantStream(reader, assistantId, plan, setMessages, setLiveAnnouncement);
 }

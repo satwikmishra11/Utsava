@@ -134,6 +134,10 @@ export interface ChatMessage {
   readonly content: string;
   readonly timestamp: number;
   readonly actionProposal?: ActionProposal;
+  readonly meta?: {
+    readonly provider?: string;
+    readonly source?: 'llm' | 'retry' | 'fallback' | string;
+  };
 }
 
 export interface EventPlanSummary {

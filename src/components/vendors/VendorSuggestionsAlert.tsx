@@ -3,15 +3,18 @@
 import React from 'react';
 import { GeneratedVendorItem } from '@/services/ai';
 import { AiSuggestionsBanner } from '../ui/AiSuggestionsBanner';
+import { ProvenanceSource } from '../ui/ProvenanceBadge';
 
 export function VendorSuggestionsAlert({
   suggestions,
   onAccept,
   onDismiss,
+  source = 'llm',
 }: {
   readonly suggestions: readonly GeneratedVendorItem[];
   readonly onAccept: () => void;
   readonly onDismiss: () => void;
+  readonly source?: ProvenanceSource;
 }): React.JSX.Element {
   return (
     <AiSuggestionsBanner
@@ -23,6 +26,7 @@ export function VendorSuggestionsAlert({
       dismissId="btn-dismiss-vendors-ai"
       onAccept={onAccept}
       onDismiss={onDismiss}
+      source={source}
     />
   );
 }

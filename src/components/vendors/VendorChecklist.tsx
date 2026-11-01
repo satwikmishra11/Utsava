@@ -7,6 +7,7 @@ import { ALL_BUDGET_CATEGORIES } from '@/domain/budget';
 import { GeneratedVendorItem } from '@/services/ai';
 import { calculateVendorFinancials } from '@/domain/vendors';
 import { CardSkeleton } from '../ui/Skeleton';
+import { ProvenanceSource } from '../ui/ProvenanceBadge';
 import { VendorChecklistProps } from './types';
 import { VendorChecklistHeader } from './VendorChecklistHeader';
 import { VendorSuggestionsAlert } from './VendorSuggestionsAlert';
@@ -29,14 +30,21 @@ function VendorAlertSection({
   suggestions,
   onAccept,
   onDismiss,
+  source,
 }: {
   readonly suggestions?: readonly GeneratedVendorItem[] | null;
   readonly onAccept?: () => void;
   readonly onDismiss?: () => void;
+  readonly source?: ProvenanceSource;
 }): React.JSX.Element | null {
   if (!suggestions?.length || !onAccept || !onDismiss) return null;
   return (
-    <VendorSuggestionsAlert suggestions={suggestions} onAccept={onAccept} onDismiss={onDismiss} />
+    <VendorSuggestionsAlert
+      suggestions={suggestions}
+      onAccept={onAccept}
+      onDismiss={onDismiss}
+      source={source}
+    />
   );
 }
 
@@ -159,12 +167,14 @@ function VendorTopSection({
         onRegenerateAI={props.onRegenerateAI}
         onExportCSV={props.onExportCSV}
         isLoadingAI={props.isLoadingAI}
+        source={props.aiSource}
       />
       {props.isLoadingAI && <CardSkeleton />}
       <VendorAlertSection
         suggestions={props.pendingSuggestions}
         onAccept={props.onAcceptSuggestions}
         onDismiss={props.onDismissSuggestions}
+        source={props.aiSource}
       />
     </>
   );

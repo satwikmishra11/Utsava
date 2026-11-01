@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { EventPlan, TimelineItem } from '@/domain/types';
 import { generateTimeline, GeneratedTimelineTask } from '@/services/ai';
+import { ProvenanceSource } from '../ui/ProvenanceBadge';
 
 function mapTasksToTimelineItems(
   tasks: readonly GeneratedTimelineTask[],
@@ -27,6 +28,7 @@ export function useTimelineAiSync(
 ) {
   const [loading, setLoading] = useState(false);
   const [pending, setPending] = useState<readonly GeneratedTimelineTask[] | null>(null);
+  const [source, setSource] = useState<ProvenanceSource>('llm');
 
   const regenerate = async (target: EventPlan = plan) => {
     setLoading(true);
@@ -41,6 +43,7 @@ export function useTimelineAiSync(
       currency: target.currency,
     });
     setPending(res.data.tasks);
+    setSource(res.source ?? 'llm');
     setLoading(false);
   };
 
@@ -52,5 +55,5 @@ export function useTimelineAiSync(
     showToast('Applied AI Timeline tasks to your schedule.');
   };
 
-  return { loading, pending, setPending, regenerate, accept };
+  return { loading, pending, setPending, source, setSource, regenerate, accept };
 }

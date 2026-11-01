@@ -10,6 +10,9 @@ jobs:
   validate:
     name: Lint, Typecheck, Test, and Build
     runs-on: ubuntu-latest
+    env:
+      LLM_PROVIDER: mock
+      ALLOW_DEMO_MODE: 'true'
 
     steps:
       - name: Checkout Code

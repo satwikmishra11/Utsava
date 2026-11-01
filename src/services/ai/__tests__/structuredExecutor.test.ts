@@ -23,6 +23,7 @@ describe('StructuredExecutor with Validation, Retry & Fallback', () => {
     });
 
     expect(result.source).toBe('llm');
+    expect(result.provider).toBe('mock');
     expect(result.data.title).toBe('Royal Hall');
     expect(result.data.amount).toBe(5000);
   });
@@ -52,6 +53,7 @@ describe('StructuredExecutor with Validation, Retry & Fallback', () => {
 
     expect(callCount).toBe(2);
     expect(result.source).toBe('retry');
+    expect(result.provider).toBe('mock');
     expect(result.data.title).toBe('Corrected Venue');
     expect(result.data.amount).toBe(3500);
     expect(receivedRetryPrompt).toContain('RETRY');
@@ -76,6 +78,7 @@ describe('StructuredExecutor with Validation, Retry & Fallback', () => {
 
     expect(callCount).toBe(2);
     expect(result.source).toBe('fallback');
+    expect(result.provider).toBe('mock');
     expect(result.data.title).toBe('Fallback Venue');
     expect(result.data.amount).toBe(1200);
   });

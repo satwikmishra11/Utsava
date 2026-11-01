@@ -16,6 +16,12 @@ export default defineConfig({
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
+    env: {
+      ...process.env,
+      LLM_PROVIDER: 'mock',
+      ALLOW_DEMO_MODE: 'true',
+      NODE_ENV: 'test',
+    },
   },
   projects: [
     {

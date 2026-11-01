@@ -27,6 +27,12 @@ describe('ClaudeProvider Unit Tests', () => {
 
   it('initializes with model name and API key', () => {
     expect(provider.name).toBe('claude');
+    expect(provider.model).toBe('claude-sonnet-5-5');
+  });
+
+  it('allows model override via constructor or environment', () => {
+    const custom = new ClaudeProvider(FAKE_KEY, 'claude-3-haiku-20240307');
+    expect(custom.model).toBe('claude-3-haiku-20240307');
   });
 
   it('throws helpful error when initialized without an API key', () => {
@@ -38,7 +44,7 @@ describe('ClaudeProvider Unit Tests', () => {
     process.env.ANTHROPIC_API_KEY = originalKey;
   });
 
-  it('calls messages.create and extracts text response', async () => {
+  it('calls messages.create and extracts text response with signal and bounded tokens', async () => {
     mockCreate.mockResolvedValueOnce({
       content: [{ type: 'text', text: 'Hello from Claude' }],
     });
@@ -49,12 +55,15 @@ describe('ClaudeProvider Unit Tests', () => {
     });
 
     expect(result).toBe('Hello from Claude');
-    expect(mockCreate).toHaveBeenCalledWith({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 500,
-      system: 'You are an event planner',
-      messages: [{ role: 'user', content: 'Tell me an event idea' }],
-    });
+    expect(mockCreate).toHaveBeenCalledWith(
+      {
+        model: 'claude-sonnet-5-5',
+        max_tokens: 500,
+        system: 'You are an event planner',
+        messages: [{ role: 'user', content: 'Tell me an event idea' }],
+      },
+      expect.objectContaining({ signal: expect.any(Object) })
+    );
   });
 
   it('returns empty string if content block is not text', async () => {
@@ -77,7 +86,6 @@ describe('ClaudeProvider Unit Tests', () => {
     const stream = await provider.streamText('Stream me a poem');
     const reader = stream.getReader();
 
-    // Trigger chunk events
     setTimeout(() => {
       eventHandlers['text']?.('Chunk 1 ');
       eventHandlers['text']?.('Chunk 2');

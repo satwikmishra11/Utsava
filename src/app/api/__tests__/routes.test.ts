@@ -3,6 +3,8 @@ import { NextRequest } from 'next/server';
 import { POST as chatHandler } from '../chat/route';
 import { POST as ideasHandler } from '../ideas/route';
 import { POST as timelineHandler } from '../timeline/route';
+import { POST as budgetHandler } from '../budget/route';
+import { POST as vendorsHandler } from '../vendors/route';
 import { aiRateLimiter } from '@/services/rateLimiter';
 
 describe('API Route Handlers (Integration)', () => {
@@ -55,6 +57,7 @@ describe('API Route Handlers (Integration)', () => {
     const res = await chatHandler(req);
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toContain('text/plain');
+    expect(res.headers.get('x-ai-provider')).toBe('mock');
     const text = await res.text();
     expect(text.length).toBeGreaterThan(0);
   });
@@ -102,5 +105,44 @@ describe('API Route Handlers (Integration)', () => {
     const json = await res.json();
     expect(json.timelineItems).toBeDefined();
     expect(json.timelineItems.length).toBeGreaterThan(0);
+    expect(json.meta).toEqual({ provider: 'mock', source: 'llm' });
+  });
+
+  it('generates budget plan with valid request', async () => {
+    const req = new NextRequest('http://localhost:3000/api/budget', {
+      method: 'POST',
+      headers: defaultHeaders,
+      body: JSON.stringify({
+        eventType: 'wedding',
+        guestCount: 200,
+        totalBudget: 500000,
+        currency: 'INR',
+      }),
+    });
+    const res = await budgetHandler(req);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.items).toBeDefined();
+    expect(json.items.length).toBeGreaterThan(0);
+    expect(json.meta).toEqual({ provider: 'mock', source: 'llm' });
+  });
+
+  it('generates vendor checklist with valid request', async () => {
+    const req = new NextRequest('http://localhost:3000/api/vendors', {
+      method: 'POST',
+      headers: defaultHeaders,
+      body: JSON.stringify({
+        eventType: 'birthday',
+        guestCount: 30,
+        totalBudget: 40000,
+        currency: 'INR',
+      }),
+    });
+    const res = await vendorsHandler(req);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.vendors).toBeDefined();
+    expect(json.vendors.length).toBeGreaterThan(0);
+    expect(json.meta).toEqual({ provider: 'mock', source: 'llm' });
   });
 });

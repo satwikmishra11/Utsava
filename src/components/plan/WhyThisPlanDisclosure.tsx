@@ -1,11 +1,13 @@
 'use client';
 
 import React from 'react';
+import { ProvenanceBadge, ProvenanceSource } from '../ui/ProvenanceBadge';
 
 export interface WhyThisPlanDisclosureProps {
   readonly id: string;
   readonly budgetReasons?: readonly string[];
   readonly timelineReasons?: readonly string[];
+  readonly source?: ProvenanceSource;
 }
 
 interface ReasonEntry {
@@ -67,6 +69,7 @@ export function WhyThisPlanDisclosure({
   id,
   budgetReasons = [],
   timelineReasons = [],
+  source = 'llm',
 }: WhyThisPlanDisclosureProps): React.JSX.Element {
   const entries = buildReasonEntries(id, budgetReasons, timelineReasons);
   const countLabel = entries.length > 0 ? `${entries.length} factors` : 'Standard';
@@ -74,7 +77,10 @@ export function WhyThisPlanDisclosure({
   return (
     <details id={id} className="why-this-plan-disclosure">
       <summary id={`${id}-summary`} className="why-this-plan-summary">
-        <span className="why-this-plan-title">Why this plan?</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <span className="why-this-plan-title">Why this plan?</span>
+          <ProvenanceBadge source={source} />
+        </div>
         <span
           className="why-this-plan-count"
           aria-label={`${entries.length} explainable rationale factors`}

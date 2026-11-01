@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { z } from 'zod';
 import { MockProvider } from '../mockProvider';
-import { getLLMProvider } from '../index';
+import { getLLMProvider, setDefaultLLMProvider } from '../index';
 import { ClaudeProvider } from '../claudeProvider';
 
 describe('LLMProvider Architecture & Swappability', () => {
@@ -83,5 +83,15 @@ describe('LLMProvider Architecture & Swappability', () => {
 
     const jsonText = await provider.generateText('hello', { systemPrompt: 'Return JSON' });
     expect(JSON.parse(jsonText)).toHaveProperty('message', 'mocked structured response');
+  });
+
+  it('supports dependency injection with injectedProvider and setDefaultLLMProvider', () => {
+    const customMock = new MockProvider('Custom injected text');
+    const created = getLLMProvider();
+    expect(created.name).toBe('mock');
+
+    setDefaultLLMProvider(customMock);
+    expect(getLLMProvider()).toBe(customMock);
+    setDefaultLLMProvider(null);
   });
 });

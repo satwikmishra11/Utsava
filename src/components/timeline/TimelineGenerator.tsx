@@ -17,6 +17,7 @@ import { TimelineSuggestionsAlert } from './TimelineSuggestionsAlert';
 import { TimelineForm } from './TimelineForm';
 import { TimelineItemRow } from './TimelineItemRow';
 import { WhyThisPlanDisclosure } from '../plan';
+import { ProvenanceSource } from '../ui/ProvenanceBadge';
 
 export interface TimelineGeneratorProps {
   readonly items: readonly TimelineItem[];
@@ -32,6 +33,7 @@ export interface TimelineGeneratorProps {
   readonly onDismissSuggestions?: () => void;
   readonly budgetReasons?: readonly string[];
   readonly timelineReasons?: readonly string[];
+  readonly aiSource?: ProvenanceSource;
 }
 
 function createTimelineItem(title: string, time: string): TimelineItem {
@@ -51,12 +53,14 @@ function TimelineAlertSection({
   suggestions,
   onAccept,
   onDismiss,
+  source,
 }: {
   readonly isLoadingAI: boolean;
   readonly hasSuggestions: boolean;
   readonly suggestions?: readonly GeneratedTimelineTask[] | null;
   readonly onAccept?: () => void;
   readonly onDismiss?: () => void;
+  readonly source?: ProvenanceSource;
 }): React.JSX.Element | null {
   return (
     <>
@@ -66,6 +70,7 @@ function TimelineAlertSection({
           suggestions={suggestions}
           onAccept={onAccept}
           onDismiss={onDismiss}
+          source={source}
         />
       )}
     </>
@@ -173,11 +178,13 @@ function TimelineTopSection({ props, filters }: TimelineTopSectionProps): React.
         onRegenerateAI={props.onRegenerateAI}
         onExportCSV={props.onExportCSV}
         isLoadingAI={props.isLoadingAI}
+        source={props.aiSource}
       />
       <WhyThisPlanDisclosure
         id="why-this-plan-timeline"
         budgetReasons={props.budgetReasons}
         timelineReasons={props.timelineReasons}
+        source={props.aiSource}
       />
       <TimelinePhaseFilter
         currentPhase={filters.phaseFilter}
@@ -230,6 +237,7 @@ export function TimelineGenerator(props: TimelineGeneratorProps): React.JSX.Elem
         suggestions={props.pendingSuggestions}
         onAccept={props.onAcceptSuggestions}
         onDismiss={props.onDismissSuggestions}
+        source={props.aiSource}
       />
       <TimelineForm onAdd={(title, time) => props.onAddItem(createTimelineItem(title, time))} />
       <TimelineItemsList

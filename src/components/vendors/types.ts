@@ -1,6 +1,7 @@
 import { VendorItem } from '@/domain/types';
 import { VendorStatus } from '@/domain/schemas';
 import { GeneratedVendorItem } from '@/services/ai';
+import { ProvenanceSource } from '../ui/ProvenanceBadge';
 
 export interface VendorChecklistProps {
   readonly vendors: readonly VendorItem[];
@@ -13,6 +14,7 @@ export interface VendorChecklistProps {
   readonly pendingSuggestions?: readonly GeneratedVendorItem[] | null;
   readonly onAcceptSuggestions?: () => void;
   readonly onDismissSuggestions?: () => void;
+  readonly aiSource?: ProvenanceSource;
 }
 
 export const STATUS_TITLES: Record<

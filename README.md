@@ -6,8 +6,9 @@
 
 **Utsava** (_Sanskrit for "celebration" / "festival"_) is an intelligent, accessible, and culturally attuned event planning assistant for life's most momentous gatherings — weddings, milestone birthdays, and community festivals.
 
-**Live Demo:** [https://utsava.vercel.app](https://utsava.vercel.app)  
-⚡ **Demo Mode Active:** Works instantly out-of-the-box with **no API key required** (uses deterministic `MockProvider` and 3 pre-seeded realistic celebrations).
+**Live Demo:** [https://utsava-wheat.vercel.app](https://utsava-wheat.vercel.app)  
+✨ **Live GenAI Engine:** Powered by **Google Gemini 2.5 Flash** (via Google AI Studio free tier) as the primary live provider, with optional secondary Anthropic Claude support.  
+🛡️ **Auditable AI Provenance & Fail-Safe Architecture:** Real-time AI status indicators, per-feature provenance badges ("AI-generated" vs. "Rule-based fallback"), zero silent mock degradation, and explainable deterministic heuristics under quota exhaustion.
 
 ---
 
@@ -31,7 +32,9 @@ Utsava is specifically tailored for three high-stakes celebration verticals wher
 
 ## 2. Approach and Decision Logic
 
-Utsava combines **structured generative AI with pure, deterministic domain logic**. When an AI generation is requested, the system attempts structured extraction through Claude 3.5 Sonnet. If the provider is unavailable, fails validation, or runs in Demo Mode, Utsava executes explainable, pure domain algorithms (`budgetAdvisor` and `planTimeline`) that guarantee valid plans with human-readable rationale.
+Utsava combines **structured generative AI with pure, deterministic domain logic**. When an AI generation is requested, the system queries **Google Gemini** (`gemini-2.5-flash`) via the official `@google/genai` SDK with strict JSON schema constraints. Anthropic Claude (`claude-3-5-sonnet-latest`) is supported as an optional secondary provider.
+
+If an external LLM call encounters a temporary outage, timeout, or free-tier rate/quota exhaustion, Utsava executes explainable, pure domain algorithms (`budgetAdvisor` and `planTimeline`) that guarantee valid plans with human-readable rationale. Crucially, fallbacks are **never concealed**: every output displays a screen-reader announced provenance badge (`Rule-based fallback (AI temporarily unavailable)`) to maintain strict user trust.
 
 ### User Context to Decision Rules
 
@@ -68,19 +71,23 @@ User Action (Wizard, Regenerate, Chat)
 [4] Generation Cache Lookup (<1ms on identical inputs)
   │
   ▼
-[5] Provider Selection: Claude 3.5 Sonnet (Live) vs. Deterministic Fallback (Demo)
+[5] Fail-Loud Provider Selection: Gemini (Primary) vs. Claude vs. Mock (Opt-In Only)
   │
   ▼
 [6] Self-Healing Validation: Schema Validation with Corrective Retry
+  │
+  ▼
+[7] Transparent Provenance: Tagged as 'llm', 'retry', or 'fallback' in UI and Meta
 ```
 
 1. **Security & Rate Limiting**: Every mutating request checks a double-submit CSRF token, verifies an HMAC-SHA256 signed session cookie, and passes through a sliding-window rate limiter (15 req/min on AI endpoints).
-2. **Input Validation & Guardrails**: Inputs are validated through strict Zod schemas. Prompt text is stripped of delimiters and verified against event-planning boundaries.
-3. **Generation Cache**: Context is normalized and hashed into a deterministic key. Repeated generations with identical parameters resolve immediately without consuming tokens.
-4. **Live Mode vs. Demo Mode**:
-   - **Live Mode**: Calls Anthropic Claude 3.5 Sonnet with JSON schema constraints.
-   - **Demo Mode**: Active by default (`LLM_PROVIDER=mock`). Zero API key is required; all features run offline through pure domain logic.
-5. **Self-Healing Fallback**: If an LLM call fails or emits unparseable JSON, a corrective retry prompt with precise Zod error paths is dispatched. If the retry fails, the pure domain fallback executes seamlessly.
+2. **Input Validation & Guardrails**: Inputs are validated through strict Zod schemas. Prompt text is stripped of control delimiters and checked against event-planning scope boundaries.
+3. **Generation Cache**: Context is normalized and hashed into a deterministic SHA-256 key. Repeated generations with identical parameters resolve immediately without consuming tokens.
+4. **Fail-Loud Provider Resolution**:
+   - `LLM_PROVIDER=auto` checks for `GEMINI_API_KEY` first, then `ANTHROPIC_API_KEY`.
+   - Explicitly configured live providers fail fast with a `ConfigurationError` if their API key is missing.
+   - `MockProvider` is quarantined: it cannot run unless `ALLOW_DEMO_MODE=true` is set.
+5. **Self-Healing Fallback & Visible Provenance**: If an LLM call fails schema validation, a corrective retry prompt is dispatched. If the retry fails or hits upstream API quotas, pure domain heuristics execute safely. Every response returns `{ meta: { provider, model, source } }`, and the UI displays an accessible provenance badge so fallbacks are never mistaken for live AI output.
 
 ---
 
@@ -95,28 +102,34 @@ User Action (Wizard, Regenerate, Chat)
 
 ---
 
-## 5. Quickstart Setup in 5 Commands
+## 5. Quickstart Setup in 6 Commands
 
-Get Utsava running locally in less than 60 seconds:
+Get Utsava running locally with live Gemini AI in less than 2 minutes:
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/satwikmishra11/Utsava.git
-
-# 2. Enter directory
 cd Utsava
 
-# 3. Install dependencies
+# 2. Install dependencies
 npm install
+
+# 3. Configure your Gemini API Key (Get a free key at https://aistudio.google.com/)
+cp .env.example .env.local
+# Edit .env.local and set:
+# GEMINI_API_KEY=your_gemini_api_key_from_google_ai_studio
 
 # 4. Seed database with 3 realistic celebrations
 npm run seed
 
-# 5. Start development server (Demo mode enabled by default)
+# 5. Start development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000) in your browser. The header badge will display **"Live AI · Gemini"**.
+
+> [!TIP]
+> **Getting a Free Gemini API Key**: Visit [Google AI Studio](https://aistudio.google.com/), sign in with any Google account, click "Create API key", and paste it into `.env.local` as `GEMINI_API_KEY`. No credit card is required.
 
 ---
 
@@ -124,23 +137,35 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 Utsava uses a fail-fast Zod-validated schema in [`src/lib/env.ts`](src/lib/env.ts):
 
-| Variable            | Required |         Default         | Description                                                                   |
-| :------------------ | :------: | :---------------------: | :---------------------------------------------------------------------------- |
-| `NODE_ENV`          |    No    |      `development`      | Runtime environment (`development`, `test`, `production`).                    |
-| `PORT`              |    No    |         `3000`          | Local HTTP server port.                                                       |
-| `LLM_PROVIDER`      |    No    |         `mock`          | Active LLM adapter: `mock` (zero API key required) or `claude`.               |
-| `ANTHROPIC_API_KEY` | Optional |       `undefined`       | Claude API key from Anthropic Console (only needed if `LLM_PROVIDER=claude`). |
-| `SESSION_SECRET`    |    No    | Default 32-char dev key | HMAC-SHA256 cookie signing secret (min 32 characters).                        |
+| Variable            |  Required  |         Default         | Description                                                                                             |
+| :------------------ | :--------: | :---------------------: | :------------------------------------------------------------------------------------------------------ |
+| `NODE_ENV`          |     No     |      `development`      | Runtime environment (`development`, `test`, `production`).                                              |
+| `PORT`              |     No     |         `3000`          | Local HTTP server port.                                                                                 |
+| `LLM_PROVIDER`      |     No     |         `auto`          | Active LLM adapter: `auto` (prefers Gemini, falls back to Claude), `gemini`, `claude`, or `mock`.       |
+| `GEMINI_API_KEY`    |    Live    |       `undefined`       | Google Gemini API key from Google AI Studio (free tier). Required when using Gemini.                    |
+| `GEMINI_MODEL`      |     No     |   `gemini-2.5-flash`    | Gemini model identifier (`gemini-2.5-flash`, `gemini-1.5-pro`, etc.).                                   |
+| `ANTHROPIC_API_KEY` |  Optional  |       `undefined`       | Anthropic Claude API key. Required when `LLM_PROVIDER=claude`.                                          |
+| `ANTHROPIC_MODEL`   |     No     |   `claude-sonnet-5-5`   | Claude model identifier (aliased to latest Claude 3.5 Sonnet).                                          |
+| `ALLOW_DEMO_MODE`   |     No     |         `false`         | Explicit permission flag to enable `MockProvider`. Required for tests and offline development.          |
+| `SESSION_SECRET`    | Production | Default 32-char dev key | HMAC-SHA256 cookie signing secret (min 32 characters; strictly required and must be set in production). |
 
 ---
 
-## 7. Demo Mode (Zero API Key Required)
+## 7. Demo Mode (Opt-In Offline & Test Operation)
 
-Utsava includes a built-in **Demo Mode** enabled by default:
+For offline development, CI pipelines, and air-gapped evaluation where no internet access or API key is available, Utsava includes an explicit **Demo Mode**:
 
-- **No external API key needed**: Runs entirely on the deterministic `MockProvider`.
-- **Pre-Seeded Celebrations**: Instantly switch between Royal Wedding, Safari Birthday, and Community Gala.
-- **Full Interactivity**: Regenerate budgets, back-schedule timelines, manage vendor checklists, and chat with tool action proposals.
+```bash
+# Run in Demo Mode without external network dependencies
+LLM_PROVIDER=mock ALLOW_DEMO_MODE=true npm run dev
+```
+
+When Demo Mode is active:
+
+- The UI header displays **"Demo mode (offline sample data)"** with an orange indicator.
+- Pure domain algorithms run deterministically without calling external APIs.
+- All 3 pre-seeded celebrations remain fully interactive.
+- Automated tests (`npm test`, `npm run test:e2e`) run with `ALLOW_DEMO_MODE=true` by default so CI runs stay 100% deterministic and cost zero tokens.
 
 ---
 
@@ -177,12 +202,13 @@ npm run build
 1. **Embedded SQLite Database**: Single-node SQLite (`better-sqlite3`) with automatic in-memory fallback for read-only serverless hosts.
 2. **INR Per-Guest Benchmarks**: Dynamic per-guest shifting in `budgetAdvisor` is calibrated for INR; other currencies use vertical baseline splits.
 3. **Single-Client Optimistic Sync**: State syncs via debounced autosave; concurrent multi-device co-editing does not yet use CRDTs.
+4. **Free Tier Quotas**: Google AI Studio free tier enforces 15 requests per minute. When exceeded, Utsava automatically triggers its safe rule-based fallback and displays provenance chips without failing requests.
 
 ### Roadmap
 
 1. **Multi-Currency Parity**: Add calibrated reference ranges for USD, EUR, GBP, and AED.
 2. **Real-Time Collaboration**: Support live co-planning via WebSockets or Yjs.
-3. **Automated Document Parsing**: Support vendor quote parsing from PDF invoices via Claude Vision.
+3. **Automated Document Parsing**: Support vendor quote parsing from PDF invoices via Gemini Vision.
 
 ---
 
@@ -192,7 +218,7 @@ npm run build
 - [**Testing Guide**](docs/TESTING.md): Test pyramid overview, mocking principles, and execution instructions.
 - [**Contributing Guide**](CONTRIBUTING.md): Engineering standards, pull request checklist, and code rules.
 - [**Standards Verification Guide**](docs/JUDGING_CRITERIA.md): Objective mapping of code quality, security, efficiency, testing, and accessibility.
-- [**Architecture Decisions Log (ADRs)**](docs/DECISIONS.md): ADR 001 through ADR 012 detailing design trade-offs.
+- [**Architecture Decisions Log (ADRs)**](docs/DECISIONS.md): ADR 001 through ADR 018 detailing design trade-offs.
 - [**Security Architecture**](docs/SECURITY.md): Threat model, prompt injection defense, and IDOR prevention.
 - [**Accessibility Report**](docs/ACCESSIBILITY.md): WCAG 2.2 AA audit matrix and screen reader verification.
 - [**Performance Report**](docs/PERFORMANCE.md): Bundle size breakdown and mobile performance optimizations.

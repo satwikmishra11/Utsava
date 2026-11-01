@@ -77,15 +77,22 @@ Configured in [`next.config.mjs`](file:///Users/satwik/Documents/GitHub/Utsava/n
 
 ---
 
-## 5. Secret Management & Automated CI Gates
+## 5. Secret Management, Fail-Loud Validation & Automated CI Gates
 
-1. **Zero Client Secrets**:
-   - API keys (`ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `SESSION_SECRET`) are accessed strictly on the server.
-   - No `NEXT_PUBLIC_` prefixes on sensitive environment variables.
-   - Fails fast on startup if environment variables fail Zod validation (`src/lib/env.ts`).
-2. **Automated CI Secret Scanning**:
+1. **Zero Client Secrets & Server-Only Scope**:
+   - Sensitive credentials (`GEMINI_API_KEY`, `ANTHROPIC_API_KEY`, `SESSION_SECRET`) are accessed exclusively within server-side route handlers and services.
+   - No `NEXT_PUBLIC_` prefixes are permitted on sensitive environment variables, preventing client bundle exposure.
+   - The `.gitignore` configuration excludes `.env`, `.env.local`, `.env.production`, and credential archives.
+2. **Fail-Loud Provider Validation & Mock Quarantine**:
+   - `validateLiveProviderEnv()` verifies that live AI providers (`gemini`, `claude`) have valid, non-empty API keys at startup and during request dispatch.
+   - Missing or blank credentials raise a typed `ConfigurationError` rather than silently degrading into offline sample data or mock stubs.
+   - `MockProvider` is strictly quarantined: attempting to instantiate `MockProvider` without `ALLOW_DEMO_MODE=true` throws a `ConfigurationError`, preventing unintended demo mode execution in production.
+3. **Production `SESSION_SECRET` Constraint**:
+   - In `NODE_ENV=production`, `SESSION_SECRET` must be explicitly supplied with at least 32 cryptographically secure characters.
+   - Built-in development fallback secrets are strictly rejected in production through Zod `superRefine` validation in `src/lib/env.ts`.
+4. **Automated CI Secret Scanning**:
    - [`scripts/secret-scan.sh`](file:///Users/satwik/Documents/GitHub/Utsava/scripts/secret-scan.sh) scans the repository for API keys, private keys, and high-entropy secrets on every commit and PR.
-3. **Automated Vulnerability Auditing**:
+5. **Automated Vulnerability Auditing**:
    - `npm audit --omit=dev --audit-level=critical` runs in CI to block critical production dependencies.
 
 ---

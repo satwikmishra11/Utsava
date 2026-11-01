@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Button } from './ui/Button';
 import { ThemeToggle } from './ThemeToggle';
+import { useAiStatus } from './useAiStatus';
 
 export interface HeaderProps {
   readonly plan: EventPlan;
@@ -34,20 +35,51 @@ const META_ACTIONS = [
   { id: 'btn-share-link', label: 'Share Link', icon: Share2, actionKey: 'share' as const },
 ];
 
+/**
+ * Status badge displaying active AI provider connection or offline demo mode.
+ */
+export function AiStatusBadge(): React.JSX.Element {
+  const { loading, live, provider } = useAiStatus();
+
+  if (loading) {
+    return (
+      <span
+        id="ai-status-badge"
+        role="status"
+        aria-label="Checking AI provider status"
+        className="header-demo-badge header-badge-skeleton"
+        style={{ width: '190px', height: '24px', opacity: 0.6 }}
+      />
+    );
+  }
+
+  const formattedProvider = provider.charAt(0).toUpperCase() + provider.slice(1);
+  const visibleText = live ? `Live AI · ${formattedProvider}` : 'Demo mode (offline sample data)';
+
+  return (
+    <span
+      id="ai-status-badge"
+      role="status"
+      aria-label={visibleText}
+      className={live ? 'header-live-badge' : 'header-demo-badge'}
+    >
+      <Sparkles
+        size={12}
+        color={live ? 'var(--accent-emerald)' : 'var(--accent-gold)'}
+        aria-hidden="true"
+      />
+      <span>{visibleText}</span>
+    </span>
+  );
+}
+
 function HeaderBrand({ title }: { readonly title: string }): React.JSX.Element {
   return (
     <div>
       <div className="header-brand-row">
         <Sparkles size={24} color="#f59e0b" aria-hidden="true" />
         <h1 className="header-title">Utsava: {title}</h1>
-        <span
-          role="status"
-          aria-label="Demo mode active with MockProvider"
-          className="header-demo-badge"
-        >
-          <Sparkles size={12} color="var(--accent-gold)" aria-hidden="true" />
-          <span>Demo Mode (MockProvider)</span>
-        </span>
+        <AiStatusBadge />
       </div>
       <p className="header-subtitle">
         GenAI-powered planning assistant for life&apos;s most cherished gatherings.

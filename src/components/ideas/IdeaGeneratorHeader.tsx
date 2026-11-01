@@ -3,13 +3,30 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { ProvenanceBadge, ProvenanceSource } from '../ui/ProvenanceBadge';
+
+function IdeaHeaderTitle({ source }: { readonly source: ProvenanceSource }): React.JSX.Element {
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+        <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>Personalized Event Ideas Gallery</h2>
+        <ProvenanceBadge source={source} />
+      </div>
+      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+        Culturally-tailored experiential, decor, and dining concepts.
+      </p>
+    </div>
+  );
+}
 
 export function IdeaGeneratorHeader({
   onRegenerateAI,
   isLoadingAI,
+  source = 'llm',
 }: {
   readonly onRegenerateAI?: () => void;
   readonly isLoadingAI?: boolean;
+  readonly source?: ProvenanceSource;
 }): React.JSX.Element {
   return (
     <div
@@ -22,12 +39,7 @@ export function IdeaGeneratorHeader({
         gap: '12px',
       }}
     >
-      <div>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>Personalized Event Ideas Gallery</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-          Culturally-tailored experiential, decor, and dining concepts.
-        </p>
-      </div>
+      <IdeaHeaderTitle source={source} />
       {onRegenerateAI && (
         <Button
           onClick={onRegenerateAI}

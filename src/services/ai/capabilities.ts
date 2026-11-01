@@ -72,7 +72,8 @@ async function trackCapabilityCall<T>(
   capability: 'budget' | 'timeline' | 'vendor' | 'ideas',
   cacheKey: string,
   skipCache: boolean | undefined,
-  executor: () => Promise<StructuredExecutionResult<T>>
+  executor: () => Promise<StructuredExecutionResult<T>>,
+  providerName: string
 ): Promise<StructuredExecutionResult<T>> {
   if (!skipCache) {
     const cached = generationCache.get<T>(cacheKey);
@@ -85,7 +86,7 @@ async function trackCapabilityCall<T>(
         model: 'generation-cache',
         cached: true,
       });
-      return { data: cached, source: 'llm' };
+      return { data: cached, source: 'llm', provider: providerName };
     }
   }
 
@@ -99,7 +100,7 @@ async function trackCapabilityCall<T>(
     promptTokens: 250,
     completionTokens,
     durationMs,
-    model: res.source === 'fallback' ? 'fallback-template' : 'claude-3-5-sonnet',
+    model: res.source === 'fallback' ? 'fallback-template' : (res.provider ?? providerName),
     cached: false,
   });
 
@@ -113,14 +114,19 @@ export async function generateBudgetPlan(
 ): Promise<StructuredExecutionResult<GeneratedBudgetPlan>> {
   const cacheKey = createNormalizedHashKey('budget', context);
   const provider = options?.provider ?? getLLMProvider();
-  return trackCapabilityCall('budget', cacheKey, options?.skipCache, () =>
-    executeStructuredWithRetry({
-      provider,
-      prompt: buildBudgetPrompt(context),
-      schema: GeneratedBudgetPlanSchema,
-      buildRetryPrompt: buildBudgetRetryPrompt,
-      fallback: () => buildFallbackBudgetPlan(context),
-    })
+  return trackCapabilityCall(
+    'budget',
+    cacheKey,
+    options?.skipCache,
+    () =>
+      executeStructuredWithRetry({
+        provider,
+        prompt: buildBudgetPrompt(context),
+        schema: GeneratedBudgetPlanSchema,
+        buildRetryPrompt: buildBudgetRetryPrompt,
+        fallback: () => buildFallbackBudgetPlan(context),
+      }),
+    provider.name
   );
 }
 
@@ -130,14 +136,19 @@ export async function generateTimeline(
 ): Promise<StructuredExecutionResult<GeneratedTimeline>> {
   const cacheKey = createNormalizedHashKey('timeline', context);
   const provider = options?.provider ?? getLLMProvider();
-  return trackCapabilityCall('timeline', cacheKey, options?.skipCache, () =>
-    executeStructuredWithRetry({
-      provider,
-      prompt: buildTimelinePrompt(context),
-      schema: GeneratedTimelineSchema,
-      buildRetryPrompt: buildTimelineRetryPrompt,
-      fallback: () => buildFallbackTimeline(context),
-    })
+  return trackCapabilityCall(
+    'timeline',
+    cacheKey,
+    options?.skipCache,
+    () =>
+      executeStructuredWithRetry({
+        provider,
+        prompt: buildTimelinePrompt(context),
+        schema: GeneratedTimelineSchema,
+        buildRetryPrompt: buildTimelineRetryPrompt,
+        fallback: () => buildFallbackTimeline(context),
+      }),
+    provider.name
   );
 }
 
@@ -147,14 +158,19 @@ export async function generateVendorChecklist(
 ): Promise<StructuredExecutionResult<GeneratedVendorChecklist>> {
   const cacheKey = createNormalizedHashKey('vendor', context);
   const provider = options?.provider ?? getLLMProvider();
-  return trackCapabilityCall('vendor', cacheKey, options?.skipCache, () =>
-    executeStructuredWithRetry({
-      provider,
-      prompt: buildVendorPrompt(context),
-      schema: GeneratedVendorChecklistSchema,
-      buildRetryPrompt: buildVendorRetryPrompt,
-      fallback: () => buildFallbackVendorChecklist(context),
-    })
+  return trackCapabilityCall(
+    'vendor',
+    cacheKey,
+    options?.skipCache,
+    () =>
+      executeStructuredWithRetry({
+        provider,
+        prompt: buildVendorPrompt(context),
+        schema: GeneratedVendorChecklistSchema,
+        buildRetryPrompt: buildVendorRetryPrompt,
+        fallback: () => buildFallbackVendorChecklist(context),
+      }),
+    provider.name
   );
 }
 
@@ -164,14 +180,19 @@ export async function generateIdeas(
 ): Promise<StructuredExecutionResult<GeneratedIdeas>> {
   const cacheKey = createNormalizedHashKey('ideas', context);
   const provider = options?.provider ?? getLLMProvider();
-  return trackCapabilityCall('ideas', cacheKey, options?.skipCache, () =>
-    executeStructuredWithRetry({
-      provider,
-      prompt: buildIdeasPrompt(context),
-      schema: GeneratedIdeasSchema,
-      buildRetryPrompt: buildIdeasRetryPrompt,
-      fallback: () => buildFallbackIdeas(context),
-    })
+  return trackCapabilityCall(
+    'ideas',
+    cacheKey,
+    options?.skipCache,
+    () =>
+      executeStructuredWithRetry({
+        provider,
+        prompt: buildIdeasPrompt(context),
+        schema: GeneratedIdeasSchema,
+        buildRetryPrompt: buildIdeasRetryPrompt,
+        fallback: () => buildFallbackIdeas(context),
+      }),
+    provider.name
   );
 }
 
@@ -201,6 +222,8 @@ export interface ChatAssistantResult {
   readonly stream: ReadableStream<Uint8Array>;
   readonly toolCalls: readonly ToolCall[];
   readonly updatedPlan?: EventPlan;
+  readonly provider: string;
+  readonly source: 'llm' | 'retry' | 'fallback';
 }
 
 function applyToolsToPlan(
@@ -226,7 +249,13 @@ export async function executeChatAssistant(
   const guardrail = checkScopeGuardrails(params.message);
   if (!guardrail.isAllowed) {
     const refusal = guardrail.refusalMessage ?? '';
-    return { replyText: refusal, stream: createTextStream(refusal), toolCalls: [] };
+    return {
+      replyText: refusal,
+      stream: createTextStream(refusal),
+      toolCalls: [],
+      provider: 'guardrails',
+      source: 'fallback',
+    };
   }
 
   const provider = params.provider ?? getLLMProvider();
@@ -252,5 +281,7 @@ export async function executeChatAssistant(
     stream: createTextStream(res.data.reply),
     toolCalls: res.data.toolCalls,
     updatedPlan: applyToolsToPlan(fullPlanToEdit, res.data.toolCalls),
+    provider: provider.name,
+    source: res.source,
   };
 }

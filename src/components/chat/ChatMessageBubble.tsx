@@ -2,6 +2,7 @@ import React from 'react';
 import { ChatMessage, ActionProposal } from '@/domain/types';
 import { Bot, User } from 'lucide-react';
 import { ActionProposalCard } from './ActionProposalCard';
+import { ProvenanceBadge } from '../ui/ProvenanceBadge';
 
 export interface ChatMessageBubbleProps {
   readonly message: ChatMessage;
@@ -77,6 +78,11 @@ export function ChatMessageBubble({
     >
       <ChatAvatar isUser={isUser} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {!isUser && (
+          <div>
+            <ProvenanceBadge source={message.meta?.source ?? 'llm'} />
+          </div>
+        )}
         <ChatContentBubble isUser={isUser} content={message.content} isStreaming={isStreaming} />
         {message.actionProposal && (
           <ActionProposalCard

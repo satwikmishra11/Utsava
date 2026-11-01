@@ -1,5 +1,6 @@
 import { IdeaRecommendation, IdeaCategory } from '@/domain/types';
 import { EventType } from '@/domain/schemas';
+import { ProvenanceSource } from '../ui/ProvenanceBadge';
 
 export interface IdeaGeneratorProps {
   readonly eventType: EventType;
@@ -13,6 +14,7 @@ export interface IdeaGeneratorProps {
   readonly pendingSuggestions?: readonly IdeaRecommendation[] | null;
   readonly onAcceptSuggestions?: () => void;
   readonly onDismissSuggestions?: () => void;
+  readonly aiSource?: ProvenanceSource;
 }
 
 export const CATEGORIES: readonly (IdeaCategory | 'all')[] = [

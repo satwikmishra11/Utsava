@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { EventPlan, IdeaRecommendation } from '@/domain/types';
 import { generateIdeas } from '@/services/ai';
+import { ProvenanceSource } from '../ui/ProvenanceBadge';
 
 export function useIdeaAiSync(
   plan: EventPlan,
@@ -9,6 +10,7 @@ export function useIdeaAiSync(
 ) {
   const [loading, setLoading] = useState(false);
   const [pending, setPending] = useState<readonly IdeaRecommendation[] | null>(null);
+  const [source, setSource] = useState<ProvenanceSource>('llm');
 
   const regenerate = async (target: EventPlan = plan) => {
     setLoading(true);
@@ -18,6 +20,7 @@ export function useIdeaAiSync(
       culture: target.culturalContext,
     });
     setPending(res.data.ideas);
+    setSource(res.source ?? 'llm');
     setLoading(false);
   };
 
@@ -28,5 +31,5 @@ export function useIdeaAiSync(
     showToast('Saved AI creative recommendations to your gallery.');
   };
 
-  return { loading, pending, setPending, regenerate, accept };
+  return { loading, pending, setPending, source, setSource, regenerate, accept };
 }

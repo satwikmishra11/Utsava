@@ -5,6 +5,8 @@ import { enforceRateLimit, enforceCsrf, enforceFieldLength, jsonValidationError 
 import { getSessionUser } from '@/services/auth/session';
 import { generateIdeas } from '@/services/ai';
 
+export const maxDuration = 60;
+
 const QuerySchema = z.object({}).strict();
 
 export async function POST(req: NextRequest): Promise<Response> {
@@ -39,5 +41,15 @@ export async function POST(req: NextRequest): Promise<Response> {
     dietary: [],
     accessibilityNeeds: [],
   });
-  return NextResponse.json({ ideas: result.data.ideas }, { status: 200 });
+
+  return NextResponse.json(
+    {
+      ideas: result.data.ideas,
+      meta: {
+        provider: result.provider ?? 'mock',
+        source: result.source,
+      },
+    },
+    { status: 200 }
+  );
 }

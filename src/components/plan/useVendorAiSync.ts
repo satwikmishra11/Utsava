@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { EventPlan, VendorItem } from '@/domain/types';
 import { generateVendorChecklist, GeneratedVendorItem } from '@/services/ai';
+import { ProvenanceSource } from '../ui/ProvenanceBadge';
 
 export function useVendorAiSync(
   plan: EventPlan,
@@ -9,6 +10,7 @@ export function useVendorAiSync(
 ) {
   const [loading, setLoading] = useState(false);
   const [pending, setPending] = useState<readonly GeneratedVendorItem[] | null>(null);
+  const [source, setSource] = useState<ProvenanceSource>('llm');
 
   const regenerate = async (target: EventPlan = plan) => {
     setLoading(true);
@@ -20,6 +22,7 @@ export function useVendorAiSync(
       culture: target.culturalContext,
     });
     setPending(res.data.vendors);
+    setSource(res.source ?? 'llm');
     setLoading(false);
   };
 
@@ -39,5 +42,5 @@ export function useVendorAiSync(
     showToast('Added AI Recommended Vendors to your checklist.');
   };
 
-  return { loading, pending, setPending, regenerate, accept };
+  return { loading, pending, setPending, source, setSource, regenerate, accept };
 }

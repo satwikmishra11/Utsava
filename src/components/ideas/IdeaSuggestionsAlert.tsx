@@ -3,15 +3,18 @@
 import React from 'react';
 import { IdeaRecommendation } from '@/domain/types';
 import { AiSuggestionsBanner } from '../ui/AiSuggestionsBanner';
+import { ProvenanceSource } from '../ui/ProvenanceBadge';
 
 export function IdeaSuggestionsAlert({
   suggestions,
   onAccept,
   onDismiss,
+  source = 'llm',
 }: {
   readonly suggestions: readonly IdeaRecommendation[];
   readonly onAccept: () => void;
   readonly onDismiss: () => void;
+  readonly source?: ProvenanceSource;
 }): React.JSX.Element {
   return (
     <AiSuggestionsBanner
@@ -23,6 +26,7 @@ export function IdeaSuggestionsAlert({
       dismissId="btn-dismiss-ideas-ai"
       onAccept={onAccept}
       onDismiss={onDismiss}
+      source={source}
     />
   );
 }

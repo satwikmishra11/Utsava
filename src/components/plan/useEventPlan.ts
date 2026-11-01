@@ -109,18 +109,22 @@ function assembleAiSyncProps(
     setPendingBudget: budgetAi.setPending,
     regenerateBudget: budgetAi.regenerate,
     acceptBudgetSuggestions: budgetAi.accept,
+    budgetSource: budgetAi.source,
     pendingTimeline: timelineAi.pending,
     setPendingTimeline: timelineAi.setPending,
     regenerateTimeline: timelineAi.regenerate,
     acceptTimelineSuggestions: timelineAi.accept,
+    timelineSource: timelineAi.source,
     pendingVendors: vendorAi.pending,
     setPendingVendors: vendorAi.setPending,
     regenerateVendors: vendorAi.regenerate,
     acceptVendorSuggestions: vendorAi.accept,
+    vendorSource: vendorAi.source,
     pendingIdeas: ideaAi.pending,
     setPendingIdeas: ideaAi.setPending,
     regenerateIdeas: ideaAi.regenerate,
     acceptIdeaSuggestions: ideaAi.accept,
+    ideaSource: ideaAi.source,
   };
 }
 

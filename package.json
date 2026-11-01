@@ -15,10 +15,12 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "seed": "tsx scripts/seed.ts",
+    "smoke:live": "tsx scripts/live-smoke.ts",
     "prepare": "husky"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",
+    "@google/genai": "^3.6.0",
     "better-sqlite3": "^13.0.3",
     "drizzle-orm": "^0.45.4",
     "lucide-react": "^1.61.0",

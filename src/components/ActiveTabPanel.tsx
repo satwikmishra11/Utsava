@@ -55,6 +55,7 @@ function BudgetTab({
       onAcceptSuggestions={planState.acceptBudgetSuggestions}
       onDismissSuggestions={() => planState.setPendingBudget(null)}
       overspendAnalysis={planState.overspendAnalysis}
+      aiSource={planState.budgetSource}
     />
   );
 }
@@ -81,6 +82,7 @@ function TimelineTab({
       pendingSuggestions={planState.pendingTimeline}
       onAcceptSuggestions={planState.acceptTimelineSuggestions}
       onDismissSuggestions={() => planState.setPendingTimeline(null)}
+      aiSource={planState.timelineSource}
     />
   );
 }
@@ -103,6 +105,7 @@ function VendorsTab({
       pendingSuggestions={planState.pendingVendors}
       onAcceptSuggestions={planState.acceptVendorSuggestions}
       onDismissSuggestions={() => planState.setPendingVendors(null)}
+      aiSource={planState.vendorSource}
     />
   );
 }
@@ -126,6 +129,7 @@ function IdeasTab({
       pendingSuggestions={planState.pendingIdeas}
       onAcceptSuggestions={planState.acceptIdeaSuggestions}
       onDismissSuggestions={() => planState.setPendingIdeas(null)}
+      aiSource={planState.ideaSource}
     />
   );
 }

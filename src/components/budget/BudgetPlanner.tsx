@@ -16,6 +16,7 @@ import { BudgetTable } from './BudgetTable';
 import { BudgetScenarioModeler } from './BudgetScenarioModeler';
 import { TaxGratuityCalculator } from './TaxGratuityCalculator';
 import { WhyThisPlanDisclosure } from '../plan';
+import { ProvenanceSource } from '../ui/ProvenanceBadge';
 
 export interface BudgetPlannerProps {
   readonly totalBudget: number;
@@ -34,6 +35,7 @@ export interface BudgetPlannerProps {
   readonly overspendAnalysis?: OverspendAnalysis;
   readonly budgetReasons?: readonly string[];
   readonly timelineReasons?: readonly string[];
+  readonly aiSource?: ProvenanceSource;
 }
 
 function createBudgetItem(name: string, category: BudgetCategory, cost: number): BudgetItem {
@@ -54,6 +56,7 @@ function BudgetPlannerAlerts({
   currency,
   onAccept,
   onDismiss,
+  source,
 }: {
   readonly isLoadingAI: boolean;
   readonly hasSuggestions: boolean;
@@ -61,6 +64,7 @@ function BudgetPlannerAlerts({
   readonly currency: string;
   readonly onAccept?: () => void;
   readonly onDismiss?: () => void;
+  readonly source?: ProvenanceSource;
 }): React.JSX.Element | null {
   return (
     <>
@@ -71,6 +75,7 @@ function BudgetPlannerAlerts({
           currency={currency}
           onAccept={onAccept}
           onDismiss={onDismiss}
+          source={source}
         />
       )}
     </>
@@ -150,38 +155,18 @@ function BudgetPlannerOverview({
 }
 
 interface BudgetPlannerMainSectionProps {
-  readonly budgetReasons?: readonly string[];
-  readonly timelineReasons?: readonly string[];
-  readonly totalBudget: number;
-  readonly guestCount?: number;
+  readonly props: BudgetPlannerProps;
   readonly summary: ReturnType<typeof calculateBudgetSummary>;
-  readonly items: readonly BudgetItem[];
-  readonly currency: string;
   readonly isOver: boolean;
-  readonly overspendAnalysis?: OverspendAnalysis;
-  readonly onAddItem: (item: BudgetItem) => void;
-  readonly onUpdateStatus: (id: string) => void;
-  readonly onRemoveItem: (id: string) => void;
-  readonly onRegenerateAI?: () => void;
 }
 
-function BudgetPlannerMainSection(props: BudgetPlannerMainSectionProps): React.JSX.Element {
+function BudgetFinancialTools({
+  props,
+}: {
+  readonly props: BudgetPlannerProps;
+}): React.JSX.Element {
   return (
     <>
-      <WhyThisPlanDisclosure
-        id="why-this-plan-budget"
-        budgetReasons={props.budgetReasons}
-        timelineReasons={props.timelineReasons}
-      />
-      <BudgetPlannerOverview
-        totalBudget={props.totalBudget}
-        guestCount={props.guestCount}
-        summary={props.summary}
-        items={props.items}
-        currency={props.currency}
-        isOver={props.isOver}
-        overspendAnalysis={props.overspendAnalysis}
-      />
       <BudgetScenarioModeler
         totalBudget={props.totalBudget}
         guestCount={props.guestCount ?? 100}
@@ -193,6 +178,33 @@ function BudgetPlannerMainSection(props: BudgetPlannerMainSectionProps): React.J
         currency={props.currency}
         items={props.items}
       />
+    </>
+  );
+}
+
+function BudgetPlannerMainSection({
+  props,
+  summary,
+  isOver,
+}: BudgetPlannerMainSectionProps): React.JSX.Element {
+  return (
+    <>
+      <WhyThisPlanDisclosure
+        id="why-this-plan-budget"
+        budgetReasons={props.budgetReasons}
+        timelineReasons={props.timelineReasons}
+        source={props.aiSource}
+      />
+      <BudgetPlannerOverview
+        totalBudget={props.totalBudget}
+        guestCount={props.guestCount}
+        summary={summary}
+        items={props.items}
+        currency={props.currency}
+        isOver={isOver}
+        overspendAnalysis={props.overspendAnalysis}
+      />
+      <BudgetFinancialTools props={props} />
       <BudgetAddForm onAdd={(n, cat, c) => props.onAddItem(createBudgetItem(n, cat, c))} />
       <BudgetItemsView
         items={props.items}
@@ -200,6 +212,39 @@ function BudgetPlannerMainSection(props: BudgetPlannerMainSectionProps): React.J
         onUpdateStatus={props.onUpdateStatus}
         onRemoveItem={props.onRemoveItem}
         onRegenerateAI={props.onRegenerateAI}
+      />
+    </>
+  );
+}
+
+function BudgetPlannerContent({
+  props,
+  summary,
+  isOver,
+  hasSuggestions,
+}: {
+  readonly props: BudgetPlannerProps;
+  readonly summary: ReturnType<typeof calculateBudgetSummary>;
+  readonly isOver: boolean;
+  readonly hasSuggestions: boolean;
+}): React.JSX.Element {
+  return (
+    <>
+      <BudgetPlannerHeader
+        onRegenerateAI={props.onRegenerateAI}
+        onExportCSV={props.onExportCSV}
+        isLoadingAI={props.isLoadingAI}
+        source={props.aiSource}
+      />
+      <BudgetPlannerMainSection props={props} summary={summary} isOver={isOver} />
+      <BudgetPlannerAlerts
+        isLoadingAI={props.isLoadingAI ?? false}
+        hasSuggestions={hasSuggestions}
+        suggestions={props.pendingSuggestions}
+        currency={props.currency}
+        onAccept={props.onAcceptSuggestions}
+        onDismiss={props.onDismissSuggestions}
+        source={props.aiSource}
       />
     </>
   );
@@ -214,33 +259,11 @@ export function BudgetPlanner(props: BudgetPlannerProps): React.JSX.Element {
 
   return (
     <section id="panel-budget" role="tabpanel" aria-labelledby="tab-budget" className="card">
-      <BudgetPlannerHeader
-        onRegenerateAI={props.onRegenerateAI}
-        onExportCSV={props.onExportCSV}
-        isLoadingAI={props.isLoadingAI}
-      />
-      <BudgetPlannerMainSection
-        budgetReasons={props.budgetReasons}
-        timelineReasons={props.timelineReasons}
-        totalBudget={props.totalBudget}
-        guestCount={props.guestCount}
+      <BudgetPlannerContent
+        props={props}
         summary={summary}
-        items={props.items}
-        currency={props.currency}
         isOver={isOver}
-        overspendAnalysis={props.overspendAnalysis}
-        onAddItem={props.onAddItem}
-        onUpdateStatus={props.onUpdateStatus}
-        onRemoveItem={props.onRemoveItem}
-        onRegenerateAI={props.onRegenerateAI}
-      />
-      <BudgetPlannerAlerts
-        isLoadingAI={props.isLoadingAI ?? false}
         hasSuggestions={hasSuggestions}
-        suggestions={props.pendingSuggestions}
-        currency={props.currency}
-        onAccept={props.onAcceptSuggestions}
-        onDismiss={props.onDismissSuggestions}
       />
     </section>
   );

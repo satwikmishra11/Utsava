@@ -5,6 +5,8 @@ import { enforceRateLimit, enforceCsrf, enforceFieldLength, jsonValidationError 
 import { getSessionUser } from '@/services/auth/session';
 import { executeChatAssistant } from '@/services/ai';
 
+export const maxDuration = 60;
+
 const QuerySchema = z.object({}).strict();
 
 export async function POST(req: NextRequest): Promise<Response> {
@@ -43,6 +45,7 @@ export async function POST(req: NextRequest): Promise<Response> {
       'Transfer-Encoding': 'chunked',
       'Cache-Control': 'no-cache, no-transform',
       'X-Content-Type-Options': 'nosniff',
+      'X-AI-Provider': chatResult.provider,
     },
   });
 }

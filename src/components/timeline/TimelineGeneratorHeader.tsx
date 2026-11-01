@@ -1,6 +1,7 @@
 import React from 'react';
 import { ListFilter, Sparkles, Download } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { ProvenanceBadge, ProvenanceSource } from '../ui/ProvenanceBadge';
 
 export interface TimelineGeneratorHeaderProps {
   readonly viewMode: 'all' | 'upcoming';
@@ -8,12 +9,20 @@ export interface TimelineGeneratorHeaderProps {
   readonly onRegenerateAI?: () => void;
   readonly onExportCSV?: () => void;
   readonly isLoadingAI?: boolean;
+  readonly source?: ProvenanceSource;
 }
 
-function TimelineHeaderTitle(): React.JSX.Element {
+function TimelineHeaderTitle({
+  source = 'llm',
+}: {
+  readonly source?: ProvenanceSource;
+}): React.JSX.Element {
   return (
     <div>
-      <h2 className="timeline-title">Run of Show & Timeline Milestones</h2>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+        <h2 className="timeline-title">Run of Show & Timeline Milestones</h2>
+        <ProvenanceBadge source={source} />
+      </div>
       <p className="timeline-subtitle">Acyclic milestone scheduling with dependency resolution.</p>
     </div>
   );
@@ -83,7 +92,7 @@ function TimelineHeaderActions({
 export function TimelineGeneratorHeader(props: TimelineGeneratorHeaderProps): React.JSX.Element {
   return (
     <div className="timeline-header">
-      <TimelineHeaderTitle />
+      <TimelineHeaderTitle source={props.source} />
       <TimelineHeaderActions
         viewMode={props.viewMode}
         onViewModeToggle={props.onViewModeToggle}

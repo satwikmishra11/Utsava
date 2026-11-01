@@ -3,6 +3,7 @@
 import React from 'react';
 import { Sparkles, Download } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { ProvenanceBadge, ProvenanceSource } from '../ui/ProvenanceBadge';
 
 const HEADER_STYLE: React.CSSProperties = {
   display: 'flex',
@@ -21,6 +22,7 @@ export interface VendorChecklistHeaderProps {
   readonly onRegenerateAI?: () => void;
   readonly onExportCSV?: () => void;
   readonly isLoadingAI?: boolean;
+  readonly source?: ProvenanceSource;
 }
 
 function VendorHeaderTitle({
@@ -28,15 +30,20 @@ function VendorHeaderTitle({
   totalCommitment,
   totalPaid = 0,
   balanceDue = 0,
+  source = 'llm',
 }: {
   readonly currency: string;
   readonly totalCommitment: number;
   readonly totalPaid?: number;
   readonly balanceDue?: number;
+  readonly source?: ProvenanceSource;
 }): React.JSX.Element {
   return (
     <div>
-      <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>Vendor Procurement Board</h2>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+        <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>Vendor Procurement Board</h2>
+        <ProvenanceBadge source={source} />
+      </div>
       <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
         Committed: {currency} {totalCommitment.toLocaleString()} · Paid: {currency}{' '}
         {totalPaid.toLocaleString()} · Balance Due: {currency} {balanceDue.toLocaleString()}
@@ -91,6 +98,7 @@ export function VendorChecklistHeader(props: VendorChecklistHeaderProps): React.
         totalCommitment={props.totalCommitment}
         totalPaid={props.totalPaid}
         balanceDue={props.balanceDue}
+        source={props.source}
       />
       <VendorHeaderActions
         onRegenerateAI={props.onRegenerateAI}

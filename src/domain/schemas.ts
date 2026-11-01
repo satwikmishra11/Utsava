@@ -172,6 +172,32 @@ export const GenerateTimelineRequestSchema = z.object({
 });
 export type GenerateTimelineRequest = z.infer<typeof GenerateTimelineRequestSchema>;
 
+export const GenerateBudgetRequestSchema = z.object({
+  eventType: EventTypeSchema,
+  guestCount: z.number().int().positive(),
+  totalBudget: z.number().nonnegative().optional(),
+  currency: z.string().min(1).max(5).default('INR'),
+  culture: z.string().max(100).optional(),
+  culturalContext: z.string().max(500).optional(),
+  budgetTier: z.enum(['budget', 'moderate', 'luxury']).optional(),
+  dietary: z.array(z.string().max(60)).default([]),
+  accessibilityNeeds: z.array(z.string().max(100)).default([]),
+  location: z.string().max(200).optional(),
+  eventDate: z.string().optional(),
+});
+export type GenerateBudgetRequest = z.infer<typeof GenerateBudgetRequestSchema>;
+
+export const GenerateVendorsRequestSchema = z.object({
+  eventType: EventTypeSchema,
+  guestCount: z.number().int().positive(),
+  totalBudget: z.number().nonnegative().optional(),
+  currency: z.string().min(1).max(5).default('INR'),
+  culture: z.string().max(100).optional(),
+  culturalContext: z.string().max(500).optional(),
+  location: z.string().max(200).optional(),
+});
+export type GenerateVendorsRequest = z.infer<typeof GenerateVendorsRequestSchema>;
+
 export const PlanImportSchema = z.object({
   id: z.string().default(() => `evt-${Date.now()}`),
   title: z.string().min(1, 'Title is required'),

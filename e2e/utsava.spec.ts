@@ -16,6 +16,12 @@ test.describe('Utsava Event Planning Application Flow', () => {
     const budgetPanel = page.locator('#panel-budget');
     await expect(budgetPanel).toBeVisible();
     await expect(budgetPanel).toContainText('Event Budget & Cost Allocation');
+
+    // Verify AI status badge reflects configured mode
+    const aiBadge = page.locator('#ai-status-badge');
+    await expect(aiBadge).toBeVisible();
+    await expect(aiBadge).toHaveText('Demo mode (offline sample data)');
+    await expect(aiBadge).toHaveAttribute('aria-label', 'Demo mode (offline sample data)');
   });
 
   test('switches tabs and interacts with timeline', async ({ page }) => {

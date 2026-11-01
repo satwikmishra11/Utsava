@@ -1,21 +1,27 @@
 import React from 'react';
 import { Sparkles, Download } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { ProvenanceBadge, ProvenanceSource } from '../ui/ProvenanceBadge';
 
 export interface BudgetPlannerHeaderProps {
   readonly onRegenerateAI?: () => void;
   readonly onExportCSV?: () => void;
   readonly isLoadingAI?: boolean;
+  readonly source?: ProvenanceSource;
 }
 
 export function BudgetPlannerHeader({
   onRegenerateAI,
   onExportCSV,
   isLoadingAI = false,
+  source = 'llm',
 }: BudgetPlannerHeaderProps): React.JSX.Element {
   return (
     <div className="budget-header">
-      <h2 className="budget-title">Event Budget & Cost Allocation</h2>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+        <h2 className="budget-title">Event Budget & Cost Allocation</h2>
+        <ProvenanceBadge source={source} />
+      </div>
       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
         {onExportCSV && (
           <Button
