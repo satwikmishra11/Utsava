@@ -159,6 +159,30 @@ function MilestoneRow({
   );
 }
 
+function MilestoneTableHeader(): React.JSX.Element {
+  return (
+    <thead>
+      <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
+        <th scope="col" style={{ padding: '8px' }}>
+          Vendor
+        </th>
+        <th scope="col" style={{ padding: '8px' }}>
+          Milestone Stage
+        </th>
+        <th scope="col" style={{ padding: '8px' }}>
+          Due Window
+        </th>
+        <th scope="col" style={{ padding: '8px' }}>
+          Installment Amount
+        </th>
+        <th scope="col" style={{ padding: '8px' }}>
+          Cash Flow Status
+        </th>
+      </tr>
+    </thead>
+  );
+}
+
 function MilestoneTable({
   milestones,
   currency,
@@ -177,25 +201,7 @@ function MilestoneTable({
   return (
     <div style={{ overflowX: 'auto', marginTop: '12px' }}>
       <table className="table" style={{ width: '100%', fontSize: '0.85rem' }}>
-        <thead>
-          <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
-            <th scope="col" style={{ padding: '8px' }}>
-              Vendor
-            </th>
-            <th scope="col" style={{ padding: '8px' }}>
-              Milestone Stage
-            </th>
-            <th scope="col" style={{ padding: '8px' }}>
-              Due Window
-            </th>
-            <th scope="col" style={{ padding: '8px' }}>
-              Installment Amount
-            </th>
-            <th scope="col" style={{ padding: '8px' }}>
-              Cash Flow Status
-            </th>
-          </tr>
-        </thead>
+        <MilestoneTableHeader />
         <tbody>
           {milestones.map((m) => (
             <MilestoneRow key={m.id} milestone={m} currency={currency} />

@@ -64,6 +64,33 @@ function ScenarioTableRow({
   );
 }
 
+function ScenarioTableHeader(): React.JSX.Element {
+  return (
+    <thead>
+      <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
+        <th scope="col" style={{ padding: '8px' }}>
+          Scenario
+        </th>
+        <th scope="col" style={{ padding: '8px' }}>
+          Guests
+        </th>
+        <th scope="col" style={{ padding: '8px' }}>
+          Projected Cost
+        </th>
+        <th scope="col" style={{ padding: '8px' }}>
+          Per-Guest Spend
+        </th>
+        <th scope="col" style={{ padding: '8px' }}>
+          Budget Variance
+        </th>
+        <th scope="col" style={{ padding: '8px' }}>
+          Feasibility
+        </th>
+      </tr>
+    </thead>
+  );
+}
+
 export function ScenarioComparisonTable({
   scenarios,
   currency,
@@ -74,28 +101,7 @@ export function ScenarioComparisonTable({
   return (
     <div style={{ overflowX: 'auto', marginTop: '14px' }}>
       <table className="table" style={{ width: '100%', fontSize: '0.85rem' }}>
-        <thead>
-          <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
-            <th scope="col" style={{ padding: '8px' }}>
-              Scenario
-            </th>
-            <th scope="col" style={{ padding: '8px' }}>
-              Guests
-            </th>
-            <th scope="col" style={{ padding: '8px' }}>
-              Projected Cost
-            </th>
-            <th scope="col" style={{ padding: '8px' }}>
-              Per-Guest Spend
-            </th>
-            <th scope="col" style={{ padding: '8px' }}>
-              Budget Variance
-            </th>
-            <th scope="col" style={{ padding: '8px' }}>
-              Feasibility
-            </th>
-          </tr>
-        </thead>
+        <ScenarioTableHeader />
         <tbody>
           {scenarios.map((s) => (
             <ScenarioTableRow key={s.label} scenario={s} currency={currency} />

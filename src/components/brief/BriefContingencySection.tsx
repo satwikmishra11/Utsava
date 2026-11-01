@@ -29,6 +29,27 @@ function ProtocolRow({ protocol }: { readonly protocol: ContingencyProtocol }): 
   );
 }
 
+function ProtocolTableHeader(): React.JSX.Element {
+  return (
+    <thead>
+      <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
+        <th scope="col" style={{ padding: '6px' }}>
+          Risk Scenario
+        </th>
+        <th scope="col" style={{ padding: '6px' }}>
+          Trigger Condition
+        </th>
+        <th scope="col" style={{ padding: '6px' }}>
+          Plan B Action
+        </th>
+        <th scope="col" style={{ padding: '6px' }}>
+          Lead
+        </th>
+      </tr>
+    </thead>
+  );
+}
+
 function ContingencyProtocolTable({
   protocols,
 }: {
@@ -47,22 +68,7 @@ function ContingencyProtocolTable({
         Operational Risk & Plan B Protocols
       </h4>
       <table className="table" style={{ width: '100%', fontSize: '0.8rem' }}>
-        <thead>
-          <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
-            <th scope="col" style={{ padding: '6px' }}>
-              Risk Scenario
-            </th>
-            <th scope="col" style={{ padding: '6px' }}>
-              Trigger Condition
-            </th>
-            <th scope="col" style={{ padding: '6px' }}>
-              Plan B Action
-            </th>
-            <th scope="col" style={{ padding: '6px' }}>
-              Lead
-            </th>
-          </tr>
-        </thead>
+        <ProtocolTableHeader />
         <tbody>
           {protocols.map((p) => (
             <ProtocolRow key={p.id} protocol={p} />
@@ -115,6 +121,27 @@ function EmergencyContactRow({
   );
 }
 
+function CallSheetTableHeader(): React.JSX.Element {
+  return (
+    <thead>
+      <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
+        <th scope="col" style={{ padding: '6px' }}>
+          Vendor & Category
+        </th>
+        <th scope="col" style={{ padding: '6px' }}>
+          Milestone / Call Time
+        </th>
+        <th scope="col" style={{ padding: '6px' }}>
+          Emergency Phone
+        </th>
+        <th scope="col" style={{ padding: '6px' }}>
+          Email
+        </th>
+      </tr>
+    </thead>
+  );
+}
+
 function EmergencyCallSheetTable({
   contacts,
 }: {
@@ -133,22 +160,7 @@ function EmergencyCallSheetTable({
         Day-Of Vendor Emergency Call Sheet
       </h4>
       <table className="table" style={{ width: '100%', fontSize: '0.8rem' }}>
-        <thead>
-          <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
-            <th scope="col" style={{ padding: '6px' }}>
-              Vendor & Category
-            </th>
-            <th scope="col" style={{ padding: '6px' }}>
-              Milestone / Call Time
-            </th>
-            <th scope="col" style={{ padding: '6px' }}>
-              Emergency Phone
-            </th>
-            <th scope="col" style={{ padding: '6px' }}>
-              Email
-            </th>
-          </tr>
-        </thead>
+        <CallSheetTableHeader />
         <tbody>
           {contacts.map((c) => (
             <EmergencyContactRow key={c.vendorName} contact={c} />
