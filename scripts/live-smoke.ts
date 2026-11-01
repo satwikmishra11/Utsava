@@ -2,7 +2,7 @@
  * Live Smoke Verification Suite
  *
  * Validates a live local or deployed Utsava instance against genuine LLM generation.
- * Usage: BASE_URL=https://utsava-wheat.vercel.app npm run smoke:live
+ * Usage: BASE_URL=https://utsavabysatwik.vercel.app npm run smoke:live
  */
 
 import {

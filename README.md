@@ -6,7 +6,7 @@
 
 **Utsava** (_Sanskrit for "celebration" / "festival"_) is an intelligent, accessible, and culturally attuned event planning assistant for life's most momentous gatherings — weddings, milestone birthdays, and community festivals.
 
-**Live Demo:** [https://utsava-wheat.vercel.app](https://utsava-wheat.vercel.app)  
+**Live Demo:** [https://utsavabysatwik.vercel.app](https://utsavabysatwik.vercel.app)  
 ✨ **Live GenAI Engine:** Powered by **Google Gemini 2.5 Flash** (via Google AI Studio free tier) as the primary live provider, with optional secondary Anthropic Claude support.  
 🛡️ **Auditable AI Provenance & Fail-Safe Architecture:** Real-time AI status indicators, per-feature provenance badges ("AI-generated" vs. "Rule-based fallback"), zero silent mock degradation, and explainable deterministic heuristics under quota exhaustion.
 

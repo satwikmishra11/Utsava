@@ -30,7 +30,7 @@ npm run test:watch
 npm run test:e2e
 
 # Run live AI smoke verification against a deployed or local instance (requires live API key)
-BASE_URL=https://utsava-wheat.vercel.app npm run smoke:live
+BASE_URL=https://utsavabysatwik.vercel.app npm run smoke:live
 
 # Run strict TypeScript compiler verification without emitting files
 npm run typecheck
@@ -48,7 +48,7 @@ To confirm that a deployed or local production instance communicates with real l
 
 ```bash
 # Target deployed instance
-BASE_URL=https://utsava-wheat.vercel.app npm run smoke:live
+BASE_URL=https://utsavabysatwik.vercel.app npm run smoke:live
 
 # Target local dev instance
 BASE_URL=http://localhost:3000 npm run smoke:live
