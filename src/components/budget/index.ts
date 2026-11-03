@@ -8,4 +8,5 @@ export * from './BudgetOverspendAlert';
 export * from './BudgetPlannerHeader';
 export * from './BudgetScenarioModeler';
 export * from './ScenarioComparisonTable';
+export * from './TaxGratuityCalculator';
 export * from './BudgetPlanner';

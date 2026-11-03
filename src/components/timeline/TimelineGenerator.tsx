@@ -11,6 +11,7 @@ import { TimelineGeneratorHeader } from './TimelineGeneratorHeader';
 import { TimelinePhaseFilter } from './TimelinePhaseFilter';
 import { TimelineProgressSummary } from './TimelineProgressSummary';
 import { UpcomingTasksPanel } from './UpcomingTasksPanel';
+import { ProductionCueSheet } from './ProductionCueSheet';
 import { TimelineConflictBanner } from './TimelineConflictBanner';
 import { TimelineSuggestionsAlert } from './TimelineSuggestionsAlert';
 import { TimelineForm } from './TimelineForm';
@@ -184,6 +185,7 @@ function TimelineTopSection({ props, filters }: TimelineTopSectionProps): React.
       />
       <TimelineProgressSummary items={props.items} />
       <UpcomingTasksPanel items={props.items} onToggle={props.onToggleComplete} />
+      <ProductionCueSheet items={props.items} eventType={props.eventType} />
       <TimelineConflictBanner count={filters.conflicts.length} />
     </>
   );

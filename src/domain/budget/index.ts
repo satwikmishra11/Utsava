@@ -3,3 +3,4 @@ export * from './overspend';
 export * from './advisor';
 export * from './risks';
 export * from './scenario';
+export * from './taxAndGratuity';

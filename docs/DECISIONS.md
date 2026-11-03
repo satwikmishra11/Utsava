@@ -476,6 +476,37 @@ Implemented a modular production suite spanning domain calculations and accessib
 
 ---
 
+## ADR 017: Production Cue Sheet & AV Tech Rider and Regional Tax, Gratuity & True Cost Forecaster
+
+### Context
+
+As events scale from informal gatherings to institutional productions (multi-day Indian weddings, corporate banquets, festival galas), event coordinators encounter two critical blind spots:
+
+1. **Production Cues & Stage Buffer Risks**: Timelines frequently fail on-site when transitions have inadequate buffer margins (<10 minutes), causing cascading delays. Stage crews, DJs/sound engineers, and emcees require role-specific triggers (lighting scenes, audio feeds, wireless mic cues, verbal announcements) rather than generic task titles.
+2. **Statutory Taxes & Mandatory Hospitality Gratuities**: Contracts are routinely entered at net prices, leading to severe post-event budget busts when statutory taxes (e.g. 18% GST in India, 8.5% US sales tax, 20% UK VAT) and hospitality service fees/gratuities (10–20%) are added. Planners need real-time "True Cost" liability modeling to gauge actual gross commitments against budget ceilings.
+
+### Decision
+
+Implemented two modular domain architectures paired with accessible UI extensions:
+
+1. **Production Cue Sheet & Buffer Analysis Suite**:
+   - `src/domain/timeline/cueSheet.ts`: Pure domain logic that sorts milestones chronologically, calculates exact minute-level transition buffers to next milestones, flags "Tight Turnarounds" (<10 min slack), resolves crew roles (`av_lighting`, `stage_mc`, `hospitality`), and derives contextual lighting triggers and emcee prompts.
+   - `src/components/timeline/ProductionCueSheet.tsx`: Accessible interactive cue sheet with KPI metrics (total cues, tight buffers, crew breakdowns), role filtering pills, and a fully labeled tabular layout (`aria-label="Production Cue Sheet and AV Tech Rider"`).
+
+2. **Regional Tax, Gratuity & True Cost Liability Forecaster**:
+   - `src/domain/budget/taxAndGratuity.ts`: Pure domain calculator modeling regional presets (`us_standard`, `india_gst`, `uk_vat`, `custom`), segregating taxable goods from gratuity-eligible hospitality services, and calculating the "Hidden Fee Overhead" percentage and gross safety margin.
+   - `src/components/budget/TaxGratuityCalculator.tsx` & `TaxBreakdownTable.tsx`: Collapsible forecaster with interactive tax and tip sliders, preset buttons, KPI indicators, post-tax deficit warning banners, and an accessible cost breakdown table.
+
+### Consequences
+
+- Event coordinators can run live audio/visual stage production with clear visibility into tight turnaround transition risks.
+- Hosts can project true gross financial liabilities with localized statutory tax and gratuity calculations before signing supplier agreements.
+- Strict layered architecture preserved: pure domain models decoupled from React UI.
+- All functions remain strictly below 40 lines and all source files below 300 lines.
+- Comprehensive unit tests and WCAG 2.2 AA axe-core accessibility tests pass with zero violations.
+
+---
+
 ## Code Quality Evidence
 
 - **Functions over 40 lines**: 0 (enforced via ESLint `max-lines-per-function` max 40, skipBlankLines, skipComments; turned off for `__tests__` and `e2e` only)

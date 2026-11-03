@@ -14,6 +14,7 @@ import { BudgetSuggestionsAlert } from './BudgetSuggestionsAlert';
 import { BudgetAddForm } from './BudgetAddForm';
 import { BudgetTable } from './BudgetTable';
 import { BudgetScenarioModeler } from './BudgetScenarioModeler';
+import { TaxGratuityCalculator } from './TaxGratuityCalculator';
 import { WhyThisPlanDisclosure } from '../plan';
 
 export interface BudgetPlannerProps {
@@ -184,6 +185,11 @@ function BudgetPlannerMainSection(props: BudgetPlannerMainSectionProps): React.J
       <BudgetScenarioModeler
         totalBudget={props.totalBudget}
         guestCount={props.guestCount ?? 100}
+        currency={props.currency}
+        items={props.items}
+      />
+      <TaxGratuityCalculator
+        totalBudget={props.totalBudget}
         currency={props.currency}
         items={props.items}
       />
